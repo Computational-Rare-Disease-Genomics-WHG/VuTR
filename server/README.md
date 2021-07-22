@@ -5,12 +5,10 @@
 - Docker
 - Docker-VEP 
 - UTR annotator through docker vep
-```{bash}
 
-```
 - Python Env and requirements. 
 
-```{bash}
+```{sh}
 cd server # Change to this exact directory
 
 export FLASK_ENV=development 
@@ -21,6 +19,6 @@ flask run
 
 ## Installing docker on the machine
 
-```{bash}
+```{sh}
 docker-compose up -d 
 ```
