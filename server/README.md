@@ -6,11 +6,10 @@
 - Docker-VEP 
 - UTR annotator through docker vep
 
-- Python Env and requirements. 
+- Running the flask application server 
 
 ```bash
-cd server # Change to this exact directory
-
+cd flask-app/
 export FLASK_ENV=development 
 export FLASK_APP=app 
 flask run 
