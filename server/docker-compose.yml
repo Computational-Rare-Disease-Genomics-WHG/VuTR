@@ -1,0 +1,29 @@
+
+services : 
+	nginx :
+		build : nginx
+		
+		#healthcheck:
+			#test: ["CMD-SHELL", "curl --silent --fail localhost:80/health-check || exit 1"]
+			#interval: 10s
+			#timeout: 10s
+			#retries: 3  
+	vep : 
+		# Create Image
+		image : ensemblorg/ensembl-vep
+		# Create volume mounts to install UTR annotator
+		volumes : utr_annotator/UTRannotator-vep-plugin:/opt/vep/.vep/Plugins/UTRannotator-vep-plugin 
+		
+		#healthcheck:
+
+		# Run the INSTALL-pl to install cache
+		#command : perl INSTALL.pl -a cfp -s homo_sapiens -y GRCh38 -g all
+
+	app : 
+		depends_on : 
+			- nginx
+		build :  
+			context : .
+			dockerfile: Dockerfile
+		ports : 
+			- "5000:5000"
