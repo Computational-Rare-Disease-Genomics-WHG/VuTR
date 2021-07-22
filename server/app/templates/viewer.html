@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>UTR Visualisation App</title>
+      <!-- Google Font: Source Sans Pro -->
+      <link rel="preconnect" href="https://fonts.gstatic.com">
+      <!--Favicon--> 
+      <!--link rel="shortcut icon" href="{{url_for('static', filename = 'assets/favicon.png')}}"/>-->
+      <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+      <!-- Font Awesome -->
+      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/all.min.css')}}">
+      <!-- Ionicons -->
+      <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+      <!-- Tempusdominus Bootstrap 4 -->
+      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}">
+      <!-- iCheck -->
+      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/icheck-bootstrap/icheck-bootstrap.min.css')}}">
+      <!-- JQVMap -->
+      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jqvmap/jqvmap.min.css')}}">
+      <!-- Theme style -->
+      <link rel="stylesheet" href="{{url_for('static', filename = 'dist/css/adminlte.min.css')}}">
+      <!-- overlayScrollbars -->
+      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css')}}">
+      <!-- Daterange picker -->
+      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/daterangepicker/daterangepicker.css')}}">
+      <!-- summernote -->
+      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.css')}}">
+      <style type="text/css">
+         .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #007bff; 
+            border-color: #006fe6;
+         }
+         p, h1, h2, h3, h4,h5, h6, a{
+            font-family: 'Alegreya Sans', sans-serif;
+         }
+      </style>
+   </head>
+   <body class="hold-transition sidebar-mini layout-fixed" id="main-content" >
+      <div class="wrapper">
+         <!-- Navbar -->
+         <nav class="main-header navbar navbar-expand navbar-dark navbar-dark" data-html2canvas-ignore>
+            <!-- Left navbar links -->
+            <ul class="navbar-nav">
+               <li class="nav-item d-none d-sm-inline-block">
+                  <a href="#" class="nav-link">Home</a>
+               </li>
+               <li class="nav-item d-none d-sm-inline-block">
+                  <a href="#" class="nav-link">About</a>
+               </li>
+               <li class="nav-item d-none d-sm-inline-block">
+                  <a href="#" class="nav-link">Help</a>
+               </li>
+               <li class="nav-item d-none d-sm-inline-block">
+                  <a href="#" class="nav-link">Contact</a>
+               </li>
+               <li class="nav-item d-none d-sm-inline-block">
+                  <a href="#" class="nav-link">Changelog</a>
+               </li>
+               <li class="nav-item d-none d-sm-inline-block">
+                  <a href="#" class="nav-link">Terms</a>
+               </li>
+               
+               
+            </ul>
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+               <!-- Navbar Search -->
+               <li class="nav-item">
+                  <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                  <i class="fas fa-expand-arrows-alt"></i>
+                  </a>
+               </li>
+            </ul>
+         </nav>
+         <!-- /.navbar -->
+      
+         <!-- Content Wrapper. Contains page content -->
+         <div class="content-wrapper" >
+            <!-- Content Header (Page header) -->
+            <div class="content-header">
+               <div class="container-fluid">
+                  <div class="row mb-2">
+                     <div class="col-sm-6">
+                        <h1 class="m-0"></h1>
+                     </div>
+                     <!-- /.col -->
+                     <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                           <li class="breadcrumb-item"><a href="#">View Gene Name</a></li>
+                           <li class="breadcrumb-item active">UTR Visualization App v1.3</li>
+                        </ol>
+                     </div>
+                     <!-- /.col -->
+                  </div>
+                  <!-- /.row -->
+               </div>
+               <!-- /.container-fluid -->
+            </div>
+            <!-- /.content-header -->
+            <!-- Main content -->
+            <section class="content" >
+               <div class="container-fluid" >
+                  <!-- Small boxes (Stat box) -->
+                  <!-- /.row -->
+                  <!-- Main row -->
+                  <div class="row">
+                     <!-- Left col -->
+                     <section class="col-lg-12 connectedSortable">
+                        <!-- Custom tabs (Charts with tabs)-->
+                        <div class="card ">
+                           <div class="card-header bg-light ">
+                              <h3 class="card-title">
+                                 <i class="fas fa-chart-pie mr-1"></i>
+                              </h3>
+                              <div class="card-tools">
+                                 <button type="button" id="dtype-creator-btn" class="btn btn-block">Help</button>
+                              </div>
+                           </div>
+                           <!-- /.card-header -->
+                           <div class="card-body">
+                              <div class="card">
+                                 <div class="card-header">Gene Details</div>
+                              </div>
+                           </div>
+                          
+                        </div>
+                        <!-- /.card -->
+                        <!--/.direct-chat -->
+                        <!-- /.card -->
+                     </section>
+                     <!-- right col -->
+                  </div>
+                  <!-- /.row (main row) -->
+                  <!-- Main row -->
+                  <div class="container-fluid">
+                     <section class="col-lg-12 connectedSortable">
+                        <div class="card">
+                           <div class="card-header">5' UTR Architechure</div>
+                           <div class="card-body"><div id="transcript-viewer"></div></div>
+                        </div>
+                     </section>
+
+                  </div>
+                
+               </div>
+               <!-- /.container-fluid -->
+            </section>
+            <!-- /.content -->
+         </div>
+         <!-- /.content-wrapper -->
+         <footer class="main-footer">
+            <strong>Copyright &copy; 2021 <a href="https://rarediseasegenomics.com.au">Computational Rare Disease Genomics</a></strong>.
+            The data released here is available free of restrictions under the Creative Commons Zero Public Domain Dedication.
+            <div class="float-right d-none d-sm-inline-block">
+               <b>Version</b> 0.1
+            </div>
+         </footer>
+         <!-- Control Sidebar -->
+         <aside class="control-sidebar control-sidebar-dark">
+            <!-- Control sidebar content goes here -->
+         </aside>
+         <!-- /.control-sidebar -->
+      </div>
+      <!-- ./wrapper -->
+      <!-- jQuery -->
+      <script src="{{url_for('static', filename = 'plugins/jquery/jquery.min.js')}}"></script>
+      <!-- jQuery UI 1.11.4 -->
+      <script src="{{url_for('static', filename = 'plugins/jquery-ui/jquery-ui.min.js')}}"></script>
+      <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+      <script>
+         $.widget.bridge('uibutton', $.ui.button)
+      </script>
+      <!-- Bootstrap 4 -->
+      <script src="{{url_for('static', filename = 'plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+      <!-- ChartJS -->
+      <script src="{{url_for('static', filename = 'plugins/chart.js/Chart.min.js')}}"></script>
+      <!-- Sparkline -->
+      <script src="{{url_for('static', filename = 'plugins/sparklines/sparkline.js')}}"></script>
+      <!-- JQVMap -->
+      <script src="{{url_for('static', filename = 'plugins/jqvmap/jquery.vmap.min.js')}}"></script>
+      <script src="{{url_for('static', filename = 'plugins/jqvmap/maps/jquery.vmap.usa.js')}}"></script>
+      <!-- jQuery Knob Chart -->
+      <script src="{{url_for('static', filename = 'plugins/jquery-knob/jquery.knob.min.js')}}"></script>
+      <!-- daterangepicker -->
+      <script src="{{url_for('static', filename = 'plugins/moment/moment.min.js')}}"></script>
+      <script src="{{url_for('static', filename = 'plugins/daterangepicker/daterangepicker.js')}}"></script>
+      <!-- Tempusdominus Bootstrap 4 -->
+      <script src="{{url_for('static', filename = 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
+      <!-- Summernote -->
+      <script src="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.js')}}"></script>
+      <!-- overlayScrollbars -->
+      <script src="{{url_for('static', filename = 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js')}}"></script>
+      <!-- AdminLTE App -->
+      <script src="{{url_for('static', filename = 'dist/js/adminlte.js')}}"></script>
+      <!-- AdminLTE for demo purposes -->
+      <script src="{{url_for('static', filename = 'dist/js/demo.js')}}"></script>
+      <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+      <script src="{{url_for('static', filename = 'dist/js/pages/dashboard.js')}}"></script>
+      <script src="{{url_for('static', filename = 'dist/js/html2canvas.js')}}"></script>
+      <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
+      <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.0.6/dist/feature-viewer.bundle.js"></script>
+
+      <script type="text/javascript">
+         /**************Initial Start Up Routine****************/
+         $(function() {
+             //Initialize Feature Viewer 
+             //Create a new Feature Viewer and add some rendering options
+var ft2 = new FeatureViewer.createFeature("AGAGACGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGGAGGGGAGGATCGGCAATAATTGGATGGCGTTGCAGCTGTTGCGCCTCTGCTGAACGCCCAGCCAGAGCGGATTCACTTTTCACACAAATCAACCGGAGGGATTGTTGCTGCCTGCAATCAATAACTCAGCGGAGTGAGTTGCTCAAACTAGAGGCGTCCCTCGTCTGGGTCTTTGAGGGCCGTCCGGATTGAGTCCCAGCGCTCTGCTTTCCAAACAAAGAAGTGGGCACCAAAACGCAGGACGAGATTTTTAATCCCCACTTCCACCACAACCCCGGGTGCCAAAGAAGAGTTGCAAACTGTGAAGTAACTTCTATGAAGAGATGAAGTAAAGAACGGAAGGCAAATGATTGTGGCAGTAAAGAAGTGTATGTGGAACGAATGCAGGAATTTGGGAACTGAGCTGTGCAAGTGCTGAAGAAGGAGATTTGTTTGGAGGAAACAGGAAAGAGAAAGAAAAGGAAGGAAAAAATACATAATTTCAGGGACGAGAGAGAGAAGAAAAACGGGGACTATGGGGAGAAAAAAGATTCAGATTACGAGGATTATGGATGAACGTAACAGACAGGTGACATTTACAAAGAGGAAATTTGGGTTGATGAAGAAGGCTTATGAGCTGAGCGTGCTGTGTGACTGTGAGATTGCGCTGATCATCTTCAACAGCACCAACAAGCTGTTCCAGTATGCCAGCACCGACATGGACAAAGTGCTTCTCAAGTACACGGAGTACAACGAGCCGCATGAGAGCCGGACAAACTCAGACATCGTGGAGACGTTGAGAAAGAAGGGCCTTAATGGCTGTGACAGCCCAGACCCCGATGCGGACGATTCCGTAGGTCACAGCCCTGAGTCTGAGGACAAGTACAGGAAAATTAACGAAGATATTGATCTAATGATCAGCAGGCAAAGATTGTGTGCTGTTCCACCTCCCAACTTCGAGATGCCAGTCTCCATCCCAGTGTCCAGCCACAACAGTTTGGTGTACAGCAACCCTGTCAGCTCACTGGGAAACCCCAACCTATTGCCACTGGCTCACCCTTCTCTGCAGAGGAATAGTATGTCTCCTGGTGTAACACATCGACCTCCAAGTGCAGGTAACACAGGTGGTCTGATGGGTGGAGACCTCACGTCTGGTGCAGGCACCAGTGCAGGGAACGGGTATGGCAATCCCCGAAACTCACCAGGTCTGCTGGTCTCACCTGGTAACTTGAACAAGAATATGCAAGCAAAATCTCCTCCCCCAATGAATTTAGGAATGAATAACCGTAAACCAGATCTCCGAGTTCTTATTCCACCAGGCAGCAAGAATACGATGCCATCAGTGTCTGAGGATGTCGACCTGCTTTTGAATCAAAGGATAAATAACTCCCAGTCGGCTCAGTCATTGGCTACCCCAGTGGTTTCCGTAGCAACTCCTACTTTACCAGGACAAGGAATGGGAGGATATCCATCAGCCATTTCAACAACATATGGTACCGAGTACTCTCTGAGTAGTGCAGACCTGTCATCTCTGTCTGGGTTTAACACCGCCAGCGCTCTTCACCTTGGTTCAGTAACTGGCTGGCAACAGCAACACCTACATAACATGCCACCATCTGCCCTCAGTCAGTTGGGAGCTTGCACTAGCACTCATTTATCTCAGAGTTCAAATCTCTCCCTGCCTTCTACTCAAAGCCTCAACATCAAGTCAGAACCTGTTTCTCCTCCTAGAGACCGTACCACCACCCCTTCGAGATACCCACAACACACGCGCCACGAGGCGGGGAGATCTCCTGTTGACAGCTTGAGCAGCTGTAGCAGTTCGTACGACGGGAGCGACCGAGAGGATCACCGGAACGAATTCCACTCCCCCATTGGACTCACCAGACCTTCGCCGGACGAAAGGGAAAGTCCCTCAGTCAAGCGCATGCGACTTTCTGAAGGATGGGCAACATGATCAGATTATTACTTACTAGTTTTTTTTTTTTTCTTGCAGTGTGTGTGTGTGCTATACCTTAATGGGGAAGGGGGGTCGATATGCATTATATGTGCCGTGTGTGGAAAAAAAAAAAGTCAGGTACTCTGTTTTGTAAAAGTACTTTTAAATTGCCTCAGTGATACAGTATAAAGATAAACAGAAATGCTGAGATAAGCTTAGCACTTGAGTTGTACAACAGAACACTTGTACAAAATAGATTTTAAGGCTAACTTCTTTTCACTGTTGTGCTCCTTTGCAAAATGTATGTTACAATAGATAGTGTCATGTTGCAGGTTCAACGTTATTTACATGTAAATAGACAAAAGGAAACATTTGCCAAAAGCGGCAGATCTTTACTGAAAGAGAGAGCAGCTGTTATGCAACATATAGAAAAATGTATAGATGCTTGGACAGACCCGGTAATGGGTGGCCATTGGTAAATGTTAGGAACACACCAGGTCACCTGACATCCCAAGAATGCTCACAAACCTGCAGGCATATCATTGGCGTATGGCACTCATTAAAAAGGATCAGAGACCATTAAAAGAGGACCATACCTATTAAAAAAAAATGTGGAGTTGGAGGGCTAACATATTTAATTAAATAAATAAATAAATCTGGGTCTGCATCTCTTATTAAATAAAAATATAAAAATATGTACATTACATTTTGCTTATTTTCATATAAAAGGTAAGACAGAGTTTGCAAAGCATTTGTGGCTTTTTGTAGTTTACTTAAGCCAAAATGTGTTTTTTTCCCCTTGATAGCTTCGCTAATATTTTAAACAGTCCTGTAAAAAACCAAAAAGGACTTTTTGTATAGAAAGCACTACCCTAAGCCATGAAGAACTCCATGCTTTGCTAACCAAGATAACTGTTTTCTCTTTGTAGAAGTTTTGTTTTTGAAATGTGTATTTCTAATTATATAAAATATTAAGAATCTTTTAAAAAAATCTGTGAAATTAACATGCTTGTGTATAGCTTTCTAATATATATAATATTATGGTAATAGCAGAAGTTTTGTTATCTTAATAGCGGGAGGGGGGTATATTTGTGCAGTTGCACATTTGAGTAACTATTTTCTTTCTGTTTTCTTTTACTCTGCTTACATTTTATAAGTTTAAGGTCAGCTGTCAAAAGGATAACCTGTGGGGTTAGAACATATCACATTGCAACACCCTAAATTGTTTTTAATACATTAGCAATCTATTGGGTCAACTGACATCCATTGTATATACTAGTTTCTTTCATGCTATTTTTATTTTGTTTTTTGCATTTTTATCAAATGCAGGGCCCCTTTCTGATCTCACCATTTCACCATGCATCTTGGAATTCAGTAAGTGCATATCCTAACTTGCCCATATTCTAAATCATCTGGTTGGTTTTCAGCCTAGAATTTGATACGCTTTTTAGAAATATGCCCAGAATAGAAAAGCTATGTTGGGGCACATGTCCTGCAAATATGGCCCTAGAAACAAGTGATATGGAATTTACTTGGTGAATAAGTTATAAATTCCCACAGAAGAAAAATGTGAAAGACTGGGTGCTAGACAAGAAGGAAGCAGGTAAAGGGATAGTTGCTTTGTCATCCGTTTTTAATTATTTTAACTGACCCTTGACAATCTTGTCAGCAATATAGGACTGTTGAACAATCCCGGTGTGTCAGGACCCCCAAATGTCACTTCTGCATAAAGCATGTATGTCATCTATTTTTTCTTCAATAAAGAGATTTAATAGCCATTTCAAGAAATCCCATAAAGAACCTCTCTATGTCCCTTTTTTTAATTTAAAAAAAATGACTCTTGTCTAATATTCGTCTATAAGGGATTAATTTTCAGACCCTTTAATAAGTGAGTGCCATAAGAAAGTCAATATATATTGTTTAAAAGATATTTCAGTCTAGGAAAGATTTTCCTTCTCTTGGAATGTGAAGATCTGTCGATTCATCTCCAATCATATGCATTGACATACACAGCAAAGAAGATATAGGCAGTAATATCAACACTGCTATATCATGTGTAGGACATTTCTTATCCATTTTTTCTCTTTTACTTGCATAGTTGCTATGTGTTTCTCATTGTAAAAGGCTGCCGCTGGGTGGCAGAAGCCAAGAGACCTTATTAACTAGGCTATATTTTTCTTAACTTGATCTGAAATCCACAATTAGACCACAATGCACCTTTGGTTGTATCCATAAAGGATGCTAGCCTGCCTTGTACTAATGTTTTATATATTAAAAAAAAAAAATCTATCAACCATTTCATATATATCCCACTACTCAAGGTATCCATGGAACATGAAAGAATAACATTTATGCAGAGGAAAAACAAAAACATCCCTGAAAATATACACACTCATACACACACACGCACAGGGGAATAAAATAAGAAAATCATTTTCCTCACCATAGACTTGATCCCATCCTTACAACCCATCCTTCTAACTTGATGTGTATAAAATATGCAAACATTTCACAAATGTTCTTTGTCATTTCAAAATACTTTAGTATATCAATATCAGTAGATACCAGTGGGTGGGAAAGGGTCATTACATGAAAATATGAAGAAATAGCCATATTAGTTTTTTAACCTGCAATTTGCCTCAGCAACAAAGAAAAAGTGAATTTTTAATGCTGAAGATAAAGTAAGCTAAAGTACCAGCAGAAGCCTTGGCTATTTATAGCAGTTCTGACAATAGTTTTATAAGAACATGAAGAGAACAGAATCACTTGAAAATGGATGCCAGTCATCTCTTGTTCCCACTACTGAATTCTTATAAAGTGGTGGCAAGATAGGGAAGGGATAATCTGAGAATTTTTAAAAGATGATTTAATGAGAAGAAGCACAATTTTGATTTTGATGAGTCACTTTCTGTAAACAATCTTGGTCTATCTTTACCCTTATACCTTATCTGTAATTTACCATTTATTGTATTTGCAAAGCTAGTATGGTTTTTAATCACAGTAAATCCTTTGTATTCCAGACTTTAGGGCAGAGCCCTGAGGGAGTATTATTTTACATAACCCGTCCTAGAGTAACATTTTAGGCAACATTCTTCATTGCAAGTAAAAGATCCATAAGTGGCATTTTACACGGCTGCGAGTATTGTTATATCTAATCCTATTTTAAAAGATTTTTGGTAATATGAAGCTTGAATACTGGTAACAGTGATGCAATATACGCAAGCTGCACAACCTGTATATTGTATGCATTGCTGCGTGGAGGCTGTTTATTTCAACCTTTTTAAAAATTGTGTTTTTTAGTAAAATGGCTTATTTTTTCCCAAAGGTGGAATTTAGCATTTTGTAATGATGAATATAAAAATACCTGTCATCCCCAGATCATTTAAAAGTTAACTAAAGTGAGAATGAAAAAACAAAATTCCAAGACACTTTTTAAAAGAATGTCTGCCCTCACACACTTTTATGGATTTGTTTTTCTTACATACCCATCTTTTAACTTAGAGATAGCATTTTTTGCCCTCTTTATTTTGTTGTTTGTTTCTCCAGAGAGTAAACGCTTTGTAGTTCTTTCTTTAAAAAACATTTTTTTTAAAGAAGAAGAAGCCACTTGAACCCTCAATAAAGGCTGTTGCCTAAGCATGGCATACTTCATCTGTTCTCATTTGTGCCATCTGCCGTGATGTCGTCACTTTTATGGCGTTAATTTCCTGCCACTACAGATCTTTTGAAGATTGCTGGAATACTGGTGTCTGTTAGAATGCTTCAGACTACAGATGTAATTAAAGGCTTTTCTTAATATGTTTTAACCAAAGATGTGGAGCAATCCAAGCCACATATCTTCTACATCAAATTTTTCCATTTTGGTTATTTTCATAATCTGGTATTGCATTTTGCCTTCCCTGTTCATACCTCAAATTGATTCATACCTCAGTTTAATTCAGAGAGGTCAGTTAAGTGACGGATTCTGTTGTGGTTTGAATGCAGTACCAGTGTTCTCTTCGAGCAAAGTAGACCTGGGTCACTGTAGGCATAGGACTTGGATTGCTTCAGATGGTTTGCTGTATCATTTTTCTTCTTTTTCTTTTCCTGGGGACTTGTTTCCATTAAATGAGAGTAATTAAAATCGCTTGTAAATGAGGGCATACAAGCATTTGCAACAAATATTCAAATAGAGGCTCACAGCGGCATAAGCTGGACTTTGTCGCCACTAGATGACAAGATGTTATAACTAAGTTAAACCACATCTGTGTATCTCAAGGGACTTAATTCAGCTGTCTGTAGTGAATAAAAGTGGGAAATTTTCAAAAGTTTCTCCTGCTGGAAATAAGGTATAATTTGTATTTTGCAGACAATTCAGTAAAGTTACTGGCTTTCTTAGTGATGCAGTGTCCGTGGTGCATTTTTTTAAATTAATGTTTTGCTGTTTAAATTTATTCAATTTTATTGTGTTTTTTAAAAAGCAGCTTATGCCACAAGCACAAATGAGCTTTCTCAGTTTTCAACTCAAAATATTATATGAAAAGATGGATATGTGTGTCTGTGTGGGAGGGGTGTGAATTGGATGACGGTTCTTAGGGTATTACAGAATTCAGCCAGTGGTGGAAGTCTAAGGTTCTTATTGAATGGTTCAACTTCTTTATCAAAGAAGTTCCATGAAGATCTTTGATAACCTGTTTAAATGTACAGAATTTTTCAAAAGCCACTGTGAAAAGCAGTACCATAAGTTATTTTTTAACTAAAATCTGTAGAAAGTGTTTCCAAAAGAGTTCCTTTTTTCTTCTTCGAAGTAATTTCTAAAAGTTGAAAACATAGGCTTATAAATCTGAATAAATTAGTGAATTCATACATTTTAGAGACTATCAAATATATCCATTATTAACATTCAATAATAATCTCTAAAGGGGAATGTCCTTAAAAAGATTGATAGAAAGATTAATTTAAAAACTGAAAAGGAAAACAAGACACCACCAGTTAGCCAGCTGGAGAACTTGGACTTTTGCATTAGTAGTGATATCTGCTCCAAAAAGAATGCAGTTCGAGGAAATGTTGCATGTGGCTTCAAAATAGCAGTGCTTTCTGCTTTGTTCTCTTGTATTCATTTTCAGCAAACATGTATTAAGCAATTATTATATGTAACTCATGTGGTGATTCCAGGATGAATGAAGTTGTAGCCCTTTCTCTTAGGAAACTTATAAACTAATAGGAGATAAAAGGCATTCTCAGGGAAGTCTACAAAGTGCTATGAGGGAGCCACTTTGGCCATCCTGGGGCAGAGCAGACCAGAGGCTCAGAGCATGGACACTTCCTCATCCACCCAGCAGAAGCCTTTCACTTGATTTTGAAGGTGGGCAGGATTGAGAAAGGCCCAGAAGGGGATGAGTTCAAAGCTGTTTGTGGGCATGTGACCCCTGCAGTCACATATGGCCCTAGCTTGTGTTTCGTTTAGTGTTCTGCTATCATTATCCTGATAATATCCTGATAATAAAATTATCCTTAATAATTTTA","#transcript_viewer", {
+    showAxis: true,
+    showSequence: true,
+    brushActive: true,
+    toolbar:true,
+    bubbleHelp:true,
+    zoomMax:10
+   });
+
+//Add some features
+ft2.addFeature({
+    data: [{x:20,y:32},{x:46,y:100},{x:123,y:167}],
+    name: "test feature 1",
+    className: "test1",
+    color: "#005572",
+    type: "rect",
+    filter: "type1"
+});
+ft2.addFeature({
+    data: [{x:52,y:52},{x:92,y:92}],
+    name: "test feature 2",
+    className: "test2",
+    color: "#006588",
+    type: "rect",
+    filter: "type2"
+});
+ft2.addFeature({
+    data: [{x:130,y:184},{x:40,y:142},{x:80,y:110}],
+    name: "test feature 3",
+    className: "test3",
+    color: "#eda64f",
+    type: "path",
+    filter: "type2"
+});
+ft2.addFeature({
+    data: [{x:120,y:154},{x:21,y:163},{x:90,y:108},{x:10,y:25},{x:193,y:210},{x:78,y:85},{x:96,y:143},{x:14,y:65},{x:56,y:167}],
+    name: "test feature 4",
+    className: "test4",
+    color: "#F4D4AD",
+    type: "rect",
+    height: 8,
+    filter: "type1"
+});
+var dataDemo = [];
+for (var i=1;i<100;i++) {
+    var count = Math.floor((Math.random() * 20) + 1);
+    dataDemo.push({
+        x: i*2,
+        y:count
+    })
+}
+ft2.addFeature({
+    data: dataDemo,
+    name: "test feature 5",
+    className: "test5",
+    color: "#008B8D",
+    type: "line",
+    filter: "type2",
+    height: "5"
+});
+
+//Beside positions of each element, you can also give a specific description, which will appears in the tooltip when mouse hover, and a specific ID, for example to link a click event on the feature with something else in your project.
+ft2.addFeature({
+    data: [{x:120,y:154,description:"aaaaa",id:"a1"},{x:22,y:163,description:"bbbbb",id:"b1"},
+           {x:90,y:108,description:"ccccc",id:"c1"},{x:10,y:25,description:"ddddd",id:"d1"},
+           {x:193,y:210,description:"eeeee",id:"e1"},{x:78,y:85,description:"fffff",id:"f1"},
+           {x:96,y:143,description:"ggggg",id:"g1"},{x:14,y:65,description:"hhhhh",id:"h1", color:"#12E09D"},
+           {x:56,y:167,description:"jjjjj",id:"j1"}],
+    name: "test feature 6",
+    className: "test6",
+    color: "#81BEAA",
+    type: "rect",
+    filter: "type2"
+});
+
+
+         })
+      </script>
+   </body>
+</html>
