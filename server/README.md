@@ -8,7 +8,7 @@
 
 - Python Env and requirements. 
 
-```{sh}
+```{shell}
 cd server # Change to this exact directory
 
 export FLASK_ENV=development 
@@ -19,6 +19,6 @@ flask run
 
 ## Installing docker on the machine
 
-```{sh}
+```{shell}
 docker-compose up -d 
 ```
