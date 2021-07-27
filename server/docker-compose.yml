@@ -1,6 +1,12 @@
 services : 
 	nginx :
 		build : nginx
+		restart : always
+		ports : 
+			- 80:80 
+			- 443:443 # To be added once we have ssl encryption
+		networks : 
+			- appnet
 		#healthcheck:
 			#test: ["CMD-SHELL", "curl --silent --fail localhost:80/health-check || exit 1"]
 			#interval: 10s
@@ -11,28 +17,23 @@ services :
 	# that the app can then talk to.
 	vep-utr-annotator : 
 		# Create Image
-		build : 
-			context : ./vep_utr_annotator
-			dockerfile : Dockerfile
-		
+		build : vep_utr_annotator
 		stop_signal: SIGINT # The devserver only stops on SIGINT.
 		stdin_open: true
 		tty: true
 		user: vep
-		ports:
-			- "8000:8000"
+		networks : 
+			- appnet
 		# Create volume mounts to install UTR annotator
-		volumes : vep_utr_annotator/UTRannotator-vep-plugin:/opt/vep/.vep/Plugins/UTRannotator-vep-plugin 
-		#healthcheck:
-
+		volumes :
+			- vep_utr_annotator/UTRannotator-vep-plugin:/opt/vep/.vep/Plugins/UTRannotator-vep-plugin 
+			- /home/elston/Packages/vep:/opt/vep/.vep
 		# Run the INSTALL-pl to install cache
 		#command : 
 
 	app : 
 		depends_on : 
 			- nginx
-		build :  
-			context : .
-			dockerfile: Dockerfile
+		build : flask-app
 		ports : 
 			- "5000:5000"

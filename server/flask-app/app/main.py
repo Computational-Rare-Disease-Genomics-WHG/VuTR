@@ -1,34 +1,45 @@
 # main.py 
 # E. D'Souza 
 
+from flask import (
+    Blueprint, 
+    render_template, 
+    url_for, 
+    redirect, 
+    session 
+)
+
+import itertools
+import datetime 
+
+main = Blueprint('main', __name__)
+
+# Home Page 
+@main.route("/")
+def index(): 
+    return render_template("index.html")
+
+@main.route("/index")
+def index_alt(): 
+    return render_template("index.html")
+
+@main.route("/about")
+def about(): 
+    return render_template("about.html")
+
+@main.route("/help")
+def help(): 
+    return render_template("help.html")
+
+@main.route("/contact")
+def contact(): 
+    return render_template("contact.html")
+
+@main.route("/change_log")
+def change(): 
+    return render_template("change_log.html")
 
 
-import os 
-
-base_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-
-class Config : 
-    SECRET_KEY=""
-    FLASK_APP="app"
-    DEBUG=True
-    SQLALCHEMY_TRACK_MODIFICATIONS=False
-
-
-
-class DevelopmentConfig (Config): 
-    DEBUG=True 
-    SQLALCHEMY_DATABASE_URI="sqlite:///"+os.path.join(base_dir, 'data.db')
-    URL="http://127.0.0.1:5000"
-    PORT=5000
-    LOCAL_IP="127.0.0.1"
-
-
-class ProductionConfig(Config):
-    DEBUG=True 
-    SQLALCHEMY_DATABASE_URI="sqlite:////data.db" # Hosted on docker container
-    URL="http://127.0.0.1:5000"
-    PORT=5000
-    LOCAL_IP="127.0.0.1"
-
-
-config_by_name = dict(production = ProductionConfig, development=DevelopmentConfig)
+@main.route("/download")
+def download(): 
+    return render_template("")

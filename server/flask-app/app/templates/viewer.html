@@ -9,8 +9,13 @@
       <!--Favicon--> 
       <!--link rel="shortcut icon" href="{{url_for('static', filename = 'assets/favicon.png')}}"/>-->
       <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+
       <!-- Font Awesome -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/all.min.css')}}">
+      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/brands.css')}}">
       <!-- Ionicons -->
       <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
       <!-- Tempusdominus Bootstrap 4 -->
@@ -27,20 +32,23 @@
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/daterangepicker/daterangepicker.css')}}">
       <!-- summernote -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.css')}}">
+      <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
+
+
       <style type="text/css">
          .select2-container--default .select2-selection--multiple .select2-selection__choice {
             background-color: #007bff; 
             border-color: #006fe6;
          }
          p, h1, h2, h3, h4,h5, h6, a{
-            font-family: 'Alegreya Sans', sans-serif;
+            font-family:'Lato';
          }
       </style>
    </head>
-   <body class="hold-transition sidebar-mini layout-fixed" id="main-content" >
+   <body class="hold-transition layout-fixed" id="main-content" >
       <div class="wrapper">
          <!-- Navbar -->
-         <nav class="main-header navbar navbar-expand navbar-dark navbar-dark" data-html2canvas-ignore>
+         <nav class="main-header navbar navbar-expand navbar-light" data-html2canvas-ignore>
             <!-- Left navbar links -->
             <ul class="navbar-nav">
                <li class="nav-item d-none d-sm-inline-block">
@@ -75,7 +83,31 @@
             </ul>
          </nav>
          <!-- /.navbar -->
-      
+            <!-- Main Sidebar Container -->
+            <aside class="main-sidebar sidebar-dark-primary elevation-4"  >
+               <!-- Brand Logo -->
+               <div class="ml-3">
+               </div>
+               <!-- Sidebar -->
+               <div class="sidebar">
+                  <!-- Sidebar user panel (optional) -->
+                  <div class="user-panel mt-3 pb-3 mb-3 mx-auto d-flex">
+                     <div class="image">
+                     </div>
+                     <div class="info">
+                     </div>
+                  </div>
+                  <!-- SidebarSearch Form -->
+                  <!-- Sidebar Menu -->
+                  <nav class="mt-2">
+                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+                     </ul>
+                  </nav>
+                  <!-- /.sidebar-menu -->
+               </div>
+               <!-- /.sidebar -->
+            </aside>
          <!-- Content Wrapper. Contains page content -->
          <div class="content-wrapper" >
             <!-- Content Header (Page header) -->
@@ -88,8 +120,8 @@
                      <!-- /.col -->
                      <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                           <li class="breadcrumb-item"><a href="#">View Gene Name</a></li>
-                           <li class="breadcrumb-item active">UTR Visualization App v1.3</li>
+                           <li class="breadcrumb-item"><a href="#">Home</a></li>
+                           <li class="breadcrumb-item active">ENST00000340208.5 (MEF2C)</li>
                         </ol>
                      </div>
                      <!-- /.col -->
@@ -110,18 +142,39 @@
                      <section class="col-lg-12 connectedSortable">
                         <!-- Custom tabs (Charts with tabs)-->
                         <div class="card ">
-                           <div class="card-header bg-light ">
+                           <div class="card-header bg-light">
                               <h3 class="card-title">
-                                 <i class="fas fa-chart-pie mr-1"></i>
+                                 <b>
+                                    <i class="fas fa-dna"></i>
+
+                                 Gene Details
+                              </b>
                               </h3>
                               <div class="card-tools">
-                                 <button type="button" id="dtype-creator-btn" class="btn btn-block">Help</button>
+                                 <button type="button" id="dtype-creator-btn" class="btn btn-block btn-dark">
+                                    <i class="fas fa-question-circle"></i>                                    
+                                    
+                                 </button>
                               </div>
                            </div>
                            <!-- /.card-header -->
                            <div class="card-body">
-                              <div class="card">
-                                 <div class="card-header">Gene Details</div>
+                              <div>
+                                 <h6><b>HGNC Symbol</b>: MEF2C</h6>
+                                 <h6><b>Ensembl Transcript ID</b>: ENST00000340208.5 </h6>
+                                 <h6><b>RefSeq Match</b>: NM_174936.4</h6>
+                                 <h6><b>O-E Score <i class="fas fa-exclamation-circle"></i></b>: 0.32 (0.18 - <span class="badge bg-warning">0.61</span>)</h6>
+                                 <h6><b>5' UTR exon count</b>:2</h6>
+                                 <h6><b>5' UTR length</b>: 400</h6>
+                                 <h6><b>Number of pathogenic variants in ClinVar </b>: 4</h6>
+                                 <h6><b>Number of population variant in gnomAD v4 </b>: 15</h6>
+                                 <h6><b>External Resources</b>: View gene in 
+                                    <a href="#">Ensembl</a>, 
+                                    <a href="#">OMIM</a>,
+                                    <a href="#">gnomAD</a>,
+                                    <a href="#">sORFs.org</a>,
+                                    <a href="#">ClinVar</a>
+                                 </h6>
                               </div>
                            </div>
                           
@@ -134,18 +187,130 @@
                   </div>
                   <!-- /.row (main row) -->
                   <!-- Main row -->
-                  <div class="container-fluid">
-                     <section class="col-lg-12 connectedSortable">
-                        <div class="card">
-                           <div class="card-header">5' UTR Architechure</div>
-                           <div class="card-body"><div id="transcript-viewer"></div></div>
-                        </div>
-                     </section>
 
-                  </div>
                 
                </div>
                <!-- /.container-fluid -->
+            </section>
+            <section class="content">
+               <div class="container-fluid">
+                  <div class="row">
+                  <section class="col-lg-12 connectedSortable">
+                     <div class="card">
+                        <div class="card-header bg-light">
+                           <h3 class="card-title">
+                              <b>
+                                 <i class="fas fa-info-circle"></i>
+                              5' UTR Architechure
+                           </b>
+                           
+                           </h3>
+                           <div class="card-tools">
+                              <button type="button" id="dtype-creator-btn" class="btn btn-block btn-dark">
+                                 <i class="fas fa-question-circle"></i>                                    
+                              </button>
+                           </div>
+                        </div>
+                        <div class="card-body"><div id="transcript-viewer"></div></div>
+                     </div>
+                  </section>
+               </div>
+
+               </div>
+            </section>
+
+
+            <section class="content">
+               <div class="container-fluid">
+                  <div class="row">
+                  <section class="col-lg-12 connectedSortable">
+                     <div class="card">
+                        <div class="card-header bg-light">
+                           <h3 class="card-title">
+                              <b>
+                                 <i class="fas fa-info-circle"></i>
+                              Variant Table
+                           </b>
+                           
+                           </h3>
+                           <div class="card-tools">
+                              <button type="button" id="dtype-creator-btn" class="btn btn-block btn-dark">
+                                 <i class="fas fa-question-circle"></i>                                    
+                              </button>
+                           </div>
+                        </div>
+                        <div class="card-body"><div id="variant-table">
+                           <table class="table table-bordered table-hover">
+                              <thead>
+                                <tr>
+                                  <th>Variant ID</th>
+                                  <th>HGVS Consequence</th>
+                                  <th>VEP Consequence</th>
+                                  <th>Source</th>
+                                  <th>Population AF</th>
+                                  <th>Population AC</th>
+                                  <th>Clinical Significance</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr data-widget="expandable-table" aria-expanded="false">
+                                  <td>5-88119606-A-G</td>
+                                  <td>c.-1T>C</td>
+                                  <td>uAUG lost</td>
+                                  <td>gnomAD v3 + ClinVar</td>
+                                  <td>0.0001</td>
+                                  <td>1</td>
+                                  <td>Uncertain significance​</td>
+                                </tr>
+                                <tr class="expandable-body">
+                                  <td colspan="5">
+                                    <p>
+                                      Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+                                    </p>
+                                  </td>
+                                </tr>
+                              <tr data-widget="expandable-table" aria-expanded="false">
+                                 <td>5-88119606-A-G</td>
+                                 <td>c.-1T>C</td>
+                                 <td>ORF disrupting</td>
+                                 <td>ClinVar</td>
+                                 <td>0.1</td>
+                                 <td>142</td>
+                                 <td>Benign</td>
+                               </tr>
+                               <tr class="expandable-body">
+                                 <td colspan="5">
+                                   <p>
+                                     Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+                                   </p>
+                                 </td>
+                               </tr>
+                               <tr data-widget="expandable-table" aria-expanded="false">
+                                 <td>5-34893486-A-G</td>
+                                 <td>c.-1T>C</td>
+                                 <td>uSTOP gained</td>
+                                 <td>gnomAD</td>
+                                 <td>0.1</td>
+                                 <td>142</td>
+                                 <td>Benign</td>
+                               </tr>
+                               <tr class="expandable-body">
+                                 <td colspan="5">
+                                   <p>
+                                     Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+                                   </p>
+                                 </td>
+                               </tr>
+                              </tbody>
+                              </table>
+
+                        </div>
+                     </div>
+                     </div>
+                  </section>
+               </div>
+
+               </div>
             </section>
             <!-- /.content -->
          </div>
@@ -153,8 +318,9 @@
          <footer class="main-footer">
             <strong>Copyright &copy; 2021 <a href="https://rarediseasegenomics.com.au">Computational Rare Disease Genomics</a></strong>.
             The data released here is available free of restrictions under the Creative Commons Zero Public Domain Dedication.
+
             <div class="float-right d-none d-sm-inline-block">
-               <b>Version</b> 0.1
+               <b>UTR Visualisation App</b> version 0.1
             </div>
          </footer>
          <!-- Control Sidebar -->
@@ -200,87 +366,86 @@
       <script src="{{url_for('static', filename = 'dist/js/pages/dashboard.js')}}"></script>
       <script src="{{url_for('static', filename = 'dist/js/html2canvas.js')}}"></script>
       <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
-      <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.0.6/dist/feature-viewer.bundle.js"></script>
-
       <script type="text/javascript">
          /**************Initial Start Up Routine****************/
-         $(function() {
-             //Initialize Feature Viewer 
-             //Create a new Feature Viewer and add some rendering options
-var ft2 = new FeatureViewer.createFeature("AGAGACGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGGAGGGGAGGATCGGCAATAATTGGATGGCGTTGCAGCTGTTGCGCCTCTGCTGAACGCCCAGCCAGAGCGGATTCACTTTTCACACAAATCAACCGGAGGGATTGTTGCTGCCTGCAATCAATAACTCAGCGGAGTGAGTTGCTCAAACTAGAGGCGTCCCTCGTCTGGGTCTTTGAGGGCCGTCCGGATTGAGTCCCAGCGCTCTGCTTTCCAAACAAAGAAGTGGGCACCAAAACGCAGGACGAGATTTTTAATCCCCACTTCCACCACAACCCCGGGTGCCAAAGAAGAGTTGCAAACTGTGAAGTAACTTCTATGAAGAGATGAAGTAAAGAACGGAAGGCAAATGATTGTGGCAGTAAAGAAGTGTATGTGGAACGAATGCAGGAATTTGGGAACTGAGCTGTGCAAGTGCTGAAGAAGGAGATTTGTTTGGAGGAAACAGGAAAGAGAAAGAAAAGGAAGGAAAAAATACATAATTTCAGGGACGAGAGAGAGAAGAAAAACGGGGACTATGGGGAGAAAAAAGATTCAGATTACGAGGATTATGGATGAACGTAACAGACAGGTGACATTTACAAAGAGGAAATTTGGGTTGATGAAGAAGGCTTATGAGCTGAGCGTGCTGTGTGACTGTGAGATTGCGCTGATCATCTTCAACAGCACCAACAAGCTGTTCCAGTATGCCAGCACCGACATGGACAAAGTGCTTCTCAAGTACACGGAGTACAACGAGCCGCATGAGAGCCGGACAAACTCAGACATCGTGGAGACGTTGAGAAAGAAGGGCCTTAATGGCTGTGACAGCCCAGACCCCGATGCGGACGATTCCGTAGGTCACAGCCCTGAGTCTGAGGACAAGTACAGGAAAATTAACGAAGATATTGATCTAATGATCAGCAGGCAAAGATTGTGTGCTGTTCCACCTCCCAACTTCGAGATGCCAGTCTCCATCCCAGTGTCCAGCCACAACAGTTTGGTGTACAGCAACCCTGTCAGCTCACTGGGAAACCCCAACCTATTGCCACTGGCTCACCCTTCTCTGCAGAGGAATAGTATGTCTCCTGGTGTAACACATCGACCTCCAAGTGCAGGTAACACAGGTGGTCTGATGGGTGGAGACCTCACGTCTGGTGCAGGCACCAGTGCAGGGAACGGGTATGGCAATCCCCGAAACTCACCAGGTCTGCTGGTCTCACCTGGTAACTTGAACAAGAATATGCAAGCAAAATCTCCTCCCCCAATGAATTTAGGAATGAATAACCGTAAACCAGATCTCCGAGTTCTTATTCCACCAGGCAGCAAGAATACGATGCCATCAGTGTCTGAGGATGTCGACCTGCTTTTGAATCAAAGGATAAATAACTCCCAGTCGGCTCAGTCATTGGCTACCCCAGTGGTTTCCGTAGCAACTCCTACTTTACCAGGACAAGGAATGGGAGGATATCCATCAGCCATTTCAACAACATATGGTACCGAGTACTCTCTGAGTAGTGCAGACCTGTCATCTCTGTCTGGGTTTAACACCGCCAGCGCTCTTCACCTTGGTTCAGTAACTGGCTGGCAACAGCAACACCTACATAACATGCCACCATCTGCCCTCAGTCAGTTGGGAGCTTGCACTAGCACTCATTTATCTCAGAGTTCAAATCTCTCCCTGCCTTCTACTCAAAGCCTCAACATCAAGTCAGAACCTGTTTCTCCTCCTAGAGACCGTACCACCACCCCTTCGAGATACCCACAACACACGCGCCACGAGGCGGGGAGATCTCCTGTTGACAGCTTGAGCAGCTGTAGCAGTTCGTACGACGGGAGCGACCGAGAGGATCACCGGAACGAATTCCACTCCCCCATTGGACTCACCAGACCTTCGCCGGACGAAAGGGAAAGTCCCTCAGTCAAGCGCATGCGACTTTCTGAAGGATGGGCAACATGATCAGATTATTACTTACTAGTTTTTTTTTTTTTCTTGCAGTGTGTGTGTGTGCTATACCTTAATGGGGAAGGGGGGTCGATATGCATTATATGTGCCGTGTGTGGAAAAAAAAAAAGTCAGGTACTCTGTTTTGTAAAAGTACTTTTAAATTGCCTCAGTGATACAGTATAAAGATAAACAGAAATGCTGAGATAAGCTTAGCACTTGAGTTGTACAACAGAACACTTGTACAAAATAGATTTTAAGGCTAACTTCTTTTCACTGTTGTGCTCCTTTGCAAAATGTATGTTACAATAGATAGTGTCATGTTGCAGGTTCAACGTTATTTACATGTAAATAGACAAAAGGAAACATTTGCCAAAAGCGGCAGATCTTTACTGAAAGAGAGAGCAGCTGTTATGCAACATATAGAAAAATGTATAGATGCTTGGACAGACCCGGTAATGGGTGGCCATTGGTAAATGTTAGGAACACACCAGGTCACCTGACATCCCAAGAATGCTCACAAACCTGCAGGCATATCATTGGCGTATGGCACTCATTAAAAAGGATCAGAGACCATTAAAAGAGGACCATACCTATTAAAAAAAAATGTGGAGTTGGAGGGCTAACATATTTAATTAAATAAATAAATAAATCTGGGTCTGCATCTCTTATTAAATAAAAATATAAAAATATGTACATTACATTTTGCTTATTTTCATATAAAAGGTAAGACAGAGTTTGCAAAGCATTTGTGGCTTTTTGTAGTTTACTTAAGCCAAAATGTGTTTTTTTCCCCTTGATAGCTTCGCTAATATTTTAAACAGTCCTGTAAAAAACCAAAAAGGACTTTTTGTATAGAAAGCACTACCCTAAGCCATGAAGAACTCCATGCTTTGCTAACCAAGATAACTGTTTTCTCTTTGTAGAAGTTTTGTTTTTGAAATGTGTATTTCTAATTATATAAAATATTAAGAATCTTTTAAAAAAATCTGTGAAATTAACATGCTTGTGTATAGCTTTCTAATATATATAATATTATGGTAATAGCAGAAGTTTTGTTATCTTAATAGCGGGAGGGGGGTATATTTGTGCAGTTGCACATTTGAGTAACTATTTTCTTTCTGTTTTCTTTTACTCTGCTTACATTTTATAAGTTTAAGGTCAGCTGTCAAAAGGATAACCTGTGGGGTTAGAACATATCACATTGCAACACCCTAAATTGTTTTTAATACATTAGCAATCTATTGGGTCAACTGACATCCATTGTATATACTAGTTTCTTTCATGCTATTTTTATTTTGTTTTTTGCATTTTTATCAAATGCAGGGCCCCTTTCTGATCTCACCATTTCACCATGCATCTTGGAATTCAGTAAGTGCATATCCTAACTTGCCCATATTCTAAATCATCTGGTTGGTTTTCAGCCTAGAATTTGATACGCTTTTTAGAAATATGCCCAGAATAGAAAAGCTATGTTGGGGCACATGTCCTGCAAATATGGCCCTAGAAACAAGTGATATGGAATTTACTTGGTGAATAAGTTATAAATTCCCACAGAAGAAAAATGTGAAAGACTGGGTGCTAGACAAGAAGGAAGCAGGTAAAGGGATAGTTGCTTTGTCATCCGTTTTTAATTATTTTAACTGACCCTTGACAATCTTGTCAGCAATATAGGACTGTTGAACAATCCCGGTGTGTCAGGACCCCCAAATGTCACTTCTGCATAAAGCATGTATGTCATCTATTTTTTCTTCAATAAAGAGATTTAATAGCCATTTCAAGAAATCCCATAAAGAACCTCTCTATGTCCCTTTTTTTAATTTAAAAAAAATGACTCTTGTCTAATATTCGTCTATAAGGGATTAATTTTCAGACCCTTTAATAAGTGAGTGCCATAAGAAAGTCAATATATATTGTTTAAAAGATATTTCAGTCTAGGAAAGATTTTCCTTCTCTTGGAATGTGAAGATCTGTCGATTCATCTCCAATCATATGCATTGACATACACAGCAAAGAAGATATAGGCAGTAATATCAACACTGCTATATCATGTGTAGGACATTTCTTATCCATTTTTTCTCTTTTACTTGCATAGTTGCTATGTGTTTCTCATTGTAAAAGGCTGCCGCTGGGTGGCAGAAGCCAAGAGACCTTATTAACTAGGCTATATTTTTCTTAACTTGATCTGAAATCCACAATTAGACCACAATGCACCTTTGGTTGTATCCATAAAGGATGCTAGCCTGCCTTGTACTAATGTTTTATATATTAAAAAAAAAAAATCTATCAACCATTTCATATATATCCCACTACTCAAGGTATCCATGGAACATGAAAGAATAACATTTATGCAGAGGAAAAACAAAAACATCCCTGAAAATATACACACTCATACACACACACGCACAGGGGAATAAAATAAGAAAATCATTTTCCTCACCATAGACTTGATCCCATCCTTACAACCCATCCTTCTAACTTGATGTGTATAAAATATGCAAACATTTCACAAATGTTCTTTGTCATTTCAAAATACTTTAGTATATCAATATCAGTAGATACCAGTGGGTGGGAAAGGGTCATTACATGAAAATATGAAGAAATAGCCATATTAGTTTTTTAACCTGCAATTTGCCTCAGCAACAAAGAAAAAGTGAATTTTTAATGCTGAAGATAAAGTAAGCTAAAGTACCAGCAGAAGCCTTGGCTATTTATAGCAGTTCTGACAATAGTTTTATAAGAACATGAAGAGAACAGAATCACTTGAAAATGGATGCCAGTCATCTCTTGTTCCCACTACTGAATTCTTATAAAGTGGTGGCAAGATAGGGAAGGGATAATCTGAGAATTTTTAAAAGATGATTTAATGAGAAGAAGCACAATTTTGATTTTGATGAGTCACTTTCTGTAAACAATCTTGGTCTATCTTTACCCTTATACCTTATCTGTAATTTACCATTTATTGTATTTGCAAAGCTAGTATGGTTTTTAATCACAGTAAATCCTTTGTATTCCAGACTTTAGGGCAGAGCCCTGAGGGAGTATTATTTTACATAACCCGTCCTAGAGTAACATTTTAGGCAACATTCTTCATTGCAAGTAAAAGATCCATAAGTGGCATTTTACACGGCTGCGAGTATTGTTATATCTAATCCTATTTTAAAAGATTTTTGGTAATATGAAGCTTGAATACTGGTAACAGTGATGCAATATACGCAAGCTGCACAACCTGTATATTGTATGCATTGCTGCGTGGAGGCTGTTTATTTCAACCTTTTTAAAAATTGTGTTTTTTAGTAAAATGGCTTATTTTTTCCCAAAGGTGGAATTTAGCATTTTGTAATGATGAATATAAAAATACCTGTCATCCCCAGATCATTTAAAAGTTAACTAAAGTGAGAATGAAAAAACAAAATTCCAAGACACTTTTTAAAAGAATGTCTGCCCTCACACACTTTTATGGATTTGTTTTTCTTACATACCCATCTTTTAACTTAGAGATAGCATTTTTTGCCCTCTTTATTTTGTTGTTTGTTTCTCCAGAGAGTAAACGCTTTGTAGTTCTTTCTTTAAAAAACATTTTTTTTAAAGAAGAAGAAGCCACTTGAACCCTCAATAAAGGCTGTTGCCTAAGCATGGCATACTTCATCTGTTCTCATTTGTGCCATCTGCCGTGATGTCGTCACTTTTATGGCGTTAATTTCCTGCCACTACAGATCTTTTGAAGATTGCTGGAATACTGGTGTCTGTTAGAATGCTTCAGACTACAGATGTAATTAAAGGCTTTTCTTAATATGTTTTAACCAAAGATGTGGAGCAATCCAAGCCACATATCTTCTACATCAAATTTTTCCATTTTGGTTATTTTCATAATCTGGTATTGCATTTTGCCTTCCCTGTTCATACCTCAAATTGATTCATACCTCAGTTTAATTCAGAGAGGTCAGTTAAGTGACGGATTCTGTTGTGGTTTGAATGCAGTACCAGTGTTCTCTTCGAGCAAAGTAGACCTGGGTCACTGTAGGCATAGGACTTGGATTGCTTCAGATGGTTTGCTGTATCATTTTTCTTCTTTTTCTTTTCCTGGGGACTTGTTTCCATTAAATGAGAGTAATTAAAATCGCTTGTAAATGAGGGCATACAAGCATTTGCAACAAATATTCAAATAGAGGCTCACAGCGGCATAAGCTGGACTTTGTCGCCACTAGATGACAAGATGTTATAACTAAGTTAAACCACATCTGTGTATCTCAAGGGACTTAATTCAGCTGTCTGTAGTGAATAAAAGTGGGAAATTTTCAAAAGTTTCTCCTGCTGGAAATAAGGTATAATTTGTATTTTGCAGACAATTCAGTAAAGTTACTGGCTTTCTTAGTGATGCAGTGTCCGTGGTGCATTTTTTTAAATTAATGTTTTGCTGTTTAAATTTATTCAATTTTATTGTGTTTTTTAAAAAGCAGCTTATGCCACAAGCACAAATGAGCTTTCTCAGTTTTCAACTCAAAATATTATATGAAAAGATGGATATGTGTGTCTGTGTGGGAGGGGTGTGAATTGGATGACGGTTCTTAGGGTATTACAGAATTCAGCCAGTGGTGGAAGTCTAAGGTTCTTATTGAATGGTTCAACTTCTTTATCAAAGAAGTTCCATGAAGATCTTTGATAACCTGTTTAAATGTACAGAATTTTTCAAAAGCCACTGTGAAAAGCAGTACCATAAGTTATTTTTTAACTAAAATCTGTAGAAAGTGTTTCCAAAAGAGTTCCTTTTTTCTTCTTCGAAGTAATTTCTAAAAGTTGAAAACATAGGCTTATAAATCTGAATAAATTAGTGAATTCATACATTTTAGAGACTATCAAATATATCCATTATTAACATTCAATAATAATCTCTAAAGGGGAATGTCCTTAAAAAGATTGATAGAAAGATTAATTTAAAAACTGAAAAGGAAAACAAGACACCACCAGTTAGCCAGCTGGAGAACTTGGACTTTTGCATTAGTAGTGATATCTGCTCCAAAAAGAATGCAGTTCGAGGAAATGTTGCATGTGGCTTCAAAATAGCAGTGCTTTCTGCTTTGTTCTCTTGTATTCATTTTCAGCAAACATGTATTAAGCAATTATTATATGTAACTCATGTGGTGATTCCAGGATGAATGAAGTTGTAGCCCTTTCTCTTAGGAAACTTATAAACTAATAGGAGATAAAAGGCATTCTCAGGGAAGTCTACAAAGTGCTATGAGGGAGCCACTTTGGCCATCCTGGGGCAGAGCAGACCAGAGGCTCAGAGCATGGACACTTCCTCATCCACCCAGCAGAAGCCTTTCACTTGATTTTGAAGGTGGGCAGGATTGAGAAAGGCCCAGAAGGGGATGAGTTCAAAGCTGTTTGTGGGCATGTGACCCCTGCAGTCACATATGGCCCTAGCTTGTGTTTCGTTTAGTGTTCTGCTATCATTATCCTGATAATATCCTGATAATAAAATTATCCTTAATAATTTTA","#transcript_viewer", {
-    showAxis: true,
-    showSequence: true,
-    brushActive: true,
-    toolbar:true,
-    bubbleHelp:true,
-    zoomMax:10
-   });
+      $(function() {
+            //Initialize Feature Viewer 
+            //Create a new Feature Viewer and add some rendering options
+         var ft2 = new FeatureViewer.createFeature("AGAGACGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGGAGGGGAGGATCGGCAATAATTGGATGGCGTATATAGGTGATGAGAGCAGTGTTGTATATAGGTGATGAGAGCAGTGTT",
+         "#transcript-viewer", {    
+            showAxis: true,
+            showSequence: true,
+            brushActive: true,
+            toolbar:true,
+            bubbleHelp:true,
+            zoomMax:10
+            });
 
-//Add some features
-ft2.addFeature({
-    data: [{x:20,y:32},{x:46,y:100},{x:123,y:167}],
-    name: "test feature 1",
-    className: "test1",
-    color: "#005572",
-    type: "rect",
-    filter: "type1"
-});
-ft2.addFeature({
-    data: [{x:52,y:52},{x:92,y:92}],
-    name: "test feature 2",
-    className: "test2",
-    color: "#006588",
-    type: "rect",
-    filter: "type2"
-});
-ft2.addFeature({
-    data: [{x:130,y:184},{x:40,y:142},{x:80,y:110}],
-    name: "test feature 3",
-    className: "test3",
-    color: "#eda64f",
-    type: "path",
-    filter: "type2"
-});
-ft2.addFeature({
-    data: [{x:120,y:154},{x:21,y:163},{x:90,y:108},{x:10,y:25},{x:193,y:210},{x:78,y:85},{x:96,y:143},{x:14,y:65},{x:56,y:167}],
-    name: "test feature 4",
-    className: "test4",
-    color: "#F4D4AD",
-    type: "rect",
-    height: 8,
-    filter: "type1"
-});
-var dataDemo = [];
-for (var i=1;i<100;i++) {
-    var count = Math.floor((Math.random() * 20) + 1);
-    dataDemo.push({
-        x: i*2,
-        y:count
-    })
-}
-ft2.addFeature({
-    data: dataDemo,
-    name: "test feature 5",
-    className: "test5",
-    color: "#008B8D",
-    type: "line",
-    filter: "type2",
-    height: "5"
-});
+         //Add some features
+         ft2.addFeature({
+            data: [{x:20,y:32},{x:46,y:100},{x:123,y:167}],
+            name: "Exons",
+            className: "test1",
+            color: "#005572",
+            type: "rect",
+            filter: "type1"
+         });
+         ft2.addFeature({
+            data: [{x:52,y:52},{x:92,y:92}],
+            name: "uAUG creating ",
+            className: "test2",
+            color: "#006588",
+            type: "rect",
+            filter: "type2"
+         });
+         ft2.addFeature({
+            data: [{x:130,y:184},{x:40,y:142},{x:80,y:110}],
+            name: "test feature 3",
+            className: "test3",
+            color: "#eda64f",
+            type: "path",
+            filter: "type2"
+         });
+         ft2.addFeature({
+            data: [{x:120,y:154},{x:21,y:163},{x:90,y:108},{x:10,y:25},{x:193,y:210},{x:78,y:85},{x:96,y:143},{x:14,y:65},{x:56,y:167}],
+            name: "test feature 4",
+            className: "test4",
+            color: "#F4D4AD",
+            type: "rect",
+            height: 8,
+            filter: "type1"
+         });
+         var dataDemo = [];
+         for (var i=1;i<100;i++) {
+            var count = Math.floor((Math.random() * 20) + 1);
+            dataDemo.push({
+               x: i*2,
+               y:count
+            })
+         }
+         ft2.addFeature({
+            data: dataDemo,
+            name: "test feature 5",
+            className: "test5",
+            color: "#008B8D",
+            type: "line",
+            filter: "type2",
+            height: "5"
+         });
 
-//Beside positions of each element, you can also give a specific description, which will appears in the tooltip when mouse hover, and a specific ID, for example to link a click event on the feature with something else in your project.
-ft2.addFeature({
-    data: [{x:120,y:154,description:"aaaaa",id:"a1"},{x:22,y:163,description:"bbbbb",id:"b1"},
-           {x:90,y:108,description:"ccccc",id:"c1"},{x:10,y:25,description:"ddddd",id:"d1"},
-           {x:193,y:210,description:"eeeee",id:"e1"},{x:78,y:85,description:"fffff",id:"f1"},
-           {x:96,y:143,description:"ggggg",id:"g1"},{x:14,y:65,description:"hhhhh",id:"h1", color:"#12E09D"},
-           {x:56,y:167,description:"jjjjj",id:"j1"}],
-    name: "test feature 6",
-    className: "test6",
-    color: "#81BEAA",
-    type: "rect",
-    filter: "type2"
-});
+         //Beside positions of each element, you can also give a specific description, which will appears in the tooltip when mouse hover, and a specific ID, for example to link a click event on the feature with something else in your project.
+         ft2.addFeature({
+            data: [{x:120,y:154,description:"aaaaa",id:"a1"},{x:22,y:163,description:"bbbbb",id:"b1"},
+                  {x:90,y:108,description:"ccccc",id:"c1"},{x:10,y:25,description:"ddddd",id:"d1"},
+                  {x:193,y:210,description:"eeeee",id:"e1"},{x:78,y:85,description:"fffff",id:"f1"},
+                  {x:96,y:143,description:"ggggg",id:"g1"},{x:14,y:65,description:"hhhhh",id:"h1", color:"#12E09D"},
+                  {x:56,y:167,description:"jjjjj",id:"j1"}],
+            name: "test feature 6",
+            className: "test6",
+            color: "#81BEAA",
+            type: "rect",
+            filter: "type2"
+         });
 
 
          })

@@ -2,19 +2,24 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from .confg import config_by_name 
+from .config import config_by_name 
 
-
-db = SQLAlchemy()
-runtime_app_config = config_by_name["development"]
+# db = SQLAlchemy() # To add database when we have to put in the tables and the cache
 
 def create_app(runtime_environment): 
     app = Flask(__name__)
-
     # create the app through the app configuration 
-    runtime_app_config = config_by_name["development" if runtime_environment == "production" else "production"]
-    app.config.from_object(runtime_app_config)
-    db.init(app)
+    print(runtime_environment)
+    app.config.from_object(config_by_name["development"])
+    
+    # TODO No database for now
+    #db.init(app)
 
+    # Register blueprints 
+    from .viewer import viewer as viewer_blueprint
+    app.register_blueprint(viewer_blueprint)
+
+    from .main import main as main_blueprint 
+    app.register_blueprint(main_blueprint)
 
     return app
