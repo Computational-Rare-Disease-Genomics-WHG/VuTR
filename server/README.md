@@ -5,6 +5,7 @@
 - Docker
 - Docker-VEP 
 - UTR annotator through docker vep
+- Create a virtual env and `cd flask-app; pip3 install -r requirements.txt`
 
 - Running the flask application server 
 
