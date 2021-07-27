@@ -12,7 +12,6 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
-
       <!-- Font Awesome -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/all.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/brands.css')}}">
@@ -84,7 +83,7 @@
          </nav>
          <!-- /.navbar -->
             <!-- Main Sidebar Container -->
-            <aside class="main-sidebar sidebar-dark-primary elevation-4"  >
+            <aside class="main-sidebar sidebar-light-primary bg-navy elevation-4"  >
                <!-- Brand Logo -->
                <div class="ml-3">
                </div>
@@ -95,6 +94,8 @@
                      <div class="image">
                      </div>
                      <div class="info">
+                       <h2 class="">UTR Viz App</h2>
+
                      </div>
                   </div>
                   <!-- SidebarSearch Form -->
@@ -163,16 +164,16 @@
                                  <h6><b>HGNC Symbol</b>: MEF2C</h6>
                                  <h6><b>Ensembl Transcript ID</b>: ENST00000340208.5 </h6>
                                  <h6><b>RefSeq Match</b>: NM_174936.4</h6>
-                                 <h6><b>O-E Score <i class="fas fa-exclamation-circle"></i></b>: 0.32 (0.18 - <span class="badge bg-warning">0.61</span>)</h6>
+                                 <h6><b>LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning">0.61</span></h6>
                                  <h6><b>5' UTR exon count</b>:2</h6>
                                  <h6><b>5' UTR length</b>: 400</h6>
-                                 <h6><b>Number of pathogenic variants in ClinVar </b>: 4</h6>
-                                 <h6><b>Number of population variant in gnomAD v4 </b>: 15</h6>
+                                 <h6><b>ClinGen Haploinsufficiency Score</b>: 3</h6>
                                  <h6><b>External Resources</b>: View gene in 
                                     <a href="#">Ensembl</a>, 
                                     <a href="#">OMIM</a>,
                                     <a href="#">gnomAD</a>,
                                     <a href="#">sORFs.org</a>,
+                                    <a href="#">ClinGen</a>,
                                     <a href="#">ClinVar</a>
                                  </h6>
                               </div>
@@ -384,7 +385,7 @@
          //Add some features
          ft2.addFeature({
             data: [{x:20,y:32},{x:46,y:100},{x:123,y:167}],
-            name: "Exons",
+            name: "sORFs",
             className: "test1",
             color: "#005572",
             type: "rect",
@@ -415,23 +416,7 @@
             height: 8,
             filter: "type1"
          });
-         var dataDemo = [];
-         for (var i=1;i<100;i++) {
-            var count = Math.floor((Math.random() * 20) + 1);
-            dataDemo.push({
-               x: i*2,
-               y:count
-            })
-         }
-         ft2.addFeature({
-            data: dataDemo,
-            name: "test feature 5",
-            className: "test5",
-            color: "#008B8D",
-            type: "line",
-            filter: "type2",
-            height: "5"
-         });
+
 
          //Beside positions of each element, you can also give a specific description, which will appears in the tooltip when mouse hover, and a specific ID, for example to link a click event on the feature with something else in your project.
          ft2.addFeature({
