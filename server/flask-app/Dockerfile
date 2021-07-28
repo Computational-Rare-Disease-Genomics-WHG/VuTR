@@ -1,7 +1,6 @@
 # Dockerfile 
 # Elston N. D'Souza
 
-
 # set base image (host OS)
 FROM ubuntu:18.04
 RUN apt-get update && apt-get install \
