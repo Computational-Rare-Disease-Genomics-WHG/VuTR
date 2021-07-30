@@ -7,6 +7,8 @@
 - UTR annotator through docker vep
 - Download Ensembl Cache
 - Create and source an virtual env and then `cd flask-app; pip3 install -r requirements.txt`
+
+
 ## Running the flask application server 
 
 ```bash
@@ -19,7 +21,7 @@ flask run
 
 ```bash
 sudo docker build -t utrapp . 
-sudo docker run --rm -d -p 5000:5000 utrapp
+sudo docker run --rm -d -p 8080:8080 utrapp
 
 # To kill the container 
 
