@@ -15,7 +15,9 @@ viewer = Blueprint('viewer', __name__)
 
 @viewer.route("/viewer/<ensembl_transcript_id>")
 def viewer_page(ensembl_transcript_id):
-    print(gnomad_search_by_transcript_id("ENST00000357985")["data"]["transcript"])
+    # Check if transcript id is in MANE 
+    print(gnomad_search_by_transcript_id(ensembl_transcript_id)["data"]["transcript"])
+    
     return render_template("viewer.html", ensembl_transcript_id=ensembl_transcript_id)
 
 #@viewer.route("/viewer/<ensembl_transcript_id>/<variant>")
