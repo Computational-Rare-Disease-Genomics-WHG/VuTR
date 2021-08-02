@@ -9,7 +9,6 @@ from .config import config_by_name
 def create_app(runtime_environment): 
     app = Flask(__name__)
     # create the app through the app configuration 
-    print(runtime_environment)
     app.config.from_object(config_by_name["development"])
     
     # TODO No database for now

@@ -39,7 +39,6 @@ def contact():
 def change(): 
     return render_template("change_log.html")
 
-
 @main.route("/download")
 def download(): 
     return render_template("")
