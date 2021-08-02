@@ -2,7 +2,8 @@
 # Elston N. D'Souza
 
 # set base image (host OS)
-FROM ubuntu:18.04
+# Taking inspiration from the approach taken in https://github.com/IanVermes/vep_api 
+FROM ensemblorg/ensembl-vep
 RUN apt-get update && apt-get install \
   -y --no-install-recommends python3 python3-virtualenv
 
