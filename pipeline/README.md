@@ -8,10 +8,11 @@ This is a description of the upstream pipeline to annotate all of the ClinVar an
 
 Use a conda environment named pipeline 
 
-`sh
+```sh
 conda env create --file ../pipeline_environment.yml pipeline
+
 conda activate
-`
+```
 
 ## Key scripts 
 
