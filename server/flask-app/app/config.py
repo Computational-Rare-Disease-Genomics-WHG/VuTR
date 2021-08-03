@@ -6,7 +6,7 @@ import os
 database = "sqlite:///../../db/db.sqlite"
 
 class Config : 
-    SECRET_KEY=""
+    SECRET_KEY="jtg90458hgy258h02tg85u"
     FLASK_APP="app"
     DEBUG=True
     SQLALCHEMY_TRACK_MODIFICATIONS=False

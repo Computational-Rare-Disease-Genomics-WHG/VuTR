@@ -17,6 +17,7 @@ def gnomad_search_by_transcript_id(transcript_id) :
       gene {
         gene_id
         name
+        symbol
         hgnc_id
         omim_id
         mane_select_transcript{

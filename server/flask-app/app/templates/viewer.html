@@ -111,9 +111,9 @@
        <!-- SidebarSearch Form -->
        <div class="form-inline">
          <div class="input-group" data-widget="sidebar-search">
-           <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+           <input class="form-control form-control-sidebar" id="search-input" type="search" placeholder="Search" >
            <div class="input-group-append">
-             <button class="btn btn-sidebar">
+             <button class="btn btn-sidebar" onclick="window.location.href = '/viewer/'+ $('#search-input').val() ">
                <i class="fas fa-search fa-fw"></i>
              </button>
            </div>
@@ -131,20 +131,15 @@
          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
            <!-- Add icons to the links using the .nav-icon class
                 with font-awesome or any other icon font library -->
-           
-           <li class="nav-item">
-             <a href="pages/widgets.html" class="nav-link">
-               <i class="nav-icon fas fa-th"></i>
-               <p>
-                 Save
-               </p>
-             </a>
-           </li>
+            {% for mesg in get_flashed_messages() %}
+            <p class="login-box-msg nav-item">{{ mesg }}</p>
+            {% endfor %}
+
            <li class="nav-item">
             <a href="pages/widgets.html" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
-                Download
+                Search
               </p>
             </a>
           </li>
@@ -168,7 +163,7 @@
                      <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                           <li class="breadcrumb-item active">{{ensembl_transcript_id}}({{gnomad_data["transcript"]["gene"]["hgnc_id"]|safe}})</li>
+                           <li class="breadcrumb-item active">{{ensembl_transcript_id}}({{gnomad_data["transcript"]["gene"]["symbol"]|safe}})</li>
                         </ol>
                      </div>
                      <!-- /.col -->
@@ -251,7 +246,7 @@
                            <h3 class="card-title">
                               <b>
                                  <i class="fas fa-info-circle"></i>
-                              5' UTR Architechure (TDO)
+                              5' UTR Architechure (T0DO)
                            </b>
                            
                            </h3>
