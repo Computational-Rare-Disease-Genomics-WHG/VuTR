@@ -168,7 +168,7 @@
                      <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                           <li class="breadcrumb-item active">ENST00000340208.5 (MEF2C)</li>
+                           <li class="breadcrumb-item active">{{ensembl_transcript_id}}({{gnomad_data["transcript"]["gene"]["hgnc_id"]|safe}})</li>
                         </ol>
                      </div>
                      <!-- /.col -->
@@ -207,13 +207,16 @@
                            <!-- /.card-header -->
                            <div class="card-body">
                               <div>
-                                 <h6><b>HGNC Symbol</b>: MEF2C</h6>
-                                 <h6><b>Ensembl Transcript ID</b>: ENST00000340208.5 </h6>
-                                 <h6><b>RefSeq Match</b>: NM_174936.4</h6>
-                                 <h6><b>LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning">0.61</span></h6>
-                                 <h6><b>5' UTR exon count</b>:2</h6>
-                                 <h6><b>5' UTR length</b>: 400</h6>
-                                 <h6><b>ClinGen Haploinsufficiency Score</b>: 3</h6>
+                                <h6><b>HGNC Symbol</b>: {{gnomad_data["transcript"]["gene"]["hgnc_id"]|safe}}</h6>
+                                <h6><b>Gene Name</b>: {{gnomad_data["transcript"]["gene"]["name"]|safe}}</h6>
+                                <h6><b>Ensembl Gene ID</b>: {{gnomad_data["transcript"]["gene"]["gene_id"]|safe}}</h6>
+                                <h6><b>Ensembl Transcript ID</b>: {{ensembl_transcript_id}}</h6>
+                                <h6><b>OMIM ID</b>:  {{gnomad_data["transcript"]["gene"]["omim_id"]|safe}}</h6>
+                                 <h6><b>RefSeq Match</b>: {{gnomad_data["transcript"]["gene"]["mane_select_transcript"]["refseq_id"]|safe}}</h6>
+                                 <h6><b>LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> (TODO) 0.61</span></h6>
+                                 <h6><b>5' UTR exon count</b>:(TODO) 2</h6>
+                                 <h6><b>5' UTR length</b>: (TODO) 400</h6>
+                                 <h6><b>ClinGen Haploinsufficiency Score</b>: (TODO) 3</h6>
                                  <h6><b>External Resources</b>: View gene in 
                                     <a href="#">Ensembl</a>, 
                                     <a href="#">OMIM</a>,
@@ -248,7 +251,7 @@
                            <h3 class="card-title">
                               <b>
                                  <i class="fas fa-info-circle"></i>
-                              5' UTR Architechure
+                              5' UTR Architechure (TDO)
                            </b>
                            
                            </h3>
@@ -291,25 +294,8 @@
 
                           <div id = "clinvar-js-grid">
                           </div>
-
-
-                          <div class="">
-                            <table id = "population_table" class="table table-bordered table-hover">
-                              <thead>
-                                <tr>
-                                  <th>Variant ID</th>
-                                  <th>REF</th>
-                                  <th>ALT</th>
-                                  <th>POS</th>
-                                  <th>Consequence</th>
-                                  <th>Population AC</th>
-                                  <th>Population AN</th>
-                                </tr>
-                              </thead>
-                            </table>
-
+                          <div id = "populationvars-js-grid">
                           </div>
-
                      </div>
                      </div>
                   </section>
@@ -418,7 +404,6 @@
          var gnomad_data = {{gnomad_data|tojson}};
          console.log(gnomad_data["transcript"]["clinvar_variants"])
          // Fill Clinvar data 
-
         
          $("#clinvar-js-grid").jsGrid({
           height: "100%",
@@ -431,28 +416,30 @@
           { name: "ref", type: "text", title:"REF"},
           { name: "alt", type: "text", title:"ALT"},
           { name: "pos", type: "text", title:"POS"},
+          { name: "major_consequence", type: "text", title:"Major Consequence"},
           { name: "in_gnomad", type: "checkbox", title:"In gnomAD?" },
           { name: "clinical_significance", type: "text", title:"Clincal Significance" },
           { name: "hgvsc", type: "text", title:"HGVSC" },
           ]
       });
-      /*$("#pop-var-js-grid").jsGrid({
+      console.log(gnomad_data["transcript"]["variants"])
+      $("#populationvars-js-grid").jsGrid({
           height: "100%",
           width: "100%",
           sorting: true,
           paging: true,
           data: gnomad_data["transcript"]["variants"],
           fields: [
-          { name: "variantId", type: "text", width: 150, title:"Variation ID" },
-          { name: "ref", type: "text", width: 150 },
-          { name: "alt", type: "text", width: 150 },
-          { name: "pos", type: "text", width: 150 },
-          { name: "in_gnomad", type: "checkbox", title:"In gnomAD?" },
-          { name: "clinical_significance", type: "text", title:"Clincal Significance" },
+          { name: "variantId", type: "text",  title:"Variation ID" },
+          { name: "ref", type: "text", title: "REF" },
+          { name: "alt", type: "text", title: "ALT" },
+          { name: "pos", type: "text", title: "POS" },
+          { name: "transcript_consequence.major_consequence", type: "text", title: "Major Consequence" },
+          { name: "genome.ac", type: "text", title: "AC" },
+          { name: "genome.af", type: "text", title: "AF" },
           { name: "hgvsc", type: "text", title:"HGVSC" },
           ]
-      });*/
-
+      });
 
 
 })

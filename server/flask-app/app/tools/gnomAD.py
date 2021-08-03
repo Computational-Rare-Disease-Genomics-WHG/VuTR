@@ -17,7 +17,14 @@ def gnomad_search_by_transcript_id(transcript_id) :
       gene {
         gene_id
         name
+        hgnc_id
         omim_id
+        mane_select_transcript{
+          refseq_id
+          ensembl_id
+          
+        }
+
       }
       clinvar_variants {
         transcript_id
@@ -30,11 +37,13 @@ def gnomad_search_by_transcript_id(transcript_id) :
         review_status
         hgvsc
         clinical_significance
+        major_consequence
       }
       variants(dataset: gnomad_r3) {
         ref
         pos
         alt
+        hgvsc
         genome {
           af
           an
@@ -42,6 +51,7 @@ def gnomad_search_by_transcript_id(transcript_id) :
         }
         transcript_consequence {
           is_mane_select
+          major_consequence
           sift_prediction
           polyphen_prediction
           is_mane_select_version
@@ -121,4 +131,5 @@ def gnomad_search_by_gene_id(hgnc):
         "Content-Type": "application/json",
     },
   ).json()
+
   return response

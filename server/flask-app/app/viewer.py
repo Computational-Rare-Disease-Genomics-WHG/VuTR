@@ -18,9 +18,16 @@ viewer = Blueprint('viewer', __name__)
 def viewer_page(ensembl_transcript_id):
     # Check if transcript id is in MANE 
 
-    # Filter to 5' UTR
+
 
     gnomad_data = gnomad_search_by_transcript_id(ensembl_transcript_id)["data"]
+
+
+    # Filter to 5' UTR (Make this into a specific function) for both population and clinvar variants
+    gnomad_data["transcript"]["clinvar_variants"] = [clinvar for clinvar in gnomad_data["transcript"]["clinvar_variants"] if clinvar["major_consequence"] == "5_prime_UTR_variant"]
+    gnomad_data["transcript"]["variants"] = [var for var in gnomad_data["transcript"]["variants"] if var["transcript_consequence"]["major_consequence"] == "5_prime_UTR_variant"]
+
+
     return render_template("viewer.html", 
                             ensembl_transcript_id=ensembl_transcript_id, 
                             gnomad_data=gnomad_data)
