@@ -1,10 +1,31 @@
 # Pipeline 
 
 
-This is a description of the pipeline to annotate all of the ClinVar and gnomAD UTR variants for the UTR Visualization app. 
+This is a description of the upstream pipeline to annotate all of the ClinVar and gnomAD UTR variants for the UTR Visualization apps with the UTRannotator. 
 
-To run this pipeline we require docker and the cache. 
 
+## Environment 
+
+Use a conda environment named pipeline 
+
+`sh
+conda env create --file ../pipeline_environment.yml pipeline
+conda activate
+`
+
+## Key scripts 
+
+Create a snakemake pipeline for the following scripts.
+
+1. `download_clinvar.sh` : Downloads the weekly update of clinvar
+2. `download_gnomAD.sh` : Downloads gnomAD (Need to only do this once)
+3. `run_docker_vep.sh` : Runs docker on the whole set
+4. `create_sqlite_db.py` : Creates a sqlite3 database for use in the web_server 
+
+Commandline Argument Options : 
+`gnomad version`, `latest clinvar`, `assembly`, `output_db_sqlite3`
+
+## Install Docker 
 
 ```sh 
 docker pull ensemblorg/ensembl-vep
@@ -17,15 +38,4 @@ docker run -t -i -v $(pwd)/UTRannotator/:/opt/vep/.vep/Plugins \
  ensemblorg/ensembl-vep \
  bash
 
-
-# To run vep (with UTR annotator running alongside)
-docker run -t -i -v $(pwd)/UTRannotator-vep-plugin:/opt/vep/.vep/Plugins 
-
-
-
-docker run -t -i -v /Users/elston.dsouza/Projects/UTR-Visualisation-App/pipeline/UTRannotator-vep-plugin/:/opt/vep/.vep/Plugins ensemblorg/ensembl-vep ./vep -i Projects/UTR-Visualisation-App/pipeline/UTRannotator-vep-plugin/test/test_grch37.vcf --tab --database -plugin UTRannotator -o test.output
-
 ```
-
-
-Once VEP has ru
