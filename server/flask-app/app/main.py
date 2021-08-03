@@ -17,11 +17,8 @@ main = Blueprint('main', __name__)
 # Home Page 
 @main.route("/")
 def index(): 
-    return render_template("index.html")
-
-@main.route("/index")
-def index_alt(): 
-    return render_template("index.html")
+    #return render_template("index.html")
+    return redirect(url_for("viewer.viewer_page", ensembl_transcript_id="ENST00000340208"))
 
 @main.route("/about")
 def about(): 

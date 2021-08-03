@@ -33,6 +33,10 @@
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.css')}}">
       <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
 
+      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid.min.css')}}">
+      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid-theme.min.css')}}">
+    
+
 
       <style type="text/css">
          .select2-container--default .select2-selection--multiple .select2-selection__choice {
@@ -47,7 +51,7 @@
    <body class="hold-transition layout-fixed" id="main-content" >
       <div class="wrapper">
          <!-- Navbar -->
-         <nav class="main-header navbar navbar-expand navbar-light" data-html2canvas-ignore>
+         <nav class="main-header navbar navbar-expand navbar-light" >
             <!-- Left navbar links -->
             <ul class="navbar-nav">
                <li class="nav-item d-none d-sm-inline-block">
@@ -114,6 +118,11 @@
              </button>
            </div>
          </div>
+         <div>
+
+
+
+         </div>
        </div>
                   <!-- SidebarSearch Form -->
                   <!-- Sidebar Menu -->
@@ -122,198 +131,24 @@
          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
            <!-- Add icons to the links using the .nav-icon class
                 with font-awesome or any other icon font library -->
-           <li class="nav-item menu-open">
-             <a href="#" class="nav-link active">
-               <i class="nav-icon fas fa-tachometer-alt"></i>
-               <p>
-                 Dashboard
-                 <i class="right fas fa-angle-left"></i>
-               </p>
-             </a>
-             <ul class="nav nav-treeview">
-               <li class="nav-item">
-                 <a href="./index.html" class="nav-link active">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Dashboard v1</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="./index2.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Dashboard v2</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="./index3.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Dashboard v3</p>
-                 </a>
-               </li>
-             </ul>
-           </li>
+           
            <li class="nav-item">
              <a href="pages/widgets.html" class="nav-link">
                <i class="nav-icon fas fa-th"></i>
                <p>
-                 Widgets
+                 Save
                </p>
              </a>
            </li>
            <li class="nav-item">
-             <a href="#" class="nav-link">
-               <i class="nav-icon fas fa-copy"></i>
-               <p>
-                 Layout Options
-                 <i class="fas fa-angle-left right"></i>
-                 <span class="badge badge-info right">6</span>
-               </p>
-             </a>
-             <ul class="nav nav-treeview">
-               <li class="nav-item">
-                 <a href="pages/layout/top-nav.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Top Navigation</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/layout/top-nav-sidebar.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Top Navigation + Sidebar</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/layout/boxed.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Boxed</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/layout/fixed-sidebar.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Fixed Sidebar</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/layout/fixed-sidebar-custom.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Fixed Sidebar <small>+ Custom Area</small></p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/layout/fixed-topnav.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Fixed Navbar</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/layout/fixed-footer.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Fixed Footer</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/layout/collapsed-sidebar.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Collapsed Sidebar</p>
-                 </a>
-               </li>
-             </ul>
-           </li>
-           <li class="nav-item">
-             <a href="#" class="nav-link">
-               <i class="nav-icon fas fa-chart-pie"></i>
-               <p>
-                 Charts
-                 <i class="right fas fa-angle-left"></i>
-               </p>
-             </a>
-             <ul class="nav nav-treeview">
-               <li class="nav-item">
-                 <a href="pages/charts/chartjs.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>ChartJS</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/charts/flot.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Flot</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/charts/inline.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Inline</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/charts/uplot.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>uPlot</p>
-                 </a>
-               </li>
-             </ul>
-           </li>
-           <li class="nav-item">
-             <a href="#" class="nav-link">
-               <i class="nav-icon fas fa-tree"></i>
-               <p>
-                 UI Elements
-                 <i class="fas fa-angle-left right"></i>
-               </p>
-             </a>
-             <ul class="nav nav-treeview">
-               <li class="nav-item">
-                 <a href="pages/UI/general.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>General</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/UI/icons.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Icons</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/UI/buttons.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Buttons</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/UI/sliders.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Sliders</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/UI/modals.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Modals & Alerts</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/UI/navbar.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Navbar & Tabs</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/UI/timeline.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Timeline</p>
-                 </a>
-               </li>
-               <li class="nav-item">
-                 <a href="pages/UI/ribbons.html" class="nav-link">
-                   <i class="far fa-circle nav-icon"></i>
-                   <p>Ribbons</p>
-                 </a>
-               </li>
-             </ul>
-           </li>
-   
+            <a href="pages/widgets.html" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Download
+              </p>
+            </a>
+          </li>
+
          </ul>
        </nav>
                   <!-- /.sidebar-menu -->
@@ -351,7 +186,7 @@
                   <!-- Main row -->
                   <div class="row">
                      <!-- Left col -->
-                     <section class="col-lg-12 connectedSortable">
+                     <section class="col-lg-12 ">
                         <!-- Custom tabs (Charts with tabs)-->
                         <div class="card ">
                            <div class="card-header bg-light">
@@ -407,7 +242,7 @@
             <section class="content">
                <div class="container-fluid">
                   <div class="row">
-                  <section class="col-lg-12 connectedSortable">
+                  <section class="col-lg-12">
                      <div class="card">
                         <div class="card-header bg-light">
                            <h3 class="card-title">
@@ -435,7 +270,7 @@
             <section class="content">
                <div class="container-fluid">
                   <div class="row">
-                  <section class="col-lg-12 connectedSortable">
+                  <section class="col-lg-12 ">
                      <div class="card">
                         <div class="card-header bg-light">
                            <h3 class="card-title">
@@ -451,72 +286,30 @@
                               </button>
                            </div>
                         </div>
-                        <div class="card-body"><div id="variant-table">
-                           <table class="table table-bordered table-hover">
+  
+                        <div class="card-body">
+
+                          <div id = "clinvar-js-grid">
+                          </div>
+
+
+                          <div class="">
+                            <table id = "population_table" class="table table-bordered table-hover">
                               <thead>
                                 <tr>
                                   <th>Variant ID</th>
-                                  <th>HGVS Consequence</th>
-                                  <th>VEP Consequence</th>
-                                  <th>Source</th>
-                                  <th>Population AF</th>
+                                  <th>REF</th>
+                                  <th>ALT</th>
+                                  <th>POS</th>
+                                  <th>Consequence</th>
                                   <th>Population AC</th>
-                                  <th>Clinical Significance</th>
+                                  <th>Population AN</th>
                                 </tr>
                               </thead>
-                              <tbody>
-                                <tr data-widget="expandable-table" aria-expanded="false">
-                                  <td>5-88119606-A-G</td>
-                                  <td>c.-1T>C</td>
-                                  <td>uAUG lost</td>
-                                  <td>gnomAD v3 + ClinVar</td>
-                                  <td>0.0001</td>
-                                  <td>1</td>
-                                  <td>Uncertain significance​</td>
-                                </tr>
-                                <tr class="expandable-body">
-                                  <td colspan="5">
-                                    <p>
-                                      Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                                    </p>
-                                  </td>
-                                </tr>
-                              <tr data-widget="expandable-table" aria-expanded="false">
-                                 <td>5-88119606-A-G</td>
-                                 <td>c.-1T>C</td>
-                                 <td>ORF disrupting</td>
-                                 <td>ClinVar</td>
-                                 <td>0.1</td>
-                                 <td>142</td>
-                                 <td>Benign</td>
-                               </tr>
-                               <tr class="expandable-body">
-                                 <td colspan="5">
-                                   <p>
-                                     Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                                   </p>
-                                 </td>
-                               </tr>
-                               <tr data-widget="expandable-table" aria-expanded="false">
-                                 <td>5-34893486-A-G</td>
-                                 <td>c.-1T>C</td>
-                                 <td>uSTOP gained</td>
-                                 <td>gnomAD</td>
-                                 <td>0.1</td>
-                                 <td>142</td>
-                                 <td>Benign</td>
-                               </tr>
-                               <tr class="expandable-body">
-                                 <td colspan="5">
-                                   <p>
-                                     Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                                   </p>
-                                 </td>
-                               </tr>
-                              </tbody>
-                              </table>
+                            </table>
 
-                        </div>
+                          </div>
+
                      </div>
                      </div>
                   </section>
@@ -576,13 +369,22 @@
       <script src="{{url_for('static', filename = 'dist/js/demo.js')}}"></script>
       <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
       <script src="{{url_for('static', filename = 'dist/js/pages/dashboard.js')}}"></script>
-      <script src="{{url_for('static', filename = 'dist/js/html2canvas.js')}}"></script>
       <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
+      
+      <script src="{{url_for('static', filename ='plugins/jsgrid/jsgrid.min.js')}}"></script>
+
       <script type="text/javascript">
          /**************Initial Start Up Routine****************/
-      $(function() {
-            //Initialize Feature Viewer 
-            //Create a new Feature Viewer and add some rendering options
+
+ 
+         $(function() {
+
+        /*************Info details data*******************/
+
+        /*************5' Architechture*******************/
+
+        //Initialize Feature Viewer 
+        //Create a new Feature Viewer and add some rendering options
          var ft2 = new FeatureViewer.createFeature("AGAGACGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGAGAGGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGGAGGGGAGGATCGGCAATAATTGGATGGCGTATATAGGTGATGAGAGCAGTGTTGTATATAGGTGATGAGAGCAGTGTT",
          "#transcript-viewer", {    
             showAxis: true,
@@ -611,8 +413,99 @@
             filter: "type2"
          });
 
+        /*************Population variation*******************/
+         
+         var gnomad_data = {{gnomad_data|tojson}};
+         console.log(gnomad_data["transcript"]["clinvar_variants"])
+         // Fill Clinvar data 
 
-         })
+        
+         $("#clinvar-js-grid").jsGrid({
+          height: "100%",
+          width: "100%",
+          sorting: true,
+          paging: true,
+          data: gnomad_data["transcript"]["clinvar_variants"],
+          fields: [
+          { name: "clinvar_variation_id", type: "text", width: 150, title:"ClinVar Variation ID" },
+          { name: "ref", type: "text", title:"REF"},
+          { name: "alt", type: "text", title:"ALT"},
+          { name: "pos", type: "text", title:"POS"},
+          { name: "in_gnomad", type: "checkbox", title:"In gnomAD?" },
+          { name: "clinical_significance", type: "text", title:"Clincal Significance" },
+          { name: "hgvsc", type: "text", title:"HGVSC" },
+          ]
+      });
+      /*$("#pop-var-js-grid").jsGrid({
+          height: "100%",
+          width: "100%",
+          sorting: true,
+          paging: true,
+          data: gnomad_data["transcript"]["variants"],
+          fields: [
+          { name: "variantId", type: "text", width: 150, title:"Variation ID" },
+          { name: "ref", type: "text", width: 150 },
+          { name: "alt", type: "text", width: 150 },
+          { name: "pos", type: "text", width: 150 },
+          { name: "in_gnomad", type: "checkbox", title:"In gnomAD?" },
+          { name: "clinical_significance", type: "text", title:"Clincal Significance" },
+          { name: "hgvsc", type: "text", title:"HGVSC" },
+          ]
+      });*/
+
+
+
+})
+
+
+
+
+      </script>
+
+      <script>
+   /*     
+create_tables(gnomad_data);
+function create_tables(gnomad_data){
+
+   
+   // Fill clinvar population data 
+  var clinvar_variation_data = gnomad_data["transcript"]["clinvar_variants"];
+  var clinvar_table = document.getElementById('clinvar_table');
+  clinvar_variation_data.forEach(function(object) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = 
+        '<td>' + object.ref + '</td>'+
+        '<td>' + object.alt + '</td>'+
+        '<td>' + object.pos + '</td>'+
+        '<td>' + object.in_gnomad + '</td>'+
+        '<td>' +  + '</td>'+
+        '<td>' + object.hgvsc + '</td>'+
+        '<td>' + object.clinical_significance + '</td>'+
+        '<td>' + object.clinvar_variation_id + '</td>';
+        clinvar_table.appendChild(tr);
+    });
+  // Fill gnomAD population data 
+  var population_variation_data = gnomad_data["transcript"]["variants"];
+  var population_variation_table = document.getElementById('population_table');
+  population_variation_data.forEach(function(object) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = 
+        '<td>' + object.variantId + '</td>'+
+        '<td>' + object.ref + '</td>'+
+        '<td>' + object.alt + '</td>'+
+        '<td>' +  + '</td>'+
+        '<td>' + object.pos + '</td>'+
+        '<td>' + object.genome.af + '</td>'+
+        '<td>' + object.genome.ac + '</td>';
+        population_variation_table.appendChild(tr);
+    });
+
+  }
+   
+*/
+
       </script>
    </body>
 </html>
+
+
