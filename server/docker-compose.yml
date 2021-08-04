@@ -12,25 +12,6 @@ services :
 			#interval: 10s
 			#timeout: 10s
 			#retries: 3  
-	
-	# Wrapper to run VEP in the background as an internal API service 
-	# that the app can then talk to.
-	vep-utr-annotator : 
-		# Create Image
-		build : vep_utr_annotator
-		stop_signal: SIGINT # The devserver only stops on SIGINT.
-		stdin_open: true
-		tty: true
-		user: vep
-		networks : 
-			- appnet
-		# Create volume mounts to install UTR annotator
-		volumes :
-			- vep_utr_annotator/UTRannotator-vep-plugin:/opt/vep/.vep/Plugins/UTRannotator-vep-plugin 
-			- /home/elston/Packages/vep:/opt/vep/.vep
-		# Run the INSTALL-pl to install cache
-		#command : 
-
 	app : 
 		depends_on : 
 			- nginx

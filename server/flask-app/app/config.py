@@ -3,7 +3,8 @@
 
 import os 
 
-database = "sqlite:///../../db/db.sqlite"
+# To be implemented from pipeline
+database = "sqlite:///../../db/db.sqlite" 
 
 class Config : 
     SECRET_KEY="jtg90458hgy258h02tg85u"
