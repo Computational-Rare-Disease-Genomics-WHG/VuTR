@@ -7,6 +7,12 @@ import json
 def get_LOEUF(variant, ENSEMBL_ID):
   pass
 
+def get_gnomAD_data():
+  pass
+
+def get_smORF(ENSEMBL_TRANSCRIPT_ID):
+  pass
+
 def get_Kozak_context(sequence, pos): 
   pass
 def get_Kozak_strength(context):
@@ -15,8 +21,4 @@ def get_Kozak_strength(context):
 def get_clinvar_data(ENSEMBL_TRANSCRIPT_ID):
   pass
 
-def get_ClinVar_impact(variant, ENSEMBL_TRANSCRIPT_ID):
-  pass
 
-def get_smORF(ENSEMBL_TRANSCRIPT_ID):
-  pass

@@ -5,7 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 from .config import config_by_name 
 
 # db = SQLAlchemy() # To add database when we have to put in the tables and the cache
-
 def create_app(runtime_environment): 
     app = Flask(__name__)
     # create the app through the app configuration 
