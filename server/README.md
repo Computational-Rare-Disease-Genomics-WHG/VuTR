@@ -2,12 +2,10 @@
 
 ## Installation of dependencies 
 
-- Docker
-- Docker-VEP 
-- UTR annotator through docker vep
-- Download Ensembl Cache
-- Create and source an virtual env and then `cd flask-app; pip3 install -r requirements.txt`
 
+- Docker 
+- Docker-compose 
+- Create and source an virtual env and then `cd flask-app; pip3 install -r requirements.txt`
 
 ## Running the flask application server 
 
@@ -17,6 +15,8 @@ export FLASK_ENV=development
 export FLASK_APP=app 
 flask run 
 ```
+
+
 ## Running through docker 
 
 ```bash

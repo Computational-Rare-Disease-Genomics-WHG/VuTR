@@ -5,9 +5,7 @@ from flask import (
     Blueprint, 
     render_template, 
     url_for, 
-    redirect, 
-    session 
-)
+    redirect)
 
 import itertools
 import datetime 
