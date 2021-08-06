@@ -32,20 +32,15 @@
       <!-- summernote -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.css')}}">
       <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
-
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid-theme.min.css')}}">
-
-    
-
-
       <style type="text/css">
          .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            background-color: #007bff; 
-            border-color: #006fe6;
+         background-color: #007bff; 
+         border-color: #006fe6;
          }
          p, h1, h2, h3, h4,h5, h6, a{
-            font-family:'Lato';
+         font-family:'Lato';
          }
       </style>
    </head>
@@ -73,8 +68,6 @@
                <li class="nav-item d-none d-sm-inline-block">
                   <a href="#" class="nav-link">Terms</a>
                </li>
-               
-               
             </ul>
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
@@ -84,73 +77,62 @@
                   <i class="fas fa-expand-arrows-alt"></i>
                   </a>
                </li>
-  
-                
             </ul>
-            
          </nav>
          <!-- /.navbar -->
-            <!-- Main Sidebar Container -->
-            <aside class="main-sidebar sidebar-dark-primary elevation-4"  >
-               <!-- Brand Logo -->
-               <div class="ml-3">
+         <!-- Main Sidebar Container -->
+         <aside class="main-sidebar sidebar-dark-primary elevation-4"  >
+            <!-- Brand Logo -->
+            <div class="ml-3">
+            </div>
+            <!-- Sidebar -->
+            <div class="sidebar">
+               <!-- Sidebar user panel (optional) -->
+               <div class="user-panel mt-3 pb-3 mb-3 mx-auto d-flex">
+                  <div class="image">
+                  </div>
+                  <div class="info">
+                     <h2 class="brand-text font-weight-light" style="color:white;">UTR Viz App</h2>
+                  </div>
                </div>
-               <!-- Sidebar -->
-               <div class="sidebar">
-                  <!-- Sidebar user panel (optional) -->
-                  <div class="user-panel mt-3 pb-3 mb-3 mx-auto d-flex">
-                     <div class="image">
-                     </div>
-                     <div class="info">
-                       <h2 class="brand-text font-weight-light" style="color:white;">UTR Viz App</h2>
-
+               <!-- Sidebar user panel (optional) -->
+               <!-- SidebarSearch Form -->
+               <div class="form-inline">
+                  <div class="input-group" data-widget="sidebar-search">
+                     <input class="form-control form-control-sidebar" id="search-input" type="search" placeholder="Search" >
+                     <div class="input-group-append">
+                        <button class="btn btn-sidebar" onclick="window.location.href = '/viewer/'+ $('#search-input').val() ">
+                        <i class="fas fa-search fa-fw"></i>
+                        </button>
                      </div>
                   </div>
-                       <!-- Sidebar user panel (optional) -->
- 
- 
-       <!-- SidebarSearch Form -->
-       <div class="form-inline">
-         <div class="input-group" data-widget="sidebar-search">
-           <input class="form-control form-control-sidebar" id="search-input" type="search" placeholder="Search" >
-           <div class="input-group-append">
-             <button class="btn btn-sidebar" onclick="window.location.href = '/viewer/'+ $('#search-input').val() ">
-               <i class="fas fa-search fa-fw"></i>
-             </button>
-           </div>
-         </div>
-         <div>
-
-
-
-         </div>
-       </div>
-                  <!-- SidebarSearch Form -->
-                  <!-- Sidebar Menu -->
-                        <!-- Sidebar Menu -->
-      <nav class="mt-2">
-         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-           <!-- Add icons to the links using the .nav-icon class
-                with font-awesome or any other icon font library -->
-            {% for mesg in get_flashed_messages() %}
-            <p class="login-box-msg nav-item" style="color:white;">{{ mesg }}</p>
-            {% endfor %}
-
-           <li class="nav-item">
-            <a href="pages/widgets.html" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Search
-              </p>
-            </a>
-          </li>
-
-         </ul>
-       </nav>
-                  <!-- /.sidebar-menu -->
+                  <div>
+                  </div>
                </div>
-               <!-- /.sidebar -->
-            </aside>
+               <!-- SidebarSearch Form -->
+               <!-- Sidebar Menu -->
+               <!-- Sidebar Menu -->
+               <nav class="mt-2">
+                  <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                     <!-- Add icons to the links using the .nav-icon class
+                        with font-awesome or any other icon font library -->
+                     {% for mesg in get_flashed_messages() %}
+                     <p class="login-box-msg nav-item" style="color:white;">{{ mesg }}</p>
+                     {% endfor %}
+                     <li class="nav-item">
+                        <a href="pages/widgets.html" class="nav-link">
+                           <i class="nav-icon fas fa-th"></i>
+                           <p>
+                              Search
+                           </p>
+                        </a>
+                     </li>
+                  </ul>
+               </nav>
+               <!-- /.sidebar-menu -->
+            </div>
+            <!-- /.sidebar -->
+         </aside>
          <!-- Content Wrapper. Contains page content -->
          <div class="content-wrapper" >
             <!-- Content Header (Page header) -->
@@ -188,52 +170,47 @@
                            <div class="card-header bg-light">
                               <h3 class="card-title">
                                  <b>
-                                    <i class="fas fa-dna"></i>
-
+                                 <i class="fas fa-dna"></i>
                                  Gene Details
-                              </b>
+                                 </b>
                               </h3>
                               <div class="card-tools">
                                  <button type="button" id="dtype-creator-btn" class="btn btn-block btn-dark">
-                                    <i class="fas fa-question-circle"></i>                                    
-                                    
+                                 <i class="fas fa-question-circle"></i>                                    
                                  </button>
                               </div>
                            </div>
                            <!-- /.card-header -->
                            <div class="card-body">
-                              <div class="row"> 
-                              <div class="card col-lg-3">
-                                 <div class="card-body">
-                               
-                                <h6><b>HGNC Symbol</b>: {{gnomad_data["transcript"]["gene"]["hgnc_id"]|safe}}</h6>
-                                <h6><b>Gene Name</b>: {{gnomad_data["transcript"]["gene"]["name"]|safe}}</h6>
-                                <h6><b>Ensembl Gene ID</b>: {{gnomad_data["transcript"]["gene"]["gene_id"]|safe}}</h6>
-                                <h6><b>Ensembl Transcript ID</b>: {{ensembl_transcript_id}}</h6>
-                                <h6><b>OMIM ID</b>:  {{gnomad_data["transcript"]["gene"]["omim_id"]|safe}}</h6>
-                                 <h6><b>RefSeq Match</b>: {{gnomad_data["transcript"]["gene"]["mane_select_transcript"]["refseq_id"]|safe}}</h6>
-                                 <h6><b>LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> (TODO) 0.61</span></h6>
-                              </div>
-                              </div>
-
-                              <div class = "card col-lg-6 px-1">
-                                 <div class="card-body"> 
-                                 <h6><b>5' UTR exon count</b>:(TODO) 2</h6>
-                                 <h6><b>5' UTR length</b>: (TODO) 400</h6>
-                                 <h6><b>ClinGen Haploinsufficiency Score</b>: (TODO) 3</h6>
-                                 <h6><b>External Resources</b>: View gene in 
-                                    <a href="#">Ensembl</a>, 
-                                    <a href="#">OMIM</a>,
-                                    <a href="#">gnomAD</a>,
-                                    <a href="#">sORFs.org</a>,
-                                    <a href="#">ClinGen</a>,
-                                    <a href="#">ClinVar</a>
-                                 </h6>
-                              </div>
+                              <div class="row">
+                                 <div class="card col-lg-3">
+                                    <div class="card-body">
+                                       <h6><b>HGNC Symbol</b>: {{gnomad_data["transcript"]["gene"]["hgnc_id"]|safe}}</h6>
+                                       <h6><b>Gene Name</b>: {{gnomad_data["transcript"]["gene"]["name"]|safe}}</h6>
+                                       <h6><b>Ensembl Gene ID</b>: {{gnomad_data["transcript"]["gene"]["gene_id"]|safe}}</h6>
+                                       <h6><b>Ensembl Transcript ID</b>: {{ensembl_transcript_id}}</h6>
+                                       <h6><b>OMIM ID</b>:  {{gnomad_data["transcript"]["gene"]["omim_id"]|safe}}</h6>
+                                       <h6><b>RefSeq Match</b>: {{gnomad_data["transcript"]["gene"]["mane_select_transcript"]["refseq_id"]|safe}}</h6>
+                                       <h6><b>LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> (TODO) 0.61</span></h6>
+                                    </div>
+                                 </div>
+                                 <div class = "card col-lg-6 px-1">
+                                    <div class="card-body">
+                                       <h6><b>5' UTR exon count</b>:(TODO) 2</h6>
+                                       <h6><b>5' UTR length</b>: (TODO) 400</h6>
+                                       <h6><b>ClinGen Haploinsufficiency Score</b>: (TODO) 3</h6>
+                                       <h6><b>External Resources</b>: View gene in 
+                                          <a href="#">Ensembl</a>, 
+                                          <a href="#">OMIM</a>,
+                                          <a href="#">gnomAD</a>,
+                                          <a href="#">sORFs.org</a>,
+                                          <a href="#">ClinGen</a>,
+                                          <a href="#">ClinVar</a>
+                                       </h6>
+                                    </div>
+                                 </div>
                               </div>
                            </div>
-                        </div>
-                          
                         </div>
                         <!-- /.card -->
                         <!--/.direct-chat -->
@@ -243,102 +220,94 @@
                   </div>
                   <!-- /.row (main row) -->
                   <!-- Main row -->
-
-                
                </div>
                <!-- /.container-fluid -->
             </section>
             <section class="content">
                <div class="container-fluid">
                   <div class="row">
-                  <section class="col-lg-12">
-                     <div class="card">
-                        <div class="card-header bg-light">
-                           <h3 class="card-title">
-                              <b>
+                     <section class="col-lg-12">
+                        <div class="card">
+                           <div class="card-header bg-light">
+                              <h3 class="card-title">
+                                 <b>
                                  <i class="fas fa-info-circle"></i>
-                              5' UTR Architechure (T0DO)
-                           </b>
-                           
-                           </h3>
-                           <div class="card-tools">
-                              <button type="button" id="dtype-creator-btn" class="btn btn-block btn-dark">
+                                 5' UTR Architechure (T0DO)
+                                 </b>
+                              </h3>
+                              <div class="card-tools">
+                                 <button type="button" id="dtype-creator-btn" class="btn btn-block btn-dark">
                                  <i class="fas fa-question-circle"></i>                                    
-                              </button>
+                                 </button>
+                              </div>
+                           </div>
+                           <div class="card-body">
+                              <div id="utr-architechure-viewer"></div>
                            </div>
                         </div>
-                        <div class="card-body"><div id="utr-architechure-viewer"></div></div>
-                     </div>
-                  </section>
-               </div>
-
+                     </section>
+                  </div>
                </div>
             </section>
-
-
             <section class="content">
                <div class="container-fluid">
                   <div class="row">
-                  <section class="col-lg-12 ">
-                     <div class="card">
-                        <div class="card-header bg-light">
-                           <h3 class="card-title">
-                              <b>
+                     <section class="col-lg-12 ">
+                        <div class="card">
+                           <div class="card-header bg-light">
+                              <h3 class="card-title">
+                                 <b>
                                  <i class="fas fa-info-circle"></i>
-                              Variant Table
-                           </b>
-                           
-                           </h3>
-                           <div class="card-tools">
-                              <button type="button" id="dtype-creator-btn" class="btn btn-block btn-dark">
+                                 Variant Table
+                                 </b>
+                              </h3>
+                              <div class="card-tools">
+                                 <button type="button" id="dtype-creator-btn" class="btn btn-block btn-dark">
                                  <i class="fas fa-question-circle"></i>                                    
-                              </button>
-                           </div>
-                        </div>
-  
-                        <div class="card-body">
-                           <div class="card">
-                              <div class="card-header">
-                                 <h5 class="card-title"><b>ClinVar Variants</b></h5>
+                                 </button>
                               </div>
-                              <div class="card-body">
-                              <div id = "clinvar-js-grid">
-                              </div>
-                           </div>
-                          </div>
-                          <div class="card">
-                           <div class="card-header">
-                              <h5 class="card-title"><b>Population Variants</b></h5>
                            </div>
                            <div class="card-body">
-                          <div id = "populationvars-js-grid">
-                           </div>
+                              <div class="card">
+                                 <div class="card-header">
+                                    <h5 class="card-title"><b>ClinVar Variants</b></h5>
+                                 </div>
+                                 <div class="card-body">
+                                    <div id = "clinvar-js-grid">
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="card">
+                                 <div class="card-header">
+                                    <h5 class="card-title"><b>Population Variants</b></h5>
+                                 </div>
+                                 <div class="card-body">
+                                    <div id = "populationvars-js-grid">
+                                    </div>
+                                 </div>
+                              </div>
                            </div>
                         </div>
-                       </div>
-                     </div>
-                     </div>
+                  </div>
                   </section>
                </div>
-
-               </div>
-            </section>
-            <!-- /.content -->
          </div>
-         <!-- /.content-wrapper -->
-         <footer class="main-footer">
-            <strong>Copyright &copy; 2021 <a href="https://rarediseasegenomics.com.au">Computational Rare Disease Genomics</a></strong>.
-            The data released here is available free of restrictions under the Creative Commons Zero Public Domain Dedication.
-
-            <div class="float-right d-none d-sm-inline-block">
-               <b>UTR Visualisation App</b> version 0.1
-            </div>
-         </footer>
-         <!-- Control Sidebar -->
-         <aside class="control-sidebar control-sidebar-dark">
-            <!-- Control sidebar content goes here -->
-         </aside>
-         <!-- /.control-sidebar -->
+         </section>
+         <!-- /.content -->
+      </div>
+      <!-- /.content-wrapper -->
+      <footer class="main-footer">
+         <strong>Copyright &copy; 2021 <a href="https://rarediseasegenomics.com.au">Computational Rare Disease Genomics</a></strong>.
+         The data released here is available free of restrictions under the Creative Commons Zero Public Domain Dedication.
+         <div class="float-right d-none d-sm-inline-block">
+            <b>UTR Visualisation App</b> version 0.1
+         </div>
+      </footer>
+      <!-- Control Sidebar -->
+      <aside class="control-sidebar control-sidebar-dark">
+         <!-- Control sidebar content goes here -->
+      </aside>
+      <!-- /.control-sidebar -->
       </div>
       <!-- ./wrapper -->
       <!-- jQuery -->
@@ -376,25 +345,23 @@
       <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
       <script src="{{url_for('static', filename = 'dist/js/pages/dashboard.js')}}"></script>
       <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
-      
       <script src="{{url_for('static', filename ='plugins/jsgrid/jsgrid.min.js')}}"></script>
       <!--IGV Viewer-->
       <script src="https://cdn.jsdelivr.net/npm/igv@2.9.4/dist/igv.min.js"></script>
-
       <script type="text/javascript">
          /**************Initial Start Up Routine****************/
-
- 
+         
+         
          $(function() {
-
+         
          var gnomad_data = {{gnomad_data|tojson}};
          console.log(gnomad_data["transcript"]["clinvar_variants"])
-
-        /*************Info details data*******************/
-
-        /*************5' Architechture*******************/
-
-
+         
+         /*************Info details data*******************/
+         
+         /*************5' Architechture*******************/
+         
+         
          var igvDiv = document.getElementById("utr-architechure-viewer");
          var options =
          {
@@ -403,16 +370,16 @@
                tracks: [
                ]
          };
-
+         
          igv.createBrowser(igvDiv, options)
                   .then(function (browser) {
                      console.log("Created IGV browser");
                   })
-
-
-        //Initialize Feature Viewer (Testing this out)
-        //Create a new Feature Viewer and add some rendering options
-        /*--> var ft2 = new FeatureViewer.createFeature("AGAGACGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGAGAGGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGGAGGGGAGGATCGGCAATAATTGGATGGCGTATATAGGTGATGAGAGCAGTGTTGTATATAGGTGATGAGAGCAGTGTT",
+         
+         
+         //Initialize Feature Viewer (Testing this out)
+         //Create a new Feature Viewer and add some rendering options
+         /*--> var ft2 = new FeatureViewer.createFeature("AGAGACGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGAGAGGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGGAGGGGAGGATCGGCAATAATTGGATGGCGTATATAGGTGATGAGAGCAGTGTTGTATATAGGTGATGAGAGCAGTGTT",
          "#transcript-viewer", {    
             showAxis: true,
             showSequence: true,
@@ -421,7 +388,7 @@
             bubbleHelp:true,
             zoomMax:10
             });
-
+         
          //Add some features
          ft2.addFeature({
             data: [{x:20,y:32},{x:46,y:100},{x:123,y:167}],
@@ -439,11 +406,11 @@
             type: "rect",
             filter: "type2"
          });*/
-
-        /*************Population variation*******************/
+         
+         /*************Population variation*******************/
          
          // Fill Clinvar data 
-        
+         
          $("#clinvar-js-grid").jsGrid({
           height: "100%",
           width: "100%",
@@ -461,9 +428,9 @@
           { name: "clinical_significance", type: "text", title:"Clincal Significance" },
           { name: "hgvsc", type: "text", title:"HGVSC" },
           ]
-      });
-      console.log(gnomad_data["transcript"]["variants"])
-      $("#populationvars-js-grid").jsGrid({
+         });
+         console.log(gnomad_data["transcript"]["variants"])
+         $("#populationvars-js-grid").jsGrid({
           height: "100%",
           width: "100%",
           sorting: true,
@@ -480,60 +447,53 @@
           { name: "genome.af", type: "text", title: "AF" },
           { name: "hgvsc", type: "text", title:"HGVSC" },
           ]
-      });
-
-
-})
-
-
-
-
+         });
+         })
+         
       </script>
-
       <script>
-   /*     
-create_tables(gnomad_data);
-function create_tables(gnomad_data){
-
-   
-   // Fill clinvar population data 
-  var clinvar_variation_data = gnomad_data["transcript"]["clinvar_variants"];
-  var clinvar_table = document.getElementById('clinvar_table');
-  clinvar_variation_data.forEach(function(object) {
-        var tr = document.createElement('tr');
-        tr.innerHTML = 
-        '<td>' + object.ref + '</td>'+
-        '<td>' + object.alt + '</td>'+
-        '<td>' + object.pos + '</td>'+
-        '<td>' + object.in_gnomad + '</td>'+
-        '<td>' +  + '</td>'+
-        '<td>' + object.hgvsc + '</td>'+
-        '<td>' + object.clinical_significance + '</td>'+
-        '<td>' + object.clinvar_variation_id + '</td>';
-        clinvar_table.appendChild(tr);
-    });
-  // Fill gnomAD population data 
-  var population_variation_data = gnomad_data["transcript"]["variants"];
-  var population_variation_table = document.getElementById('population_table');
-  population_variation_data.forEach(function(object) {
-        var tr = document.createElement('tr');
-        tr.innerHTML = 
-        '<td>' + object.variantId + '</td>'+
-        '<td>' + object.ref + '</td>'+
-        '<td>' + object.alt + '</td>'+
-        '<td>' +  + '</td>'+
-        '<td>' + object.pos + '</td>'+
-        '<td>' + object.genome.af + '</td>'+
-        '<td>' + object.genome.ac + '</td>';
-        population_variation_table.appendChild(tr);
-    });
-
-  }
-   
-*/
-
+         /*     
+         create_tables(gnomad_data);
+         function create_tables(gnomad_data){
+         
+         
+         // Fill clinvar population data 
+         var clinvar_variation_data = gnomad_data["transcript"]["clinvar_variants"];
+         var clinvar_table = document.getElementById('clinvar_table');
+         clinvar_variation_data.forEach(function(object) {
+              var tr = document.createElement('tr');
+              tr.innerHTML = 
+              '<td>' + object.ref + '</td>'+
+              '<td>' + object.alt + '</td>'+
+              '<td>' + object.pos + '</td>'+
+              '<td>' + object.in_gnomad + '</td>'+
+              '<td>' +  + '</td>'+
+              '<td>' + object.hgvsc + '</td>'+
+              '<td>' + object.clinical_significance + '</td>'+
+              '<td>' + object.clinvar_variation_id + '</td>';
+              clinvar_table.appendChild(tr);
+          });
+         // Fill gnomAD population data 
+         var population_variation_data = gnomad_data["transcript"]["variants"];
+         var population_variation_table = document.getElementById('population_table');
+         population_variation_data.forEach(function(object) {
+              var tr = document.createElement('tr');
+              tr.innerHTML = 
+              '<td>' + object.variantId + '</td>'+
+              '<td>' + object.ref + '</td>'+
+              '<td>' + object.alt + '</td>'+
+              '<td>' +  + '</td>'+
+              '<td>' + object.pos + '</td>'+
+              '<td>' + object.genome.af + '</td>'+
+              '<td>' + object.genome.ac + '</td>';
+              population_variation_table.appendChild(tr);
+          });
+         
+         }
+         
+         */
+         
+            
       </script>
    </body>
 </html>
-
-
