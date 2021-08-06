@@ -35,6 +35,7 @@
 
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid-theme.min.css')}}">
+
     
 
 
@@ -201,7 +202,10 @@
                            </div>
                            <!-- /.card-header -->
                            <div class="card-body">
-                              <div>
+                              <div class="row"> 
+                              <div class="card col-lg-3">
+                                 <div class="card-body">
+                               
                                 <h6><b>HGNC Symbol</b>: {{gnomad_data["transcript"]["gene"]["hgnc_id"]|safe}}</h6>
                                 <h6><b>Gene Name</b>: {{gnomad_data["transcript"]["gene"]["name"]|safe}}</h6>
                                 <h6><b>Ensembl Gene ID</b>: {{gnomad_data["transcript"]["gene"]["gene_id"]|safe}}</h6>
@@ -209,6 +213,11 @@
                                 <h6><b>OMIM ID</b>:  {{gnomad_data["transcript"]["gene"]["omim_id"]|safe}}</h6>
                                  <h6><b>RefSeq Match</b>: {{gnomad_data["transcript"]["gene"]["mane_select_transcript"]["refseq_id"]|safe}}</h6>
                                  <h6><b>LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> (TODO) 0.61</span></h6>
+                              </div>
+                              </div>
+
+                              <div class = "card col-lg-6 px-1">
+                                 <div class="card-body"> 
                                  <h6><b>5' UTR exon count</b>:(TODO) 2</h6>
                                  <h6><b>5' UTR length</b>: (TODO) 400</h6>
                                  <h6><b>ClinGen Haploinsufficiency Score</b>: (TODO) 3</h6>
@@ -221,7 +230,9 @@
                                     <a href="#">ClinVar</a>
                                  </h6>
                               </div>
+                              </div>
                            </div>
+                        </div>
                           
                         </div>
                         <!-- /.card -->
@@ -256,7 +267,7 @@
                               </button>
                            </div>
                         </div>
-                        <div class="card-body"><div id="transcript-viewer"></div></div>
+                        <div class="card-body"><div id="utr-architechure-viewer"></div></div>
                      </div>
                   </section>
                </div>
@@ -286,11 +297,25 @@
                         </div>
   
                         <div class="card-body">
-
-                          <div id = "clinvar-js-grid">
+                           <div class="card">
+                              <div class="card-header">
+                                 <h5 class="card-title"><b>ClinVar Variants</b></h5>
+                              </div>
+                              <div class="card-body">
+                              <div id = "clinvar-js-grid">
+                              </div>
+                           </div>
                           </div>
+                          <div class="card">
+                           <div class="card-header">
+                              <h5 class="card-title"><b>Population Variants</b></h5>
+                           </div>
+                           <div class="card-body">
                           <div id = "populationvars-js-grid">
-                          </div>
+                           </div>
+                           </div>
+                        </div>
+                       </div>
                      </div>
                      </div>
                   </section>
@@ -353,6 +378,8 @@
       <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
       
       <script src="{{url_for('static', filename ='plugins/jsgrid/jsgrid.min.js')}}"></script>
+      <!--IGV Viewer-->
+      <script src="https://cdn.jsdelivr.net/npm/igv@2.9.4/dist/igv.min.js"></script>
 
       <script type="text/javascript">
          /**************Initial Start Up Routine****************/
@@ -360,13 +387,32 @@
  
          $(function() {
 
+         var gnomad_data = {{gnomad_data|tojson}};
+         console.log(gnomad_data["transcript"]["clinvar_variants"])
+
         /*************Info details data*******************/
 
         /*************5' Architechture*******************/
 
-        //Initialize Feature Viewer 
+
+         var igvDiv = document.getElementById("utr-architechure-viewer");
+         var options =
+         {
+               genome: "hg38",
+               locus: `chr${gnomad_data["transcript"]["gene"]["chrom"]}:${gnomad_data["transcript"]["gene"]["start"]}-${gnomad_data["transcript"]["gene"]["stop"]}`,
+               tracks: [
+               ]
+         };
+
+         igv.createBrowser(igvDiv, options)
+                  .then(function (browser) {
+                     console.log("Created IGV browser");
+                  })
+
+
+        //Initialize Feature Viewer (Testing this out)
         //Create a new Feature Viewer and add some rendering options
-         var ft2 = new FeatureViewer.createFeature("AGAGACGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGAGAGGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGGAGGGGAGGATCGGCAATAATTGGATGGCGTATATAGGTGATGAGAGCAGTGTTGTATATAGGTGATGAGAGCAGTGTT",
+        /*--> var ft2 = new FeatureViewer.createFeature("AGAGACGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGAGAGGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGGAGGGGAGGATCGGCAATAATTGGATGGCGTATATAGGTGATGAGAGCAGTGTTGTATATAGGTGATGAGAGCAGTGTT",
          "#transcript-viewer", {    
             showAxis: true,
             showSequence: true,
@@ -392,18 +438,17 @@
             color: "#006588",
             type: "rect",
             filter: "type2"
-         });
+         });*/
 
         /*************Population variation*******************/
          
-         var gnomad_data = {{gnomad_data|tojson}};
-         console.log(gnomad_data["transcript"]["clinvar_variants"])
          // Fill Clinvar data 
         
          $("#clinvar-js-grid").jsGrid({
           height: "100%",
           width: "100%",
           sorting: true,
+          pageSize : 10, 
           paging: true,
           data: gnomad_data["transcript"]["clinvar_variants"],
           fields: [
@@ -422,6 +467,7 @@
           height: "100%",
           width: "100%",
           sorting: true,
+          pageSize : 10, 
           paging: true,
           data: gnomad_data["transcript"]["variants"],
           fields: [
