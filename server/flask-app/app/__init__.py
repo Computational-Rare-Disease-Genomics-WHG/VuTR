@@ -6,8 +6,6 @@ from .config import config_by_name
 
 # db = SQLAlchemy() # To add database when we have to put in the tables and the cache
 
-
-
 def create_app(runtime_environment): 
     app = Flask(__name__)
     # create the app through the app configuration 
@@ -15,7 +13,7 @@ def create_app(runtime_environment):
     
     # TODO No database for now
     #db.init(app)
-
+    
     # Register blueprints 
     from .viewer import viewer as viewer_blueprint
     app.register_blueprint(viewer_blueprint)
