@@ -14,5 +14,5 @@ docker run -t -i \
  --tab \
  --dir_cache /opt/vep/.vep/Cache \
  --plugin UTRannotator, /opt/vep/.vep/Plugins/uORF_starts_ends_GRCh38_PUBLIC.txt\
- -i /opt/vep/.vep/input/test_grch38.vcf \
- -o /opt/vep/.vep/output/testrun_vep.test_grch38.out
+ -i /opt/vep/.vep/input/clinvar_utr_filtered.vcf\
+ -o /opt/vep/.vep/output/clinvar_utr_filtered.out
