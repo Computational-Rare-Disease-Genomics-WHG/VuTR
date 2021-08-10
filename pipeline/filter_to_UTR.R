@@ -24,4 +24,4 @@ mane_features[, CHROM:= as.character(CHROM)]
 mane_features[, CHROM := substr(CHROM, 4, nchar(CHROM))]
 
 
-fwrite(mane_features, "UTR_regions.tsv", sep="\t")
+fwrite(mane_features, "UTR_regions.tsv", sep="\t", col.names=F)
