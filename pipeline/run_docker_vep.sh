@@ -10,6 +10,9 @@ docker run -t -i \
  --force_overwrite\
  --species homo_sapiens\
  --cache \
+ --mane \ 
+ --mane_select\
+ --canonical\
  --offline\
  --tab \
  --dir_cache /opt/vep/.vep/Cache \
