@@ -10,7 +10,7 @@ docker run -t -i \
  --force_overwrite\
  --species homo_sapiens\
  --cache \
- --mane \ 
+ --mane \
  --mane_select\
  --canonical\
  --offline\
