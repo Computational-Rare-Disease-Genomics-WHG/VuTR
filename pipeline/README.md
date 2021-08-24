@@ -24,6 +24,19 @@ docker run -t -i ensemblorg/ensembl-vep ./vep
 docker run -t -i -v $(pwd)/vep_data/:/opt/vep/.vep/ ensemblorg/ensembl-vep bash
 ```
 
+
+## Sorfs DB 
+
+For reproducibility, here are the options and attributes for the sORFS.download
+
+```
+<!DOCTYPE Query><Query client="true" processor="TSV" limit="-1" header="1"><Dataset name="BioMart" config="Human"><Filter name="human__annotation_104" value="5UTR" filter_list=""/><Attribute name="human__sorf_id_104"/><Attribute name="human__chr_104"/><Attribute name="human__sorf_end_104"/><Attribute name="human__strand_104"/><Attribute name="human__sorf_begin_104"/><Attribute name="human__upstream_gene_distance_104"/><Attribute name="human__downstream_gene_distance_104"/><Attribute name="human__tr_seq_104"/><Attribute name="human__id_104"/><Attribute name="human__start_codon_104"/></Dataset></Query>
+```
+
+
+
+
+
 ## Key scripts for the pre-processing pipeline. 
 
 Create a snakemake pipeline for the following scripts.
