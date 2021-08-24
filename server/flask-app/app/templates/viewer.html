@@ -328,16 +328,22 @@
          var start_codon_feat = gene_features["features"].find(obj => {return obj.type ==="start_codon"})
 
          // Filter to features within the UTR.
-         track_features = gene_features["features"].filter(function (element){
+         track_features = gene_features["features"]
+         
+         /*.filter(function (element){
             // If on the positive strand filter
             if (element.strand === "+"){
-               console.log(element.start < start_codon_feat.end+buffer_zone);
+               console.log(element.end-element.start+1);
+
                return element.start < start_codon_feat.end+buffer_zone;
                
             }else{
+               console.log("Negative strand");
+               console.log(element.end-element.start+1);
+
                return element.end < start_codon_feat.end-buffer_zone;
             }
-         });
+         });*/
 
          track_features = track_features.sort((a, b) => (a.end < b.end) ? 1 : -1)
 
@@ -347,7 +353,7 @@
          // Get smORF data 
 
          // set the dimensions and margins of the graph
-         var margin = {top: 20, right: 30, bottom: 40, left: 90},
+         var margin = {top: 20, right: 30, bottom: 40, left: 200},
             width = 1300 - margin.left - margin.right,
             height = 300 - margin.top - margin.bottom;
 
@@ -372,7 +378,7 @@
          // Y axis
          var y = d3.scaleBand()
             .range([ 0, height ])
-            .domain(["exon", "start_codon", "CDS" ,"stop_codon", "five_prime_UTR",  "three_prime_UTR"])
+            .domain(track_features.map(a => a.ID))
             .padding(.3);
          svg.append("g")
             .call(d3.axisLeft(y))
@@ -382,9 +388,9 @@
             .data(track_features)
             .enter()
             .append("rect")
-            .attr("x", function(d) {return x(d.start);})
-            .attr("y", function(d) { return y(d.type); })
-            .attr("width", function(d) { return x(d.end); })
+            .attr("x", function(d) {return x(d.end);})
+            .attr("y", function(d) { return y(d.ID); })
+            .attr("width", function(d) { return x(d.end)})
             .attr("height", y.bandwidth()-3)
             .attr("fill", "#000000")
 
