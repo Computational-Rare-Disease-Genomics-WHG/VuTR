@@ -7,6 +7,7 @@ import io
 from suds.client import Client
 
 client = Client("http://biomart.biobix.be/martsoap?wsdl")
+mart = client.service.getMarts(None)[0]
 ds = client.service.getDatasets(mart._name)[0]
 query="""<!DOCTYPE Query>
 <Query client="true" processor="TSV" limit="-1" header="1">
@@ -27,3 +28,5 @@ query="""<!DOCTYPE Query>
 """
 output = client.service.getResults(query)
 df = pd.read_csv(  io.StringIO(output), sep="\t")
+
+df.to_csv("../server/db/SORFS/sorfs.csv")

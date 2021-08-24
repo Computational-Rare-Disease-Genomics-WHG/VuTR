@@ -32,9 +32,24 @@ def get_utr_stats (ensembl_gene_id):
     utr_stats["5_prime_utr_length"] = sum(five_prim_utrs["width"])
     return utr_stats
 
+def get_gene_features(ensembl_gene_id): 
+    """
+    Gets the features for a given gene by ensembl_gene_id. 
+
+    Parameters : 
+            ensembl_gene_id (str) : A stable ensembl gene identifier (ensure that this is in MANE) e.g. ENSG00000081189 
+    
+        Returns: 
+            gene_features (dict) : A dictionary for the genomic features of the specified ensembl_gene_id.
+    """
+    gene = read_mane(ensembl_gene_id)
+    gene_features = gene[gene["type"]=="gene"].to_dict("records")[0]
+    return gene_features
+
+
 def genomic_features_by_ensg(ensembl_gene_id):
     """
-    Get the MANE genomic features for a given gene. 
+    Get all MANE genomic features for a given gene. 
 
         Parameters: 
             ensembl_gene_id (str) : A stable ensembl gene identifier (ensure that this is in MANE) e.g. ENSG00000081189 
@@ -54,4 +69,5 @@ def genomic_features_by_ensg(ensembl_gene_id):
     genomic_features["features"] = gene_data[gene_data["type"]!="gene"].to_dict('records')
 
     # TODO : Add sequence as well
+    
     return genomic_features

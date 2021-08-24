@@ -47,10 +47,10 @@
          }
       </style>
    </head>
-   <body class="hold-transition layout-fixed" id="main-content" >
+   <body class="hold-transition layout-top-nav" id="main-content" >
       <div class="wrapper">
          <!-- Navbar -->
-         <nav class="main-header navbar navbar-expand navbar-light" >
+         <nav class="main-header navbar navbar-expand navbar-dark" >
             <!-- Left navbar links -->
             <ul class="navbar-nav">
                <li class="nav-item d-none d-sm-inline-block">
@@ -72,6 +72,17 @@
                   <a href="#" class="nav-link">Terms</a>
                </li>
             </ul>
+            <form class="form-inline ml-3 ml-md-10">
+               <div class="input-group input-group-sm">
+                 <input class="form-control form-control-navbar" type="search" placeholder="Search by ENSG" aria-label="Search">
+                 <div class="input-group-append">
+                   <button class="btn btn-navbar" type="submit">
+                     <i class="fas fa-search"></i>
+                   </button>
+                 </div>
+               </div>
+             </form>
+     
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
                <!-- Navbar Search -->
@@ -83,59 +94,7 @@
             </ul>
          </nav>
          <!-- /.navbar -->
-         <!-- Main Sidebar Container -->
-         <aside class="main-sidebar sidebar-dark-primary elevation-4"  >
-            <!-- Brand Logo -->
-            <div class="ml-3">
-            </div>
-            <!-- Sidebar -->
-            <div class="sidebar">
-               <!-- Sidebar user panel (optional) -->
-               <div class="user-panel mt-3 pb-3 mb-3 mx-auto d-flex">
-                  <div class="image">
-                  </div>
-                  <div class="info">
-                     <h2 class="brand-text font-weight-light" style="color:white;">UTR Viz App</h2>
-                  </div>
-               </div>
-               <!-- Sidebar user panel (optional) -->
-               <!-- SidebarSearch Form -->
-               <div class="form-inline">
-                  <div class="input-group" data-widget="sidebar-search">
-                     <input class="form-control form-control-sidebar" id="search-input" type="search" placeholder="Search" >
-                     <div class="input-group-append">
-                        <button class="btn btn-sidebar" onclick="window.location.href = '/viewer/'+ $('#search-input').val() ">
-                        <i class="fas fa-search fa-fw"></i>
-                        </button>
-                     </div>
-                  </div>
-                  <div>
-                  </div>
-               </div>
-               <!-- SidebarSearch Form -->
-               <!-- Sidebar Menu -->
-               <!-- Sidebar Menu -->
-               <nav class="mt-2">
-                  <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                     <!-- Add icons to the links using the .nav-icon class
-                        with font-awesome or any other icon font library -->
-                     {% for mesg in get_flashed_messages() %}
-                     <p class="login-box-msg nav-item" style="color:white;">{{ mesg }}</p>
-                     {% endfor %}
-                     <li class="nav-item">
-                        <a href="pages/widgets.html" class="nav-link">
-                           <i class="nav-icon fas fa-th"></i>
-                           <p>
-                              Search
-                           </p>
-                        </a>
-                     </li>
-                  </ul>
-               </nav>
-               <!-- /.sidebar-menu -->
-            </div>
-            <!-- /.sidebar -->
-         </aside>
+
          <!-- Content Wrapper. Contains page content -->
          <div class="content-wrapper" >
             <!-- Content Header (Page header) -->
@@ -149,6 +108,7 @@
                      <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                           <li class="breadcrumb-item"><a href="#">Viewer</a></li>
                            <li class="breadcrumb-item active">{{ensembl_transcript_id}}({{gnomad_data["transcript"]["gene"]["symbol"]|safe}})</li>
                         </ol>
                      </div>
@@ -186,7 +146,7 @@
                            <!-- /.card-header -->
                            <div class="card-body">
                               <div class="row">
-                                 <div class="card col-lg-3">
+                                 <div class=" col-lg-6 border-0">
                                     <div class="card-body">
                                        <h6><b>HGNC Symbol</b>: {{gnomad_data["transcript"]["gene"]["hgnc_id"]|safe}}</h6>
                                        <h6><b>Gene Name</b>: {{gnomad_data["transcript"]["gene"]["name"]|safe}}</h6>
@@ -197,7 +157,7 @@
                                        <h6><b>LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> (TODO) 0.61</span></h6>
                                     </div>
                                  </div>
-                                 <div class = "card col-lg-6 px-1">
+                                 <div class = "col-lg-6 border-0 px-1">
                                     <div class="card-body">
                                        <h6><b>5' UTR exon count</b>:{{five_prime_utr_stats["count"]}}</h6>
                                        <h6><b>5' UTR length</b>: {{five_prime_utr_stats["5_prime_utr_length"]}}</h6>
@@ -388,7 +348,7 @@
 
          // set the dimensions and margins of the graph
          var margin = {top: 20, right: 30, bottom: 40, left: 90},
-            width = 1000 - margin.left - margin.right,
+            width = 1300 - margin.left - margin.right,
             height = 300 - margin.top - margin.bottom;
 
          // append the svg object to the body of the page
@@ -412,8 +372,8 @@
          // Y axis
          var y = d3.scaleBand()
             .range([ 0, height ])
-            .domain(["exon", "start_codon", "CDS" ,"stop_codon", "five_prime_UTR", "transcript", "three_prime_UTR"])
-            .padding(.01);
+            .domain(["exon", "start_codon", "CDS" ,"stop_codon", "five_prime_UTR",  "three_prime_UTR"])
+            .padding(.3);
          svg.append("g")
             .call(d3.axisLeft(y))
 
@@ -424,9 +384,9 @@
             .append("rect")
             .attr("x", function(d) {return x(d.start);})
             .attr("y", function(d) { return y(d.type); })
-            .attr("width", function(d) { return x(d.width); })
+            .attr("width", function(d) { return x(d.end); })
             .attr("height", y.bandwidth()-3)
-            .attr("fill", "#006fe6")
+            .attr("fill", "#000000")
 
 
 
@@ -511,7 +471,7 @@
           { name: "ref", type: "text", title: "REF" },
           { name: "alt", type: "text", title: "ALT" },
           { name: "pos", type: "text", title: "POS" },
-          { name: "transcript_consequence.major_consequence", type: "text", title: "Major Consequence" },
+          { name: "transcript_consequence.major_consequence", type: "text", title: "Consq", width: 150},
           { name: "genome.ac", type: "text", title: "AC" },
           { name: "genome.af", type: "text", title: "AF" },
           { name: "hgvsc", type: "text", title:"HGVSC" },
