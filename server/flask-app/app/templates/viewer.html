@@ -34,6 +34,9 @@
       <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid-theme.min.css')}}">
+      <script src="https://d3js.org/d3.v7.min.js"></script>
+
+
       <style type="text/css">
          .select2-container--default .select2-selection--multiple .select2-selection__choice {
          background-color: #007bff; 
@@ -232,7 +235,7 @@
                               <h3 class="card-title">
                                  <b>
                                  <i class="fas fa-info-circle"></i>
-                                 5' UTR Architechure (T0DO)
+                                 5' UTR Architechure
                                  </b>
                               </h3>
                               <div class="card-tools">
@@ -340,14 +343,11 @@
       <script src="{{url_for('static', filename = 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js')}}"></script>
       <!-- AdminLTE App -->
       <script src="{{url_for('static', filename = 'dist/js/adminlte.js')}}"></script>
-      <!-- AdminLTE for demo purposes -->
-      <script src="{{url_for('static', filename = 'dist/js/demo.js')}}"></script>
       <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
       <script src="{{url_for('static', filename = 'dist/js/pages/dashboard.js')}}"></script>
       <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
       <script src="{{url_for('static', filename ='plugins/jsgrid/jsgrid.min.js')}}"></script>
-      <!--IGV Viewer-->
-      <script src="https://cdn.jsdelivr.net/npm/igv@2.9.4/dist/igv.min.js"></script>
+
       <script type="text/javascript">
          /**************Initial Start Up Routine****************/
          
@@ -355,14 +355,72 @@
          $(function() {
          
          var gnomad_data = {{gnomad_data|tojson}};
-         console.log(gnomad_data["transcript"]["clinvar_variants"])
          
          /*************Info details data*******************/
          
          /*************5' Architechture*******************/
          
-         
-         var igvDiv = document.getElementById("utr-architechure-viewer");
+         var nan = null; 
+         var gene_features = {{gene_features|safe}};
+         // Get smORF data 
+         console.log(gene_features["features"])
+
+         var gene_start = gene_features["gene_start"];
+         var gene_end = gene_features["gene_end"];
+
+         // set the dimensions and margins of the graph
+         var margin = {top: 20, right: 30, bottom: 40, left: 90},
+            width = 2000 - margin.left - margin.right,
+            height = 300 - margin.top - margin.bottom;
+
+         // append the svg object to the body of the page
+         var svg = d3.select("#utr-architechure-viewer")
+         .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+         .append("g")
+            .attr("transform",
+                  "translate(" + margin.left + "," + margin.top + ")");
+
+         // Parse the Data
+         var plotter = d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/7_OneCatOneNum_header.csv")
+         console.log(plotter)
+         plotter.then(function(data) {
+         // Add X axis
+         var x = d3.scaleLinear()
+            .domain([gene_start, gene_end])
+            .range([ 0, width]);
+         svg.append("g")
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+               .style("text-anchor", "end");
+
+         // Y axis
+         var y = d3.scaleBand()
+            .range([ 0, height ])
+            .domain(["exon", "start_codon", "CDS" ,"stop_codon", "five_prime_UTR", "three_prime_UTR"])
+            .padding(.01);
+         svg.append("g")
+            .call(d3.axisLeft(y))
+
+         //Bars
+         svg.selectAll("myRect")
+            .data(gene_features["features"])
+            .enter()
+            .append("rect")
+            .attr("x", function(d) { return x(d.start);})
+            .attr("y", function(d) { return y(d.type); })
+            .attr("width", function(d) { return x(d.start+100); })
+            .attr("height", y.bandwidth())
+            .attr("fill", "#006fe6")
+         })
+
+
+
+
+
+
+         /*var igvDiv = document.getElementById("utr-architechure-viewer");
          var options =
          {
                genome: "hg38",
@@ -374,7 +432,7 @@
          igv.createBrowser(igvDiv, options)
                   .then(function (browser) {
                      console.log("Created IGV browser");
-                  })
+                  })*/
          
          
          //Initialize Feature Viewer (Testing this out)
