@@ -21,7 +21,6 @@ def get_Kozak_context(sequence, pos):
 def get_Kozak_strength(context):
   pass
 
-
 def get_clinvar_data(ENSEMBL_TRANSCRIPT_ID):
   pass
 
