@@ -12,6 +12,8 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
       <!-- Font Awesome -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/all.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/brands.css')}}">
@@ -43,11 +45,12 @@
          border-color: #006fe6;
          }
          p, h1, h2, h3, h4,h5, h6, a{
-         font-family:'Lato';
+         font-family:'Roboto';
+         font-weight: 400;
          }
       </style>
    </head>
-   <body class="hold-transition layout-fixed" id="main-content" >
+   <body class="hold-transition layout-top-nav" id="main-content" >
       <div class="wrapper">
          <!-- Navbar -->
          <nav class="main-header navbar navbar-expand navbar-light" >
@@ -72,6 +75,17 @@
                   <a href="#" class="nav-link">Terms</a>
                </li>
             </ul>
+            <form class="form-inline ml-3 ml-md-10">
+               <div class="input-group input-group-sm">
+                 <input class="form-control form-control-navbar" type="search" placeholder="Search by gene name or ENSG" aria-label="Search">
+                 <div class="input-group-append">
+                   <button class="btn btn-navbar" type="submit">
+                     <i class="fas fa-search"></i>
+                   </button>
+                 </div>
+               </div>
+             </form>
+     
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
                <!-- Navbar Search -->
@@ -83,59 +97,7 @@
             </ul>
          </nav>
          <!-- /.navbar -->
-         <!-- Main Sidebar Container -->
-         <aside class="main-sidebar sidebar-dark-primary elevation-4"  >
-            <!-- Brand Logo -->
-            <div class="ml-3">
-            </div>
-            <!-- Sidebar -->
-            <div class="sidebar">
-               <!-- Sidebar user panel (optional) -->
-               <div class="user-panel mt-3 pb-3 mb-3 mx-auto d-flex">
-                  <div class="image">
-                  </div>
-                  <div class="info">
-                     <h2 class="brand-text font-weight-light" style="color:white;">UTR Viz App</h2>
-                  </div>
-               </div>
-               <!-- Sidebar user panel (optional) -->
-               <!-- SidebarSearch Form -->
-               <div class="form-inline">
-                  <div class="input-group" data-widget="sidebar-search">
-                     <input class="form-control form-control-sidebar" id="search-input" type="search" placeholder="Search" >
-                     <div class="input-group-append">
-                        <button class="btn btn-sidebar" onclick="window.location.href = '/viewer/'+ $('#search-input').val() ">
-                        <i class="fas fa-search fa-fw"></i>
-                        </button>
-                     </div>
-                  </div>
-                  <div>
-                  </div>
-               </div>
-               <!-- SidebarSearch Form -->
-               <!-- Sidebar Menu -->
-               <!-- Sidebar Menu -->
-               <nav class="mt-2">
-                  <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                     <!-- Add icons to the links using the .nav-icon class
-                        with font-awesome or any other icon font library -->
-                     {% for mesg in get_flashed_messages() %}
-                     <p class="login-box-msg nav-item" style="color:white;">{{ mesg }}</p>
-                     {% endfor %}
-                     <li class="nav-item">
-                        <a href="pages/widgets.html" class="nav-link">
-                           <i class="nav-icon fas fa-th"></i>
-                           <p>
-                              Search
-                           </p>
-                        </a>
-                     </li>
-                  </ul>
-               </nav>
-               <!-- /.sidebar-menu -->
-            </div>
-            <!-- /.sidebar -->
-         </aside>
+
          <!-- Content Wrapper. Contains page content -->
          <div class="content-wrapper" >
             <!-- Content Header (Page header) -->
@@ -149,6 +111,7 @@
                      <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                           <li class="breadcrumb-item"><a href="#">Viewer</a></li>
                            <li class="breadcrumb-item active">{{ensembl_transcript_id}}({{gnomad_data["transcript"]["gene"]["symbol"]|safe}})</li>
                         </ol>
                      </div>
@@ -178,7 +141,7 @@
                                  </b>
                               </h3>
                               <div class="card-tools">
-                                 <button type="button" id="dtype-creator-btn" class="btn btn-block btn-dark">
+                                 <button type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
                                  <i class="fas fa-question-circle"></i>                                    
                                  </button>
                               </div>
@@ -186,7 +149,7 @@
                            <!-- /.card-header -->
                            <div class="card-body">
                               <div class="row">
-                                 <div class="card col-lg-3">
+                                 <div class=" col-lg-6 border-0">
                                     <div class="card-body">
                                        <h6><b>HGNC Symbol</b>: {{gnomad_data["transcript"]["gene"]["hgnc_id"]|safe}}</h6>
                                        <h6><b>Gene Name</b>: {{gnomad_data["transcript"]["gene"]["name"]|safe}}</h6>
@@ -194,20 +157,18 @@
                                        <h6><b>Ensembl Transcript ID</b>: {{ensembl_transcript_id}}</h6>
                                        <h6><b>OMIM ID</b>:  {{gnomad_data["transcript"]["gene"]["omim_id"]|safe}}</h6>
                                        <h6><b>RefSeq Match</b>: {{gnomad_data["transcript"]["gene"]["mane_select_transcript"]["refseq_id"]|safe}}</h6>
-                                       <h6><b>LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> (TODO) 0.61</span></h6>
                                     </div>
                                  </div>
-                                 <div class = "card col-lg-6 px-1">
+                                 <div class = "col-lg-6 border-0 px-1">
                                     <div class="card-body">
-                                       <h6><b>5' UTR exon count</b>:(TODO) 2</h6>
-                                       <h6><b>5' UTR length</b>: (TODO) 400</h6>
+                                       <h6><b>5' UTR exon count</b>:{{five_prime_utr_stats["count"]}}</h6>
+                                       <h6><b>5' UTR length</b>: {{five_prime_utr_stats["5_prime_utr_length"]}}</h6>
+                                       <h6><b>Gene LOEUF (TODO)  <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> 0.61</span></h6>
                                        <h6><b>ClinGen Haploinsufficiency Score</b>: (TODO) 3</h6>
                                        <h6><b>External Resources</b>: View gene in 
-                                          <a href="#">Ensembl</a>, 
                                           <a href="#">OMIM</a>,
                                           <a href="#">gnomAD</a>,
                                           <a href="#">sORFs.org</a>,
-                                          <a href="#">ClinGen</a>,
                                           <a href="#">ClinVar</a>
                                        </h6>
                                     </div>
@@ -239,7 +200,7 @@
                                  </b>
                               </h3>
                               <div class="card-tools">
-                                 <button type="button" id="dtype-creator-btn" class="btn btn-block btn-dark">
+                                 <button type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
                                  <i class="fas fa-question-circle"></i>                                    
                                  </button>
                               </div>
@@ -265,7 +226,7 @@
                                  </b>
                               </h3>
                               <div class="card-tools">
-                                 <button type="button" id="dtype-creator-btn" class="btn btn-block btn-dark">
+                                 <button type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
                                  <i class="fas fa-question-circle"></i>                                    
                                  </button>
                               </div>
@@ -352,25 +313,48 @@
          /**************Initial Start Up Routine****************/
          
          
-         $(function() {
          
          var gnomad_data = {{gnomad_data|tojson}};
          
          /*************Info details data*******************/
          
-         /*************5' Architechture*******************/
-         
+         /*************5' Architechture Genomic*******************/
          var nan = null; 
          var gene_features = {{gene_features|safe}};
-         // Get smORF data 
-         console.log(gene_features["features"])
-
+         
+         const buffer_zone = 200;
          var gene_start = gene_features["gene_start"];
          var gene_end = gene_features["gene_end"];
+         var start_codon_feat = gene_features["features"].find(obj => {return obj.type ==="start_codon"})
+
+         // Filter to features within the UTR.
+         track_features = gene_features["features"]
+         
+         /*.filter(function (element){
+            // If on the positive strand filter
+            if (element.strand === "+"){
+               console.log(element.end-element.start+1);
+
+               return element.start < start_codon_feat.end+buffer_zone;
+               
+            }else{
+               console.log("Negative strand");
+               console.log(element.end-element.start+1);
+
+               return element.end < start_codon_feat.end-buffer_zone;
+            }
+         });*/
+
+         track_features = track_features.sort((a, b) => (a.end < b.end) ? 1 : -1)
+
+         console.log(track_features)
+
+
+         // Get smORF data 
 
          // set the dimensions and margins of the graph
-         var margin = {top: 20, right: 30, bottom: 40, left: 90},
-            width = 2000 - margin.left - margin.right,
+         var margin = {top: 20, right: 30, bottom: 40, left: 200},
+            width = 1300 - margin.left - margin.right,
             height = 300 - margin.top - margin.bottom;
 
          // append the svg object to the body of the page
@@ -382,40 +366,33 @@
             .attr("transform",
                   "translate(" + margin.left + "," + margin.top + ")");
 
-         // Parse the Data
-         var plotter = d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/7_OneCatOneNum_header.csv")
-         console.log(plotter)
-         plotter.then(function(data) {
          // Add X axis
          var x = d3.scaleLinear()
-            .domain([gene_start, gene_end])
+            .domain([gene_start, start_codon_feat.start])
             .range([ 0, width]);
          svg.append("g")
-            .call(d3.axisBottom(x))
+            .call(d3.axisTop(x))
             .selectAll("text")
                .style("text-anchor", "end");
 
          // Y axis
          var y = d3.scaleBand()
             .range([ 0, height ])
-            .domain(["exon", "start_codon", "CDS" ,"stop_codon", "five_prime_UTR", "three_prime_UTR"])
-            .padding(.01);
+            .domain(track_features.map(a => a.ID))
+            .padding(.3);
          svg.append("g")
             .call(d3.axisLeft(y))
 
          //Bars
          svg.selectAll("myRect")
-            .data(gene_features["features"])
+            .data(track_features)
             .enter()
             .append("rect")
-            .attr("x", function(d) { return x(d.start);})
-            .attr("y", function(d) { return y(d.type); })
-            .attr("width", function(d) { return x(d.start+100); })
-            .attr("height", y.bandwidth())
-            .attr("fill", "#006fe6")
-         })
-
-
+            .attr("x", function(d) {return x(d.start);})
+            .attr("y", function(d) { return y(d.ID); })
+            .attr("width", function(d) { return x(d.end)})
+            .attr("height", y.bandwidth()-3)
+            .attr("fill", "#000000")
 
 
 
@@ -487,7 +464,6 @@
           { name: "hgvsc", type: "text", title:"HGVSC" },
           ]
          });
-         console.log(gnomad_data["transcript"]["variants"])
          $("#populationvars-js-grid").jsGrid({
           height: "100%",
           width: "100%",
@@ -500,13 +476,12 @@
           { name: "ref", type: "text", title: "REF" },
           { name: "alt", type: "text", title: "ALT" },
           { name: "pos", type: "text", title: "POS" },
-          { name: "transcript_consequence.major_consequence", type: "text", title: "Major Consequence" },
+          { name: "transcript_consequence.major_consequence", type: "text", title: "Consq", width: 150},
           { name: "genome.ac", type: "text", title: "AC" },
           { name: "genome.af", type: "text", title: "AF" },
           { name: "hgvsc", type: "text", title:"HGVSC" },
           ]
          });
-         })
          
       </script>
       <script>

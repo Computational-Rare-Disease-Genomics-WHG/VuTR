@@ -24,6 +24,12 @@ docker run -t -i ensemblorg/ensembl-vep ./vep
 docker run -t -i -v $(pwd)/vep_data/:/opt/vep/.vep/ ensemblorg/ensembl-vep bash
 ```
 
+
+
+
+
+
+
 ## Key scripts for the pre-processing pipeline. 
 
 Create a snakemake pipeline for the following scripts.
@@ -33,7 +39,9 @@ Create a snakemake pipeline for the following scripts.
 3. `find_UTR_regions.py` : Filter to MANE UTR regions 
 4. `filter_to_UTRs.sh` : Runs tabix to filter UTR regions to the necessary.
 5. `run_docker_vep.sh` : Runs docker on the whole set + UTR annotator
-6. `create_sqlite_db.py` : Creates / updates a sqlite3 database from gnomAD and VEP for use in the web_server. 
+6. `model.py` : Describing the sql alch
+7. `create_sqlite_db.py` : Creates / updates a sqlite3 database from gnomAD and VEP for use in the web_server. 
+
 
 Commandline Argument Options : 
 
