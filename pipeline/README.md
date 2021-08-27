@@ -37,9 +37,9 @@ Create a snakemake pipeline for the following scripts.
 1. `download_clinvar.sh` : Downloads the weekly update of clinvar
 2. `download_gnomAD.sh` : Downloads gnomAD (Need to only do this once)
 3. `find_UTR_regions.py` : Filter to MANE UTR regions 
-4. `filter_to_UTRs.sh` : Runs tabix to filter UTR regions to the necessary.
+4. `filter_to_UTRs.sh` : Runs tabix to filter UTR regions to the necessary
 5. `run_docker_vep.sh` : Runs docker on the whole set + UTR annotator
-6. `model.py` : Describing the sql alch
+6. `model.py` : Describing the sqlalchemy database files including schemas for the quick querying of the source data.
 7. `create_sqlite_db.py` : Creates / updates a sqlite3 database from gnomAD and VEP for use in the web_server. 
 
 
