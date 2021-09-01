@@ -1,0 +1,47 @@
+name: utr-app-pipeline
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - appdirs=1.4.4=pyh9f0ad1d_0
+  - astroid=2.7.3=py39hf3d152e_0
+  - ca-certificates=2021.7.5=h06a4308_1
+  - cffi=1.14.6=py39he32792d_0
+  - cfgv=3.3.1=pyhd8ed1ab_0
+  - colorama=0.4.4=pyhd3eb1b0_0
+  - distlib=0.3.2=pyhd8ed1ab_0
+  - editdistance-s=1.0.0=py39h1a9c180_1
+  - filelock=3.0.12=pyhd3eb1b0_1
+  - identify=2.2.13=pyhd8ed1ab_0
+  - isort=5.9.3=pyhd8ed1ab_0
+  - lazy-object-proxy=1.6.0=py39h3811e60_0
+  - ld_impl_linux-64=2.36.1=hea4e1c9_2
+  - libffi=3.3=he6710b0_2
+  - libgcc-ng=11.1.0=hc902ee8_8
+  - libgomp=11.1.0=hc902ee8_8
+  - libstdcxx-ng=11.1.0=h56837e0_8
+  - mccabe=0.6.1=py39h06a4308_1
+  - ncurses=6.2=h58526e2_4
+  - nodeenv=1.6.0=pyhd8ed1ab_0
+  - openssl=1.1.1k=h7f98852_1
+  - platformdirs=2.3.0=pyhd8ed1ab_0
+  - pre-commit=2.14.1=py39hf3d152e_0
+  - pycparser=2.20=pyh9f0ad1d_2
+  - pylint=2.10.2=pyhd8ed1ab_0
+  - python=3.9.6=h49503c6_1_cpython
+  - python_abi=3.9=2_cp39
+  - pyyaml=5.4.1=py39h3811e60_1
+  - readline=8.1=h46c0cb4_0
+  - setuptools=57.4.0=py39hf3d152e_0
+  - six=1.16.0=pyhd3eb1b0_0
+  - sqlite=3.36.0=hc218d9a_0
+  - tk=8.6.11=h21135ba_0
+  - toml=0.10.2=pyhd8ed1ab_0
+  - tzdata=2021a=he74cb21_1
+  - virtualenv=20.4.7=py39hf3d152e_0
+  - wrapt=1.12.1=py39h3811e60_3
+  - xz=5.2.5=h516909a_1
+  - yaml=0.2.5=h516909a_0
+  - zlib=1.2.11=h516909a_1010
