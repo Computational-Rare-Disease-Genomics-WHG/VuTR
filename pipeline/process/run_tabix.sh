@@ -1,6 +1,13 @@
 #!/bin/bash
 
+cd $(dirname "$0")
+
+cd ../..
+
 # build the index file
-tabix -p vcf vep_data/input/clinvar.vcf.gz -f
+tabix -p vcf data/pipeline/CLINVAR/clinvar.vcf.gz -f
+
 # filter to regions
-tabix vep_data/input/clinvar.vcf.gz -R UTR_regions.tsv > vep_data/input/clinvar_utr_filtered.vcf
+tabix data/pipeline/CLINVAR/clinvar.vcf.gz \
+       	-R data/pipeline/UTR_regions.tsv \
+       	> data/pipeline/clinvar_utr_filtered.vcf
