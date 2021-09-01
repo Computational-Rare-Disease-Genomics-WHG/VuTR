@@ -1,15 +1,15 @@
-# download_sorf_query.py
+"""
+download_sorf_query.py
+Download Sorfs ribo-profiling data through the SOAP API
+"""
 
-# Download Sorfs ribo-profiling data through the SOAP API
 
-import pandas as pd
 import io
+import pandas as pd
 from suds.client import Client
 
-client = Client("http://biomart.biobix.be/martsoap?wsdl")
-mart = client.service.getMarts(None)[0]
-ds = client.service.getDatasets(mart._name)[0]
-query="""<!DOCTYPE Query>
+client = Client('http://biomart.biobix.be/martsoap?wsdl')
+QUERY = """<!DOCTYPE Query>
 <Query client="true" processor="TSV" limit="-1" header="1">
     <Dataset name="BioMart" config="Human">
         <Filter name="human__annotation_104" value="5UTR" filter_list=""/>
@@ -26,7 +26,6 @@ query="""<!DOCTYPE Query>
     </Dataset>
 </Query>
 """
-output = client.service.getResults(query)
-df = pd.read_csv(  io.StringIO(output), sep="\t")
-
-df.to_csv("../server/db/SORFS/sorfs.csv")
+output = client.service.getResults(QUERY)
+df = pd.read_csv(io.StringIO(output), sep='\t')
+df.to_csv('../data/server/db/SORFS/sorfs.csv')
