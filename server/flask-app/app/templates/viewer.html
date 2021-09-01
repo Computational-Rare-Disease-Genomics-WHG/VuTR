@@ -7,6 +7,7 @@
       <!-- Google Font: Source Sans Pro -->
       <link rel="preconnect" href="https://fonts.gstatic.com">
       <!--Favicon--> 
+      <link rel="shortcut icon" href="{{url_for('static', filename='favicon.png')}}" type="image/x-icon">  
       <!--link rel="shortcut icon" href="{{url_for('static', filename = 'assets/favicon.png')}}"/>-->
       <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
       <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -163,7 +164,7 @@
                                     <div class="card-body">
                                        <h6><b>5' UTR exon count</b>:{{five_prime_utr_stats["count"]}}</h6>
                                        <h6><b>5' UTR length</b>: {{five_prime_utr_stats["5_prime_utr_length"]}}</h6>
-                                       <h6><b>Gene LOEUF (TODO)  <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> 0.61</span></h6>
+                                       <h6><b>Gene LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> (TODO) 0.61</span></h6>
                                        <h6><b>ClinGen Haploinsufficiency Score</b>: (TODO) 3</h6>
                                        <h6><b>External Resources</b>: View gene in 
                                           <a href="#">OMIM</a>,
@@ -266,6 +267,7 @@
          <div class="float-right d-none d-sm-inline-block">
             <b>UTR Visualisation App</b> version 0.1
          </div>
+         <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
       </footer>
       <!-- Control Sidebar -->
       <aside class="control-sidebar control-sidebar-dark">
@@ -323,210 +325,225 @@
          var gene_features = {{gene_features|safe}};
          
          const buffer_zone = 200;
-         var gene_start = gene_features["gene_start"];
-         var gene_end = gene_features["gene_end"];
-         var start_codon_feat = gene_features["features"].find(obj => {return obj.type ==="start_codon"})
+      var gene_start = gene_features["gene_start"];
+      var gene_end = gene_features["gene_end"];
+      var start_codon_feat = gene_features["features"].find(obj => {
+         return obj.type === "start_codon"
+      })
 
-         // Filter to features within the UTR.
-         track_features = gene_features["features"]
-         
-         /*.filter(function (element){
-            // If on the positive strand filter
-            if (element.strand === "+"){
-               console.log(element.end-element.start+1);
+      // Filter to features within the UTR.
+      track_features = gene_features["features"]
 
-               return element.start < start_codon_feat.end+buffer_zone;
-               
-            }else{
-               console.log("Negative strand");
-               console.log(element.end-element.start+1);
-
-               return element.end < start_codon_feat.end-buffer_zone;
-            }
-         });*/
-
-         track_features = track_features.sort((a, b) => (a.end < b.end) ? 1 : -1)
-
-         console.log(track_features)
+      track_features = track_features.sort((a, b) => (a.end < b.end) ? 1 : -1)
 
 
-         // Get smORF data 
+      // Get smORF data 
 
-         // set the dimensions and margins of the graph
-         var margin = {top: 20, right: 30, bottom: 40, left: 200},
-            width = 1300 - margin.left - margin.right,
-            height = 300 - margin.top - margin.bottom;
+      // set the dimensions and margins of the graph
+      var margin = {
+            top: 20,
+            right: 30,
+            bottom: 40,
+            left: 200
+         },
+         width = 1300 - margin.left - margin.right,
+         height = 300 - margin.top - margin.bottom;
 
-         // append the svg object to the body of the page
-         var svg = d3.select("#utr-architechure-viewer")
+      // append the svg object to the body of the page
+      var svg = d3.select("#utr-architechure-viewer")
          .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+         .attr("width", width + margin.left + margin.right)
+         .attr("height", height + margin.top + margin.bottom)
          .append("g")
-            .attr("transform",
-                  "translate(" + margin.left + "," + margin.top + ")");
+         .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
 
-         // Add X axis
-         var x = d3.scaleLinear()
-            .domain([gene_start, start_codon_feat.start])
-            .range([ 0, width]);
-         svg.append("g")
-            .call(d3.axisTop(x))
-            .selectAll("text")
-               .style("text-anchor", "end");
+      // Add X axis
+      var x = d3.scaleLinear()
+         .domain([gene_start, gene_end])
+         .range([0, width]);
+      svg.append("g")
+         .call(d3.axisTop(x))
+         .selectAll("text")
+         .style("text-anchor", "end");
 
-         // Y axis
-         var y = d3.scaleBand()
-            .range([ 0, height ])
-            .domain(track_features.map(a => a.ID))
-            .padding(.3);
-         svg.append("g")
-            .call(d3.axisLeft(y))
+      // Y axis
+      var y = d3.scaleBand()
+         .range([0, height])
+         .domain(track_features.map(a => a.type))
+         .padding(.3);
+      svg.append("g")
+         .call(d3.axisLeft(y))
 
-         //Bars
-         svg.selectAll("myRect")
-            .data(track_features)
-            .enter()
-            .append("rect")
-            .attr("x", function(d) {return x(d.start);})
-            .attr("y", function(d) { return y(d.ID); })
-            .attr("width", function(d) { return x(d.end)})
-            .attr("height", y.bandwidth()-3)
-            .attr("fill", "#000000")
+      //Bars
+      svg.selectAll("myRect")
+         .data(track_features)
+         .enter()
+         .append("rect")
+         .attr("x", function(d) {
+            return x(d.start);
+         })
+         .attr("y", function(d) {
+            return y(d.type);
+         })
+         .attr("width", function(d) {
+            return x(d.end) - x(d.start+1)
+         })
+         .attr("height", y.bandwidth()-10)
+         .attr("fill", "#000000")
 
 
 
 
-         /*var igvDiv = document.getElementById("utr-architechure-viewer");
-         var options =
-         {
-               genome: "hg38",
-               locus: `chr${gnomad_data["transcript"]["gene"]["chrom"]}:${gnomad_data["transcript"]["gene"]["start"]}-${gnomad_data["transcript"]["gene"]["stop"]}`,
-               tracks: [
-               ]
-         };
-         
-         igv.createBrowser(igvDiv, options)
-                  .then(function (browser) {
-                     console.log("Created IGV browser");
-                  })*/
-         
-         
-         //Initialize Feature Viewer (Testing this out)
-         //Create a new Feature Viewer and add some rendering options
-         /*--> var ft2 = new FeatureViewer.createFeature("AGAGACGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGAGAGGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGGAGGGGAGGATCGGCAATAATTGGATGGCGTATATAGGTGATGAGAGCAGTGTTGTATATAGGTGATGAGAGCAGTGTT",
-         "#transcript-viewer", {    
-            showAxis: true,
-            showSequence: true,
-            brushActive: true,
-            toolbar:true,
-            bubbleHelp:true,
-            zoomMax:10
-            });
-         
-         //Add some features
-         ft2.addFeature({
-            data: [{x:20,y:32},{x:46,y:100},{x:123,y:167}],
-            name: "uORFs",
-            className: "test1",
-            color: "#005572",
-            type: "rect",
-            filter: "type1"
+      /*var igvDiv = document.getElementById("utr-architechure-viewer");
+      var options =
+      {
+            genome: "hg38",
+            locus: `chr${gnomad_data["transcript"]["gene"]["chrom"]}:${gnomad_data["transcript"]["gene"]["start"]}-${gnomad_data["transcript"]["gene"]["stop"]}`,
+            tracks: [
+            ]
+      };
+
+      igv.createBrowser(igvDiv, options)
+               .then(function (browser) {
+                  console.log("Created IGV browser");
+               })*/
+
+
+      //Initialize Feature Viewer (Testing this out)
+      //Create a new Feature Viewer and add some rendering options
+      /*--> var ft2 = new FeatureViewer.createFeature("AGAGACGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGAGAGGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGGAGGGGAGGATCGGCAATAATTGGATGGCGTATATAGGTGATGAGAGCAGTGTTGTATATAGGTGATGAGAGCAGTGTT",
+      "#transcript-viewer", {    
+         showAxis: true,
+         showSequence: true,
+         brushActive: true,
+         toolbar:true,
+         bubbleHelp:true,
+         zoomMax:10
          });
-         ft2.addFeature({
-            data: [{x:52,y:52},{x:92,y:92}],
-            name: "uAUG variants",
-            className: "test2",
-            color: "#006588",
-            type: "rect",
-            filter: "type2"
-         });*/
-         
-         /*************Population variation*******************/
-         
-         // Fill Clinvar data 
-         
-         $("#clinvar-js-grid").jsGrid({
-          height: "100%",
-          width: "100%",
-          sorting: true,
-          pageSize : 10, 
-          paging: true,
-          data: gnomad_data["transcript"]["clinvar_variants"],
-          fields: [
-          { name: "clinvar_variation_id", type: "text", width: 150, title:"ClinVar Variation ID" },
-          { name: "ref", type: "text", title:"REF"},
-          { name: "alt", type: "text", title:"ALT"},
-          { name: "pos", type: "text", title:"POS"},
-          { name: "major_consequence", type: "text", title:"Major Consequence"},
-          { name: "in_gnomad", type: "checkbox", title:"In gnomAD?" },
-          { name: "clinical_significance", type: "text", title:"Clincal Significance" },
-          { name: "hgvsc", type: "text", title:"HGVSC" },
-          ]
-         });
-         $("#populationvars-js-grid").jsGrid({
-          height: "100%",
-          width: "100%",
-          sorting: true,
-          pageSize : 10, 
-          paging: true,
-          data: gnomad_data["transcript"]["variants"],
-          fields: [
-          { name: "variantId", type: "text",  title:"Variation ID" },
-          { name: "ref", type: "text", title: "REF" },
-          { name: "alt", type: "text", title: "ALT" },
-          { name: "pos", type: "text", title: "POS" },
-          { name: "transcript_consequence.major_consequence", type: "text", title: "Consq", width: 150},
-          { name: "genome.ac", type: "text", title: "AC" },
-          { name: "genome.af", type: "text", title: "AF" },
-          { name: "hgvsc", type: "text", title:"HGVSC" },
-          ]
-         });
-         
-      </script>
-      <script>
-         /*     
-         create_tables(gnomad_data);
-         function create_tables(gnomad_data){
-         
-         
-         // Fill clinvar population data 
-         var clinvar_variation_data = gnomad_data["transcript"]["clinvar_variants"];
-         var clinvar_table = document.getElementById('clinvar_table');
-         clinvar_variation_data.forEach(function(object) {
-              var tr = document.createElement('tr');
-              tr.innerHTML = 
-              '<td>' + object.ref + '</td>'+
-              '<td>' + object.alt + '</td>'+
-              '<td>' + object.pos + '</td>'+
-              '<td>' + object.in_gnomad + '</td>'+
-              '<td>' +  + '</td>'+
-              '<td>' + object.hgvsc + '</td>'+
-              '<td>' + object.clinical_significance + '</td>'+
-              '<td>' + object.clinvar_variation_id + '</td>';
-              clinvar_table.appendChild(tr);
-          });
-         // Fill gnomAD population data 
-         var population_variation_data = gnomad_data["transcript"]["variants"];
-         var population_variation_table = document.getElementById('population_table');
-         population_variation_data.forEach(function(object) {
-              var tr = document.createElement('tr');
-              tr.innerHTML = 
-              '<td>' + object.variantId + '</td>'+
-              '<td>' + object.ref + '</td>'+
-              '<td>' + object.alt + '</td>'+
-              '<td>' +  + '</td>'+
-              '<td>' + object.pos + '</td>'+
-              '<td>' + object.genome.af + '</td>'+
-              '<td>' + object.genome.ac + '</td>';
-              population_variation_table.appendChild(tr);
-          });
-         
-         }
-         
-         */
-         
-            
+
+      //Add some features
+      ft2.addFeature({
+         data: [{x:20,y:32},{x:46,y:100},{x:123,y:167}],
+         name: "uORFs",
+         className: "test1",
+         color: "#005572",
+         type: "rect",
+         filter: "type1"
+      });
+      ft2.addFeature({
+         data: [{x:52,y:52},{x:92,y:92}],
+         name: "uAUG variants",
+         className: "test2",
+         color: "#006588",
+         type: "rect",
+         filter: "type2"
+      });*/
+
+      /*************Population variation*******************/
+
+      // Fill Clinvar data 
+
+      $("#clinvar-js-grid").jsGrid({
+         height: "100%",
+         width: "100%",
+         sorting: true,
+         pageSize: 10,
+         paging: true,
+         data: gnomad_data["transcript"]["clinvar_variants"],
+         fields: [{
+                  name: "clinvar_variation_id",
+                  type: "text",
+                  width: 150,
+                  title: "ClinVar Variation ID"
+            },
+            {
+                  name: "ref",
+                  type: "text",
+                  title: "REF"
+            },
+            {
+                  name: "alt",
+                  type: "text",
+                  title: "ALT"
+            },
+            {
+                  name: "pos",
+                  type: "text",
+                  title: "POS"
+            },
+            {
+                  name: "major_consequence",
+                  type: "text",
+                  title: "Major Consequence"
+            },
+            {
+                  name: "in_gnomad",
+                  type: "checkbox",
+                  title: "In gnomAD?"
+            },
+            {
+                  name: "clinical_significance",
+                  type: "text",
+                  title: "Clincal Significance"
+            },
+            {
+                  name: "hgvsc",
+                  type: "text",
+                  title: "HGVSC"
+            },
+         ]
+      });
+      $("#populationvars-js-grid").jsGrid({
+         height: "100%",
+         width: "100%",
+         sorting: true,
+         pageSize: 10,
+         paging: true,
+         data: gnomad_data["transcript"]["variants"],
+         fields: [{
+                  name: "variantId",
+                  type: "text",
+                  title: "Variation ID"
+            },
+            {
+                  name: "ref",
+                  type: "text",
+                  title: "REF"
+            },
+            {
+                  name: "alt",
+                  type: "text",
+                  title: "ALT"
+            },
+            {
+                  name: "pos",
+                  type: "text",
+                  title: "POS"
+            },
+            {
+                  name: "transcript_consequence.major_consequence",
+                  type: "text",
+                  title: "Consq",
+                  width: 150
+            },
+            {
+                  name: "genome.ac",
+                  type: "text",
+                  title: "AC"
+            },
+            {
+                  name: "genome.af",
+                  type: "text",
+                  title: "AF"
+            },
+            {
+                  name: "hgvsc",
+                  type: "text",
+                  title: "HGVSC"
+            },
+         ]
+      });         
       </script>
    </body>
 </html>
