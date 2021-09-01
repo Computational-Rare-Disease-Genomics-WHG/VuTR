@@ -1,5 +1,6 @@
 # Don't add data to git
 data/
+pipeline/UTR-annotator
 
 .idea/
 .Rhistory
