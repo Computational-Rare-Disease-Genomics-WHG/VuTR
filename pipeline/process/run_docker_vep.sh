@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# To run an interactive terminal inside docker 
+# To run an interactive terminal inside docker
 docker run -t -i \
  -v $(pwd)/vep_data:/opt/vep/.vep\
  -v /home/elston/Packages/vep_cache:/opt/vep/.vep/Cache\

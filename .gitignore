@@ -1,7 +1,5 @@
 # Don't add data to git
 data/
-snippets/
-pipeline/vep_data/
 
 .idea/
 .Rhistory
