@@ -1,8 +1,11 @@
 # gene_classes.py
 # J. Martin
 
-class Gene: #Note, add functionality to get 5'UTR Sequence
+# pylint: skip-file
+# flake8: noqa
 
+
+class Gene:  # Note, add functionality to get 5'UTR Sequence
     def __init__(self, tempvars):
         self.transcript_id = tempvars["Temp_Transcript_ID"]
         self.chrom = tempvars["Temp_Chr"]

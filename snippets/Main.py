@@ -1,18 +1,21 @@
-# Main.py 
+# Main.py
 # J. Martin
+
+# pylint: skip-file
+# flake8: noqa
 
 import gene_classes as gc
 import gene_functions as gf
 import operator
 import sys
 
-search = "MEF2C" 
+search = "MEF2C"
 
 file = "Data/data_files/MANE.GRCh38.v0.91.select_ensembl_rna.fna"
 x = gf.read_MANE(file)
 
-#Note here that the read_MANE function is used to generate all the gene summaries, but returns a list with all of these, rather than 
-#the specific gene required - helpful to build a program that does this differently, so that the string that is searched for is returned
+# Note here that the read_MANE function is used to generate all the gene summaries, but returns a list with all of these, rather than
+# the specific gene required - helpful to build a program that does this differently, so that the string that is searched for is returned
 
 for gene in x:
     if gene.gene_symbol == search:
@@ -34,7 +37,9 @@ for gene in x:
 
 name = "Data/data_files/MANE.GRCh38.v0.92.select_ensembl_genomic.gff"
 
-structure = gf.compile_gene_structure(name, search) #Note to self - in visualisation, show splice sites for segments using faint vertical line etc
+structure = gf.compile_gene_structure(
+    name, search
+)  # Note to self - in visualisation, show splice sites for segments using faint vertical line etc
 print(structure)
 # To find the co-ordinate of a nucleotide of given base
 # for each dict in the gene_structure list
@@ -56,24 +61,26 @@ unsorted_ORFs.extend(frame2_ORFs)
 ORFs = sorted(unsorted_ORFs, key=lambda k: k[-1])
 uORFs = []
 for ORF in ORFs:
-    region_code = (ORF[-2])[0] + (ORF[-2])[1] + (ORF[-2])[2] + (ORF[-2])[3] + (ORF[-2])[4]
-    if (region_code == "5'UTR"):
+    region_code = (
+        (ORF[-2])[0] + (ORF[-2])[1] + (ORF[-2])[2] + (ORF[-2])[3] + (ORF[-2])[4]
+    )
+    if region_code == "5'UTR":
         uORFs.append(ORF)
 # print(ORFs, sep = "\n")
-print(*uORFs, sep = "\n")
+print(*uORFs, sep="\n")
 # print(*uORFs, sep = "\n")
 # print(*ORFs, sep = "\n")
 
 # print("FRAME 0")
-# print(*frame0_ORFs, sep = "\n") 
+# print(*frame0_ORFs, sep = "\n")
 # print("FRAME 1")
-# print(*frame1_ORFs, sep = "\n") 
+# print(*frame1_ORFs, sep = "\n")
 # print("FRAME 2")
-# print(*frame2_ORFs, sep = "\n") 
+# print(*frame2_ORFs, sep = "\n")
 
 # def sort_uORFs():
-#     # Must add functionality to decide how to create the overall picture - given that whether a start is translated or not will 
-#     # alter the landscape of the uORFs 
+#     # Must add functionality to decide how to create the overall picture - given that whether a start is translated or not will
+#     # alter the landscape of the uORFs
 #     uORFs = sorted()
 #     return(uORFs)
 
