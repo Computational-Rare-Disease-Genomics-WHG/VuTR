@@ -2,7 +2,7 @@
 
 # To run an interactive terminal inside docker
 docker run -t -i \
- -v $(pwd)/vep_data:/opt/vep/.vep\
+ -v $(realpath ../../data/pipeline/vep_data):/opt/vep/.vep\
  -v /home/elston/Packages/vep_cache:/opt/vep/.vep/Cache\
  ensemblorg/ensembl-vep \
  ./vep \
