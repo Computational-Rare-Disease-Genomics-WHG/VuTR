@@ -37,7 +37,7 @@
       <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid-theme.min.css')}}">
-      <script src="https://d3js.org/d3.v7.min.js"></script>
+      <script src="https://d3js.org/d3.v4.js"></script>
 
 
       <style type="text/css">
@@ -207,7 +207,9 @@
                               </div>
                            </div>
                            <div class="card-body">
-                              <div id="utr-architechure-viewer"></div>
+                              <svg id="utr-architechure-viewer"
+                              viewBox="0 0 960 500"
+                              preserveAspectRatio="xMidYMid meet"></svg>
                            </div>
                         </div>
                      </section>
@@ -342,12 +344,13 @@
       // set the dimensions and margins of the graph
       var margin = {
             top: 20,
-            right: 30,
+            right: 100  ,
             bottom: 40,
-            left: 200
+            left: 100
          },
          width = 1300 - margin.left - margin.right,
          height = 300 - margin.top - margin.bottom;
+         var aspect = width / height;  
 
       // append the svg object to the body of the page
       var svg = d3.select("#utr-architechure-viewer")
@@ -362,7 +365,9 @@
       var x = d3.scaleLinear()
          .domain([gene_start, gene_end])
          .range([0, width]);
-      svg.append("g")
+
+      
+    var xAxis= svg.append("g")
          .call(d3.axisTop(x))
          .selectAll("text")
          .style("text-anchor", "end");
@@ -374,23 +379,72 @@
          .padding(.3);
       svg.append("g")
          .call(d3.axisLeft(y))
+  // Add a clipPath: everything out of this area won't be drawn.
+  var clip = svg.append("defs").append("svg:clipPath")
+      .attr("id", "clip")
+      .append("svg:rect")
+      .attr("width", width )
+      .attr("height", height )
+      .attr("x", 0)
+      .attr("y", 0);
 
-      //Bars
-      svg.selectAll("myRect")
-         .data(track_features)
-         .enter()
-         .append("rect")
-         .attr("x", function(d) {
-            return x(d.start);
-         })
-         .attr("y", function(d) {
-            return y(d.type);
-         })
-         .attr("width", function(d) {
-            return x(d.end) - x(d.start+1)
-         })
-         .attr("height", y.bandwidth()-10)
-         .attr("fill", "#000000")
+   var rects = svg.append('g')
+    .attr("clip-path", "url(#clip)")
+
+      // A function that set idleTimeOut to null
+  var idleTimeout
+  function idled() { idleTimeout = null; }
+
+        // Add brushing
+   var brush = d3.brushX()                 // Add the brush feature using the d3.brush function
+         .extent( [ [0,0], [width,height] ] ) // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
+         .on("end", function () {
+         console.log(d3.event)
+         extent = d3.event.selection
+
+         // If no selection, back to initial coordinate. Otherwise, update X axis domain
+         if(!extent){
+            if (!idleTimeout) return idleTimeout = setTimeout(idled, 100); // This allows to wait a little bit
+            x.domain([gene_start, gene_end])
+         }else{
+            x.domain([ x.invert(extent[0]), x.invert(extent[1]) ])
+            rects.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
+         }
+
+         // Update axis and rectangle position
+         xAxis.transition().duration(600).call(d3.axisTop(x))
+         rects
+            .selectAll("rect")
+            .transition().duration(600)
+            .attr("width" , function (d){return x(d.end)-x(d.start+1)})
+            .attr("x", function (d) { return x(d.start); } )
+            .attr("y", function (d) { return y(d.type); } )
+         }) // Each time the brush selection changes, trigger the 'updateChart' function
+
+   //Bars
+   rects.selectAll("rect")
+      .data(track_features)
+      .enter()
+      .append("rect")
+      .attr("x", function(d) {
+         return x(d.start);
+      })
+      .attr("y", function(d) {
+         return y(d.type);
+      })
+      .attr("width", function(d) {
+         return x(d.end) - x(d.start+1)
+      })
+      .attr("height", y.bandwidth()-10)
+      .attr("fill", "#000000")
+
+  // Add the brushing
+  rects.append("g")
+      .attr("class", "brush")
+      .call(brush);
+
+
+
 
 
 
