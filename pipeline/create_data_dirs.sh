@@ -20,4 +20,5 @@ cp -R -u -p pipeline/UTR-Annotator/* data/pipeline/vep_data/Plugins
 mkdir -p data/pipeline/MANE
 mkdir -p data/pipeline/SORFS
 mkdir -p data/pipeline/CLINVAR
+mkdir -p data/pipeline/CLINGEN
 mkdir -p data/pipeline/GNOMAD

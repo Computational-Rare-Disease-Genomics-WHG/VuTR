@@ -6,8 +6,8 @@
       <title>UTR Visualisation App</title>
       <!-- Google Font: Source Sans Pro -->
       <link rel="preconnect" href="https://fonts.gstatic.com">
-      <!--Favicon--> 
-      <link rel="shortcut icon" href="{{url_for('static', filename='favicon.png')}}" type="image/x-icon">  
+      <!--Favicon-->
+      <link rel="shortcut icon" href="{{url_for('static', filename='favicon.png')}}" type="image/x-icon">
       <!--link rel="shortcut icon" href="{{url_for('static', filename = 'assets/favicon.png')}}"/>-->
       <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
       <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,12 +37,12 @@
       <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid-theme.min.css')}}">
-      <script src="https://d3js.org/d3.v7.min.js"></script>
+      <script src="https://d3js.org/d3.v4.js"></script>
 
 
       <style type="text/css">
          .select2-container--default .select2-selection--multiple .select2-selection__choice {
-         background-color: #007bff; 
+         background-color: #007bff;
          border-color: #006fe6;
          }
          p, h1, h2, h3, h4,h5, h6, a{
@@ -86,7 +86,7 @@
                  </div>
                </div>
              </form>
-     
+
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
                <!-- Navbar Search -->
@@ -143,7 +143,7 @@
                               </h3>
                               <div class="card-tools">
                                  <button type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
-                                 <i class="fas fa-question-circle"></i>                                    
+                                 <i class="fas fa-question-circle"></i>
                                  </button>
                               </div>
                            </div>
@@ -164,9 +164,9 @@
                                     <div class="card-body">
                                        <h6><b>5' UTR exon count</b>:{{five_prime_utr_stats["count"]}}</h6>
                                        <h6><b>5' UTR length</b>: {{five_prime_utr_stats["5_prime_utr_length"]}}</h6>
-                                       <h6><b>Gene LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> (TODO) 0.61</span></h6>
-                                       <h6><b>ClinGen Haploinsufficiency Score</b>: (TODO) 3</h6>
-                                       <h6><b>External Resources</b>: View gene in 
+                                       <h6><b>Gene LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> {{constraint['oe_lof_upper']| safe}}</span></h6>
+                                       <h6><b>ClinGen Haploinsufficiency Score</b>: {{clingen_curation_record['Haploinsufficiency Score'] | safe}}</h6>
+                                       <h6><b>External Resources</b>: View gene in
                                           <a href="#">OMIM</a>,
                                           <a href="#">gnomAD</a>,
                                           <a href="#">sORFs.org</a>,
@@ -202,12 +202,14 @@
                               </h3>
                               <div class="card-tools">
                                  <button type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
-                                 <i class="fas fa-question-circle"></i>                                    
+                                 <i class="fas fa-question-circle"></i>
                                  </button>
                               </div>
                            </div>
                            <div class="card-body">
-                              <div id="utr-architechure-viewer"></div>
+                              <svg id="utr-architechure-viewer"
+                              viewBox="0 0 960 500"
+                              preserveAspectRatio="xMidYMid meet"></svg>
                            </div>
                         </div>
                      </section>
@@ -228,7 +230,7 @@
                               </h3>
                               <div class="card-tools">
                                  <button type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
-                                 <i class="fas fa-question-circle"></i>                                    
+                                 <i class="fas fa-question-circle"></i>
                                  </button>
                               </div>
                            </div>
@@ -313,87 +315,144 @@
 
       <script type="text/javascript">
          /**************Initial Start Up Routine****************/
-         
-         
-         
+
          var gnomad_data = {{gnomad_data|tojson}};
-         
+
          /*************Info details data*******************/
-         
+
          /*************5' Architechture Genomic*******************/
-         var nan = null; 
+         var nan = null;
          var gene_features = {{gene_features|safe}};
-         
          const buffer_zone = 200;
-      var gene_start = gene_features["gene_start"];
-      var gene_end = gene_features["gene_end"];
-      var start_codon_feat = gene_features["features"].find(obj => {
-         return obj.type === "start_codon"
-      })
-
-      // Filter to features within the UTR.
-      track_features = gene_features["features"]
-
-      track_features = track_features.sort((a, b) => (a.end < b.end) ? 1 : -1)
-
-
-      // Get smORF data 
-
-      // set the dimensions and margins of the graph
-      var margin = {
-            top: 20,
-            right: 30,
-            bottom: 40,
-            left: 200
-         },
-         width = 1300 - margin.left - margin.right,
-         height = 300 - margin.top - margin.bottom;
-
-      // append the svg object to the body of the page
-      var svg = d3.select("#utr-architechure-viewer")
-         .append("svg")
-         .attr("width", width + margin.left + margin.right)
-         .attr("height", height + margin.top + margin.bottom)
-         .append("g")
-         .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
-
-      // Add X axis
-      var x = d3.scaleLinear()
-         .domain([gene_start, gene_end])
-         .range([0, width]);
-      svg.append("g")
-         .call(d3.axisTop(x))
-         .selectAll("text")
-         .style("text-anchor", "end");
-
-      // Y axis
-      var y = d3.scaleBand()
-         .range([0, height])
-         .domain(track_features.map(a => a.type))
-         .padding(.3);
-      svg.append("g")
-         .call(d3.axisLeft(y))
-
-      //Bars
-      svg.selectAll("myRect")
-         .data(track_features)
-         .enter()
-         .append("rect")
-         .attr("x", function(d) {
-            return x(d.start);
+         var gene_start = gene_features["gene_start"];
+         var gene_end = gene_features["gene_end"];
+         var start_codon_feat = gene_features["features"].find(obj => {
+            return obj.type === "start_codon"
          })
-         .attr("y", function(d) {
-            return y(d.type);
-         })
-         .attr("width", function(d) {
-            return x(d.end) - x(d.start+1)
-         })
-         .attr("height", y.bandwidth()-10)
-         .attr("fill", "#000000")
+         // Filter to features within the UTR.
+         track_features = gene_features["features"]
 
+         track_features = track_features.filter(function (obj){
+            return obj.type !=="transcript"
+         });
+         //track_features = track_features.sort((a, b) => (a.end < b.end) ? 1 : -1)
 
+         // Get smORF data
 
+         // set the dimensions and margins of the graph
+         var margin = {
+               top: 20,
+               right: 100,
+               bottom: 40,
+               left: 100
+            },
+            width = 1300 - margin.left - margin.right,
+            height = 300 - margin.top - margin.bottom;
+         var aspect = width / height;
+
+         // append the svg object to the body of the page
+         var svg = d3.select("#utr-architechure-viewer")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+               "translate(" + margin.left + "," + margin.top + ")");
+
+         // Add X axis
+         var x = d3.scaleLinear()
+            .domain([gene_start, 
+                     gene_end])
+            .range([0, width]);
+
+         // Create xaxis
+         var xAxis = svg.append("g")
+            .call(d3.axisTop(x))
+            .selectAll("text")
+            .style("text-anchor", "end");
+
+         // Y axis
+         var y = d3.scaleBand()
+            .range([0, height])
+            .domain(track_features.map(a => a.type))
+            .padding(.3);
+         svg.append("g")
+            .call(d3.axisLeft(y))
+
+         // Add a clipPath: everything out of this area won't be drawn.
+         var clip = svg.append("defs").append("svg:clipPath")
+            .attr("id", "clip")
+            .append("svg:rect")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("x", 0)
+            .attr("y", 0);
+
+         var rects = svg.append('g')
+            .attr("clip-path", "url(#clip)")
+
+         // A function that set idleTimeOut to null
+         var idleTimeout
+
+         function idled() {
+            idleTimeout = null;
+         }
+
+         // Add brushing
+         var brush = d3.brushX() // Add the brush feature using the d3.brush function
+            .extent([
+               [0, 0],
+               [width, height]
+            ]) // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
+            .on("end", function() {
+               extent = d3.event.selection
+               console.log(d3.event)
+               // If no selection, back to initial coordinate. Otherwise, update X axis domain
+               if (d3.event.selection == null) {
+                  if (!idleTimeout) return idleTimeout = setTimeout(idled, 1000); // This allows to wait a little bit
+                  x.domain([gene_start, gene_end])
+
+               } else {
+                     x.domain([x.invert(extent[0]), x.invert(extent[1])])
+                     rects.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
+               }
+               // Update axis and rectangle position
+               xAxis.transition().duration(600).call(d3.axisTop(x))
+               rects
+                     .selectAll("rect")
+                     .transition().duration(600)
+                     .attr("width", function (d){
+                        return x(d.end)-x(d.start)
+                     })
+                     .attr("x", function(d) {
+                        return x(d.start);
+                     })
+                     .attr("y", function(d) {
+                        return y(d.type);
+                     })
+            }) // Each time the brush selection changes, trigger the 'updateChart' function
+
+         //Bars
+         rects.selectAll("rect")
+            .data(track_features)
+            .enter()
+            .append("rect")
+            .attr("x", function(d) {
+               return x(d.start);
+            })
+            .attr("y", function(d) {
+               return y(d.type);
+            })
+            .attr("width", function(d) {
+               return x(d.end) - x(d.start + 1)
+            })
+            .attr("height", y.bandwidth() - 10)
+            .attr("fill", "#000000")
+
+         // Add the brushing
+         rects.append("g")
+            .attr("class", "brush")
+            .call(brush);
 
       /*var igvDiv = document.getElementById("utr-architechure-viewer");
       var options =
@@ -413,7 +472,7 @@
       //Initialize Feature Viewer (Testing this out)
       //Create a new Feature Viewer and add some rendering options
       /*--> var ft2 = new FeatureViewer.createFeature("AGAGACGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGAGAGGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGGAGGGGAGGATCGGCAATAATTGGATGGCGTATATAGGTGATGAGAGCAGTGTTGTATATAGGTGATGAGAGCAGTGTT",
-      "#transcript-viewer", {    
+      "#transcript-viewer", {
          showAxis: true,
          showSequence: true,
          brushActive: true,
@@ -442,7 +501,7 @@
 
       /*************Population variation*******************/
 
-      // Fill Clinvar data 
+      // Fill Clinvar data
 
       $("#clinvar-js-grid").jsGrid({
          height: "100%",
@@ -543,7 +602,7 @@
                   title: "HGVSC"
             },
          ]
-      });         
+      });
       </script>
    </body>
 </html>

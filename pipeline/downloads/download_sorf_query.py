@@ -2,7 +2,6 @@
 download_sorf_query.py
 Download Sorfs ribo-profiling data through the SOAP API
 """
-
 import io
 import pandas as pd
 from suds.client import Client
@@ -25,6 +24,10 @@ QUERY = """<!DOCTYPE Query>
     </Dataset>
 </Query>
 """
+print('Querying biomart.biobix.be')
 output = client.service.getResults(QUERY)
+print('Reading into memory')
 df = pd.read_csv(io.StringIO(output), sep='\t')
-df.to_csv('../data/server/db/SORFS/sorfs.csv')
+print('Writing to file')
+df.to_csv('../../data/pipeline/SORFS/sorfs.tsv', sep='\t')
+print('Completed SORFS.org download')

@@ -10,9 +10,10 @@ library(magrittr)
 library(rtracklayer)
 library(stringr)
 library(stringi)
-setwd("../data")
 
-mane_features <- readGFF("server/db/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.gff.gz") %>% as.data.table
+setwd("../..")
+
+mane_features <- readGFF("data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.gff.gz") %>% as.data.table
 
 mane_features  %<>% . [type == "five_prime_UTR"]
 mane_features %<>% .[, .(seqid, start, end)]
@@ -20,4 +21,4 @@ names(mane_features) <- c("CHROM", "POS", "POS_TO")
 mane_features[, CHROM:= as.character(CHROM)]
 mane_features[, CHROM := substr(CHROM, 4, nchar(CHROM))]
 
-fwrite(mane_features, "UTR_regions.tsv", sep="\t", col.names=F)
+fwrite(mane_features, "data/pipeline/UTR_regions.tsv", sep="\t", col.names=F)
