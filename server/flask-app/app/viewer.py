@@ -12,9 +12,10 @@ from flask import (  # pylint: disable=E0401
 
 # import from tools
 from .tools.gnomad import get_constraint_by_ensg, gnomad_search_by_transcript_id
-from .tools.mane import genomic_features_by_ensg, get_utr_stats
+from .tools.mane import genomic_features_by_ensg, get_transcript_features, get_utr_stats
 from .tools.sorfs import find_sorfs_by_ensg
 from .tools.clingen import get_clingen_curation
+from .tools.utils import convert_betweeen_identifiers
 
 viewer = Blueprint('viewer', __name__)
 
@@ -50,15 +51,24 @@ def viewer_page(ensembl_transcript_id):
     ]
 
     # Find ENSG by ENST
-
-    ensg = 'ENSG00000081189'
-    hgnc = 'MEF2C'
-    gene_features = genomic_features_by_ensg(ensg)
-    five_prime_utr_stats = get_utr_stats(ensg)
-    sorfs = find_sorfs_by_ensg(ensg)
-    constraint = get_constraint_by_ensg(ensg)
+    ensembl_gene_id = convert_betweeen_identifiers(
+        ensembl_transcript_id, 'ensembl_transcript', 'ensembl_gene')
+    hgnc = convert_betweeen_identifiers(
+        ensembl_transcript_id, 'ensembl_transcript', 'hgnc_symbol')
+    # Get features
+    gene_features = genomic_features_by_ensg(ensembl_gene_id)
+    five_prime_utr_stats = get_utr_stats(ensembl_gene_id)
+    sorfs = find_sorfs_by_ensg(ensembl_gene_id)
+    constraint = get_constraint_by_ensg(ensembl_gene_id)
     clingen_curation_record = get_clingen_curation(hgnc)
 
+    # Get Clinvar vep
+    transcript_features = get_transcript_features(ensembl_transcript_id)
+
+    # clinvar_utr_variants
+    print(transcript_features)
+
+    # Render template
     return render_template(
         'viewer.html',
         ensembl_transcript_id=ensembl_transcript_id,
@@ -68,4 +78,5 @@ def viewer_page(ensembl_transcript_id):
         sorfs=sorfs,
         gene_features=gene_features,
         five_prime_utr_stats=five_prime_utr_stats,
+        transcript_features=transcript_features,
     )
