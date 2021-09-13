@@ -42,7 +42,7 @@ def wide_to_long(df):
 # TODO : Update directories to cmd line args
 clinvar_vep_path = '../../data/pipeline/vep_data/output/clinvar_utr_filtered.out.txt'
 mane_summary_path = '../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.summary.txt.gz'
-write_path = "../../data/pipeline/CLINVAR/clinvar_processed.txt"
+write_path = "../../data/pipeline/CLINVAR/clinvar_processed.tsv"
 # Read clinvar file and the mane summary file
 clinvar_df = pd.read_csv(clinvar_vep_path,
                          sep='\t',
