@@ -165,7 +165,7 @@
                                        <h6><b>5' UTR exon count</b>:{{five_prime_utr_stats["count"]}}</h6>
                                        <h6><b>5' UTR length</b>: {{five_prime_utr_stats["5_prime_utr_length"]}}</h6>
                                        <h6><b>Gene LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> {{constraint['oe_lof_upper']| safe}}</span></h6>
-                                       <h6><b>ClinGen Haploinsufficiency Score</b>: {{clingen_curation_record['Haploinsufficiency Score'] | safe}}</h6>
+                                       <!--h6><b>ClinGen Haploinsufficiency Score</b>: {{clingen_curation_record['Haploinsufficiency Score'] | safe}}</h6-->
                                        <h6><b>External Resources</b>: View gene in
                                           <a href="#">OMIM</a>,
                                           <a href="#">gnomAD</a>,
@@ -207,10 +207,11 @@
                               </div>
                            </div>
                            <div class="card-body">
-                              <svg id="utr-architechure-viewer"
+                              <!--svg id="utr-architechure-viewer"
                               viewBox="0 0 960 500"
-                              preserveAspectRatio="xMidYMid meet"></svg>
+                              preserveAspectRatio="xMidYMid meet"></svg-->
                            </div>
+                           <div id = "transcript_viewer"></div>
                         </div>
                      </section>
                   </div>
@@ -321,6 +322,8 @@
          /*************Info details data*******************/
 
          /*************5' Architechture Genomic*******************/
+
+         var create_genomic_viewer = function (){
          var nan = null;
          var gene_features = {{gene_features|safe}};
          const buffer_zone = 200;
@@ -454,50 +457,84 @@
             .attr("class", "brush")
             .call(brush);
 
-      /*var igvDiv = document.getElementById("utr-architechure-viewer");
-      var options =
-      {
-            genome: "hg38",
-            locus: `chr${gnomad_data["transcript"]["gene"]["chrom"]}:${gnomad_data["transcript"]["gene"]["start"]}-${gnomad_data["transcript"]["gene"]["stop"]}`,
-            tracks: [
-            ]
-      };
-
-      igv.createBrowser(igvDiv, options)
-               .then(function (browser) {
-                  console.log("Created IGV browser");
-               })*/
+         
+         };
 
 
-      //Initialize Feature Viewer (Testing this out)
-      //Create a new Feature Viewer and add some rendering options
-      /*--> var ft2 = new FeatureViewer.createFeature("AGAGACGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGAGAGGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGCGGGCAGAGAGAAGAGTATATAGGTGATGAGAGCAGTGTTGGAGGGGAGGATCGGCAATAATTGGATGGCGTATATAGGTGATGAGAGCAGTGTTGTATATAGGTGATGAGAGCAGTGTT",
-      "#transcript-viewer", {
-         showAxis: true,
-         showSequence: true,
-         brushActive: true,
-         toolbar:true,
-         bubbleHelp:true,
-         zoomMax:10
-         });
+         var create_transcript_viewer = function (tr_obj,
+                                                   div,
+                                                   buffer){
+            
+            // Start site location
+            var start_site = tr_obj["start_site"]
 
-      //Add some features
-      ft2.addFeature({
-         data: [{x:20,y:32},{x:46,y:100},{x:123,y:167}],
-         name: "uORFs",
-         className: "test1",
-         color: "#005572",
-         type: "rect",
-         filter: "type1"
-      });
-      ft2.addFeature({
-         data: [{x:52,y:52},{x:92,y:92}],
-         name: "uAUG variants",
-         className: "test2",
-         color: "#006588",
-         type: "rect",
-         filter: "type2"
-      });*/
+            // Subset to the first 100 bases following the CDS
+
+            var sequence = tr_obj["full_seq"].substring(0, start_site+buffer); 
+
+
+            var kozak_colors = {
+               Strong : "#3CDBD3", 
+               Moderate : "#7DCE82", 
+               Weak : "#E8E288", 
+               None : "#FF8360"
+            };
+
+            var ft2 = new FeatureViewer.createFeature(sequence, div, {
+               showAxis : true,
+               showSequence: true, 
+               brushActive: true, 
+               toolbar:true,
+               bubbleHelp: true, 
+               zoomMax : 5
+            })
+
+            // Plot where the coding sequence and 5' utrs 
+            // Don't plot for 
+            if (start_site != 0){
+               ft2.addFeature({
+                  data : [{x:start_site,y:start_site+buffer}], 
+                  name : "CDS",
+                  className : "CDS_rect", 
+                  type : "rect"
+               });
+               ft2.addFeature({
+                  data : [{x:0, y:start_site}], 
+                  name : "5' UTR",
+                  className : "five_utr_rect", 
+                  type : "rect", 
+               });
+            }
+
+
+            // Plot each separate uORF on a separate track
+            var uorfs = tr_obj["uORF"]
+            uorfs.forEach(element => {
+               ft2.addFeature({
+                  data: [{x:element.start+1, y:element.end}], 
+                  type : "rect",
+                  className : "uorf_rect",
+                  name : "uORF",
+                  color : kozak_colors[element.kozak_strength]
+               })
+               
+            });
+
+            // add variants  
+            var genomic_to_transcript = function(pos, gene_features){
+               // filter gene features to exons 
+
+               // find all of the exons that come before it
+
+               // sum up and return
+            };
+            var population_variation = gnomad_data["transcript"]["clinvar_variants"];
+            
+         }
+         var transcript_features = {{transcript_features | safe}};
+         var transcript_div = "#transcript_viewer"
+         create_transcript_viewer(transcript_features, transcript_div, 50);
+
 
       /*************Population variation*******************/
 
