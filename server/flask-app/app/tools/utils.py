@@ -3,7 +3,42 @@ Utility functions for dealing with cdna sequences
 """
 
 import pandas as pd
+import numpy as np
 import re
+
+
+def read_mane_genomic_features(ensembl_gene_id):
+    """
+    Reads mane for a specific gene_id from the genomic feature file
+
+    @param ensembl_gene_id (str) : A stable ensembl
+     gene identifier (ensure that this is in MANE) e.g. ENSG00000081189
+    @returns gene_data (DataFrame) : MANE filtered to that region
+    """
+    # TODO : This needs to be updated to Pipeline
+    mane = pd.read_csv(
+        '../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.tsv',
+        sep='\t',
+    )
+    mane['ensembl_stable_gene_id'] = mane['gene_id'].apply(lambda x: str(x)[0:15])
+    gene_data = mane[mane['gene_id'] == ensembl_gene_id]
+    return gene_data
+
+
+def read_mane_transcript(ensembl_transcript_id):
+    """
+    Reads through the MANE transcript set to get the transcript sequences
+
+    @param ensembl_transcript_id (str) : Full transcript, id (including version number)
+    @returns transcript_df
+    """
+
+    transcript_df = pd.read_csv(
+        "../../data/pipeline/MANE/0.93/MANE_transcripts_v0.93.tsv", sep="\t")
+    transcript_df = transcript_df[transcript_df["ensembl_transcript_id"].str.contains(
+        ensembl_transcript_id)]
+
+    return transcript_df
 
 
 def convert_betweeen_identifiers(id, from_type, to_type):
@@ -45,15 +80,57 @@ def get_relative_frame(start_site, comparison_site):
     @returns (str) : Frame of i compared to start_site
     """
 
-    if (start_site-comparison_site) % 3 == 0:
+    if (start_site-(comparison_site+1)) % 3 == 0:
         return "In-frame"
     else:
         return "Out-of-frame"
 
 
+def convert_transcript_coordinates_to_genomic(ensembl_transcript_id, pos):
+    """
+    Converts the transcript position to genomic coordinates
+
+    @param ensembl_transcript_id (str) 
+    @param pos (int)
+    @returns dictionary
+    """
+    ensembl_gene_id = convert_betweeen_identifiers(
+        ensembl_transcript_id, "ensembl_transcript", "ensembl_gene")
+    mane_features = read_mane_genomic_features(ensembl_gene_id)
+
+    # get strand
+    strand = mane_features[mane_features['type'] == 'gene']['strand'].item()
+
+    # Filter to exons
+    exons = mane_features[mane_features["type"] == "exon"]
+
+    # Sort based on exon_number
+    exons = exons.sort_values(by=['exon_number'], ascending=True)
+
+    exons = exons[["start", "end", "exon_number"]]
+
+    # Calculate the exon to map to transcript coordinates
+    exons["width"] = exons["end"]-exons["start"]+1
+    exons["t_end"] = exons.width.cumsum()
+
+    exon_starts = np.roll(exons["t_end"]+1, 1)
+    exon_starts[0] = 1
+    exons["t_start"] = exon_starts
+
+    # Found genomic exon
+    found = exons.loc[(exons["t_start"] <= pos) & (pos <= exons["t_end"])]
+    ref_exon_position = found["start"].values[0]
+
+    delta = (pos - found["t_start"].values[0]
+             ) if strand == "+" else (found["t_end"].values[0]-pos)
+    genomic_pos = ref_exon_position + delta
+    return genomic_pos
+
+
 def find_uorfs_in_transcript(
         seq,
-        start_site):
+        start_site,
+        ensembl_transcript_id):
     """
     @param seq : Transcript sequence (as cdna)
     @param start_site : The position of thst start site
@@ -62,21 +139,26 @@ def find_uorfs_in_transcript(
     if start_site-1 == 0:
         return None
 
-    five_prime_utr_seq = seq[0:start_site]  # Check points
+    five_prime_utr_seq = seq[0:start_site]
 
     # find all downstream atgs
     atg_pos = [i for i in range(len(five_prime_utr_seq))
                if five_prime_utr_seq.startswith("atg", i)]
 
     # filter to those that have in-frame stop
+    # so we have a start_end tuple
+    # e.g. [(start_of_uORF in transcript, end_of_uORF in transcript)...]
     start_end = [(i, i+find_stop(five_prime_utr_seq, i)+3)
                  for i in atg_pos if not find_stop(five_prime_utr_seq, i) is None]
 
+    # Create a dictionary of the element
     uorfs = [{"atg_pos": i[0],
               'stop_codon': five_prime_utr_seq[i[1]-3:i[1]],
               "stop_codon_pos": i[1]-3,
               'start': i[0],
               'end': i[1],
+              'genome_start': convert_transcript_coordinates_to_genomic(ensembl_transcript_id, i[0]),
+              'genome_end': convert_transcript_coordinates_to_genomic(ensembl_transcript_id, i[1]),
               "seq": five_prime_utr_seq[i[0]:i[1]],
               'length': len(five_prime_utr_seq[i[0]:i[1]]),
               "frame": get_relative_frame(start_site, i[0]),
@@ -146,4 +228,3 @@ def get_kozak_strength(context):
         return 'Moderate'
     else:
         return 'Weak'
-    pass
