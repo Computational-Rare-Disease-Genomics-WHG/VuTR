@@ -17,7 +17,9 @@ def get_clingen_curation(hgnc):
         sep='\t',
         skiprows=5,
     )
-    clingen_curation_record = clingen_curation[
-        clingen_curation['#Gene Symbol'] == hgnc
-    ].to_dict('records')[0]
-    return clingen_curation_record
+    if hgnc in clingen_curation['#Gene Symbol']:
+        clingen_curation_record = clingen_curation[
+            clingen_curation['#Gene Symbol'] == hgnc
+        ].to_dict('records')[0]
+        return clingen_curation_record
+    return None
