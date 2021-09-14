@@ -3,41 +3,12 @@ Provides utility function to get access to the feature track data from MANE
 """
 
 import pandas as pd
-from .utils import find_uorfs_in_transcript, convert_betweeen_identifiers
-
-
-def read_mane_genomic_features(ensembl_gene_id):
-    """
-    Reads mane for a specific gene_id from the genomic feature file
-
-    @param ensembl_gene_id (str) : A stable ensembl
-     gene identifier (ensure that this is in MANE) e.g. ENSG00000081189
-    @returns gene_data (DataFrame) : MANE filtered to that region
-    """
-    # TODO : This needs to be updated to Pipeline
-    mane = pd.read_csv(
-        '../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.tsv',
-        sep='\t',
-    )
-    mane['ensembl_stable_gene_id'] = mane['gene_id'].apply(lambda x: str(x)[0:15])
-    gene_data = mane[mane['gene_id'] == ensembl_gene_id]
-    return gene_data
-
-
-def read_mane_transcript(ensembl_transcript_id):
-    """
-    Reads through the MANE transcript set to get the transcript sequences
-
-    @param ensembl_transcript_id (str) : Full transcript, id (including version number)
-    @returns transcript_df
-    """
-
-    transcript_df = pd.read_csv(
-        "../../data/pipeline/MANE/0.93/MANE_transcripts_v0.93.tsv", sep="\t")
-    transcript_df = transcript_df[transcript_df["ensembl_transcript_id"].str.contains(
-        ensembl_transcript_id)]
-
-    return transcript_df
+from .utils import (
+    find_uorfs_in_transcript,
+    convert_betweeen_identifiers,
+    read_mane_transcript,
+    read_mane_genomic_features
+)
 
 
 def get_transcript_features(ensembl_transcript_id):
@@ -57,12 +28,15 @@ def get_transcript_features(ensembl_transcript_id):
     # find the start sites
     transcript_feats["start_site"] = utr_stats["5_prime_utr_length"]
 
+    transcript_feats["utr_stats"] = utr_stats
+
     # find the stop sites
 
     # find all uORFs
     transcript_feats["uORF"] = find_uorfs_in_transcript(
         seq=transcript_feats["full_seq"],
-        start_site=transcript_feats["start_site"])
+        start_site=transcript_feats["start_site"],
+        ensembl_transcript_id=ensembl_transcript_id)
 
     # find oORFS
     #transcript_feats["oORFs"] = find_oorf_in_transcript()
@@ -134,5 +108,12 @@ def genomic_features_by_ensg(ensembl_gene_id):
     )
 
     # TODO : Add sequence as well
+
+    ensembl_transcript_id = convert_betweeen_identifiers(
+        ensembl_gene_id, "ensembl_gene", "ensembl_transcript")
+    transcript_features = get_transcript_features(ensembl_transcript_id)
+
+    # Add uORFS
+    # Add oORFS
 
     return genomic_features
