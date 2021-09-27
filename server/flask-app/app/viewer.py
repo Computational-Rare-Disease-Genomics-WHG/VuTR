@@ -65,9 +65,6 @@ def viewer_page(ensembl_transcript_id):
     # Get Clinvar vep
     transcript_features = get_transcript_features(ensembl_transcript_id)
 
-    # clinvar_utr_variants
-    print(transcript_features)
-
     # Render template
     return render_template(
         'viewer.html',
