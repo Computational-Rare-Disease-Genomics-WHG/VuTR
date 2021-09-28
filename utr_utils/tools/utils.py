@@ -5,7 +5,9 @@ Utility functions for dealing with cdna sequences
 import pandas as pd
 import numpy as np
 import re
-
+from sqlalchemy import create_engine
+from coolname import generate_slug
+from sqlalchemy_utils import database_exists, create_database
 
 def read_mane_genomic_features(ensembl_gene_id):
     """
@@ -23,6 +25,40 @@ def read_mane_genomic_features(ensembl_gene_id):
     mane['ensembl_stable_gene_id'] = mane['gene_id'].apply(lambda x: str(x)[0:15])
     gene_data = mane[mane['gene_id'] == ensembl_gene_id]
     return gene_data
+
+
+def convert_df_to_db(
+    df,
+    table_name,
+    sql_alchemy_uri
+):
+    """
+    Wrapper function to write dataframe to sqlite3 db
+    @param df (dataframe): The table to write
+    @param table_name (str) : Name of the sqlite3 table
+    @param sql_alchemy_uri (str) : URI in the form 
+                    'sqlite:////../path_to_db.sqlite'
+    @returns None
+    """
+    # Create the database
+    engine = create_engine(sql_alchemy_uri, echo=True)
+
+    # Ensure that the database
+    if not database_exists(engine.url):
+        create_database(engine.url)
+
+    # Convert to sql database
+
+    # TODO :
+    # - Figure out how to either modify or
+    #   deal with the resulting schema
+    # - Figure out how to deal with
+    try:
+        df.to_sql(name=table_name,
+                  con=engine,
+                  if_exists='fail')
+    except Exception as e:
+        print(e)
 
 
 def read_mane_transcript(ensembl_transcript_id):
