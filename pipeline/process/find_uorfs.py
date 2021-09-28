@@ -1,11 +1,8 @@
-""" Finds the uORFs within a sequence
-TODO: Run for each transcript
-"""
+""" Finds the uORFs within a sequence"""
 
 import pandas as pd
 from utr_utils.tools.mane import read_mane_transcript
 from utr_utils.tools.mane import find_uorfs_in_transcript
-
 
 write_location = "../../data/pipeline/UORFS.tsv"
 
