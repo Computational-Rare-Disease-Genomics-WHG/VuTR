@@ -3,12 +3,17 @@ TODO: Run for each transcript
 """
 
 import pandas as pd
-from utr_utils import find_uorfs_in_transcript
+from utr_utils.tools.mane import read_mane_transcript
 
 
 def main():
     # Read in mane
-    mane = pd.read_csv()
+
+    summary =
+    mane = read_mane_transcript()
+
+    print(mane)
+
     for key, row in mane.iterrows():
 
         find_uorfs_in_transcript()
