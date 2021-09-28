@@ -9,6 +9,7 @@ from sqlalchemy import create_engine
 from coolname import generate_slug
 from sqlalchemy_utils import database_exists, create_database
 
+
 def read_mane_genomic_features(ensembl_gene_id):
     """
     Reads mane for a specific gene_id from the genomic feature file
@@ -52,11 +53,12 @@ def convert_df_to_db(
     # TODO :
     # - Figure out how to either modify or
     #   deal with the resulting schema
-    # - Figure out how to deal with
+    # - Figure out how to deal with foreign keys
     try:
-        df.to_sql(name=table_name,
-                  con=engine,
-                  if_exists='fail')
+        with engine.begin() as connection:
+            df.to_sql(name=table_name,
+                      con=connection,
+                      if_exists='fail')
     except Exception as e:
         print(e)
 
