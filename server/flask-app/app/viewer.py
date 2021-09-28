@@ -10,12 +10,19 @@ from flask import (  # pylint: disable=E0401
     flash,
 )  # pylint disable=E0401
 
-# import from tools
-from .tools.gnomad import get_constraint_by_ensg, gnomad_search_by_transcript_id
-from .tools.mane import genomic_features_by_ensg, get_transcript_features, get_utr_stats
-from .tools.sorfs import find_sorfs_by_ensg
-from .tools.clingen import get_clingen_curation
-from .tools.utils import convert_betweeen_identifiers
+# import from the packages
+from utr_utils.tools.gnomad import (
+    get_constraint_by_ensg,
+    gnomad_search_by_transcript_id
+)
+from utr_utils.tools.mane import (
+    genomic_features_by_ensg,
+    get_transcript_features,
+    get_utr_stats
+)
+from utr_utils.tools.sorfs import find_sorfs_by_ensg
+from utr_utils.tools.clingen import get_clingen_curation
+from utr_utils.tools.utils import convert_betweeen_identifiers
 
 viewer = Blueprint('viewer', __name__)
 
@@ -52,9 +59,15 @@ def viewer_page(ensembl_transcript_id):
 
     # Find ENSG by ENST
     ensembl_gene_id = convert_betweeen_identifiers(
-        ensembl_transcript_id, 'ensembl_transcript', 'ensembl_gene')
+        ensembl_transcript_id,
+        'ensembl_transcript',
+        'ensembl_gene'
+    )
     hgnc = convert_betweeen_identifiers(
-        ensembl_transcript_id, 'ensembl_transcript', 'hgnc_symbol')
+        ensembl_transcript_id,
+        'ensembl_transcript',
+        'hgnc_symbol'
+    )
     # Get features
     gene_features = genomic_features_by_ensg(ensembl_gene_id)
     five_prime_utr_stats = get_utr_stats(ensembl_gene_id)
