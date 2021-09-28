@@ -22,7 +22,6 @@ setuptools.setup(
     packages=[PKG],
     include_package_data=True,
     zip_safe=False,
-    scripts=['my-python-project'],
     keywords='bioinformatics',
     classifiers=[
         'Environment :: Console',
