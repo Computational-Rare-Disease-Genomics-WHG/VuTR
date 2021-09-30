@@ -2,7 +2,6 @@
 Provides utility function to get access to the feature track data from MANE
 """
 
-import pandas as pd
 from .utils import (
     find_uorfs_in_transcript,
     convert_betweeen_identifiers,
@@ -39,7 +38,8 @@ def get_transcript_features(ensembl_transcript_id):
         ensembl_transcript_id=ensembl_transcript_id)
 
     # find oORFS
-    #transcript_feats["oORFs"] = find_oorf_in_transcript()
+    # transcript_feats["oORFs"] = find_oorf_in_transcript()
+    # to be implemented
 
     return transcript_feats
 

@@ -5,6 +5,9 @@ Accesses the downloaded sorfs data
 # Access to sorfs.org data
 import pandas as pd
 from .mane import get_gene_features
+from pathlib import Path
+
+script_path = Path(__file__).parent
 
 
 def read_sorfs():
@@ -16,7 +19,7 @@ def read_sorfs():
     """
 
     # TODO : Change this to a SQL Alchemy model
-    data = pd.read_csv('../../data/pipeline/SORFS/sorfs.tsv', sep='\t')
+    data = pd.read_csv(script_path / '../../data/pipeline/SORFS/sorfs.tsv', sep='\t')
     return data
 
 

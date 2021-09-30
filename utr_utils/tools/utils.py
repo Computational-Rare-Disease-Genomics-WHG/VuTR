@@ -1,13 +1,13 @@
-"""
-Utility functions for dealing with cdna sequences
-"""
+"""Utility functions for dealing with cdna sequences"""
 
 import pandas as pd
 import numpy as np
 import re
+from pathlib import Path
 from sqlalchemy import create_engine
-from coolname import generate_slug
 from sqlalchemy_utils import database_exists, create_database
+
+script_path = Path(__file__).parent
 
 
 def read_mane_genomic_features(ensembl_gene_id):
@@ -19,10 +19,10 @@ def read_mane_genomic_features(ensembl_gene_id):
     @returns gene_data (DataFrame) : MANE filtered to that region
     """
     # TODO : This needs to be updated to Pipeline
-    mane = pd.read_csv(
-        '../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.tsv',
-        sep='\t',
-    )
+    mane = pd.read_csv(script_path /
+                       '../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.tsv',
+                       sep='\t',
+                       )
     mane['ensembl_stable_gene_id'] = mane['gene_id'].apply(lambda x: str(x)[0:15])
     gene_data = mane[mane['gene_id'] == ensembl_gene_id]
     return gene_data
@@ -71,8 +71,8 @@ def read_mane_transcript(ensembl_transcript_id):
     @returns transcript_df
     """
 
-    transcript_df = pd.read_csv(
-        "../../data/pipeline/MANE/0.93/MANE_transcripts_v0.93.tsv", sep="\t")
+    transcript_df = pd.read_csv(script_path /
+                                "../../data/pipeline/MANE/0.93/MANE_transcripts_v0.93.tsv", sep="\t")
     transcript_df = transcript_df[transcript_df["ensembl_transcript_id"].str.contains(
         ensembl_transcript_id)]
 
@@ -99,8 +99,8 @@ def convert_betweeen_identifiers(id, from_type, to_type):
         'ncbi_gene_id': '#NCBI_GeneID'
     }
     # reading mane
-    summary = pd.read_csv(
-        '../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.summary.txt.gz', sep='\t')
+    summary = pd.read_csv(script_path /
+                          '../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.summary.txt.gz', sep='\t')
     try:
         transformed_id = summary[summary[colmappings[from_type]
                                          ].str.contains(id)][colmappings[to_type]].values[0]

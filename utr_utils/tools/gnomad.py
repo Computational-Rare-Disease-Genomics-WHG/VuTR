@@ -8,6 +8,9 @@ https://gnomad.broadinstitute.org/api
 import json
 import requests  # pylint: disable=E0401
 import pandas as pd
+from pathlib import Path
+
+script_path = Path(__file__).parent
 
 
 def gnomad_search_by_transcript_id(transcript_id):
@@ -174,9 +177,8 @@ def get_constraint_by_ensg(ensg):
     @param ensg (str) : Ensembl gene id (stable)
     @returns gene_constraint_records (dict) : Constraint records for the gene (if found)
     """
-    constraint = pd.read_csv(
-        '../../data/pipeline/GNOMAD/gnomad.v2.1.1.lof_metrics.by_gene.txt', sep='\t'
-    )
+    constraint = pd.read_csv(script_path / '../../data/pipeline/GNOMAD/gnomad.v2.1.1.lof_metrics.by_gene.txt', sep='\t'
+                             )
     # remove version number
     ensg = ensg[0:15]
     gene_constraint_records = constraint[constraint['gene_id'] == ensg].to_dict(
