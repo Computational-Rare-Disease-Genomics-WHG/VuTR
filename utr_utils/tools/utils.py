@@ -4,8 +4,6 @@ import pandas as pd
 import numpy as np
 import re
 from pathlib import Path
-from sqlalchemy import create_engine
-from sqlalchemy_utils import database_exists, create_database
 
 script_path = Path(__file__).parent
 
@@ -37,7 +35,7 @@ def convert_df_to_db(
     Wrapper function to write dataframe to sqlite3 db
     @param df (dataframe): The table to write
     @param table_name (str) : Name of the sqlite3 table
-    @param sql_alchemy_uri (str) : URI in the form 
+    @param sql_alchemy_uri (str) : URI in the form
                     'sqlite:////../path_to_db.sqlite'
     @returns None
     """
@@ -81,9 +79,9 @@ def read_mane_transcript(ensembl_transcript_id):
 
 def convert_betweeen_identifiers(id, from_type, to_type):
     """
-    Convert between different identifiers 
+    Convert between different identifiers
 
-    @param id (str) : The id to transform 
+    @param id (str) : The id to transform
     @from_type (str) : One of the following 'ensembl_transcript', 'ensembl_protein' etc..
     @to_type (str) : The desired identifier 'ensembl_transcript', 'refseq_protein' etc..
     @returns transformed_id (str) : The identifier in the to_type
@@ -113,7 +111,7 @@ def convert_betweeen_identifiers(id, from_type, to_type):
 def get_relative_frame(start_site, comparison_site):
     """
     Relative frame of i compared to start site
-    @param start_site (int) : the "canonical" start_site we want to compare to 
+    @param start_site (int) : the "canonical" start_site we want to compare to
     @param comparison_site (int) : the position of the atg we want to compare it against.
     @returns (str) : Frame of i compared to start_site
     """
@@ -124,17 +122,77 @@ def get_relative_frame(start_site, comparison_site):
         return "Out-of-frame"
 
 
-def convert_transcript_coordinates_to_genomic(ensembl_transcript_id, pos):
+def find_genomic_interval(
+        ensembl_transcript_id,
+        transcript_start,
+        transcript_end):
     """
-    Converts the transcript position to genomic coordinates
+    Finds the genomic interval
+    """
+    ensembl_gene_id = convert_betweeen_identifiers(
+        ensembl_transcript_id,
+        "ensembl_transcript",
+        "ensembl_gene")
 
-    @param ensembl_transcript_id (str) 
+    mane_features = read_mane_genomic_features(ensembl_gene_id)
+
+    # get strand
+    strand = mane_features[mane_features['type'] == 'gene']['strand'].item()
+
+    # Swap if start is less than end, find genomic location of the interval
+    if strand == '+':
+        start_genome = convert_transcript_coordinates_to_genomic(
+            mane_features, transcript_start)
+        end_genome = convert_transcript_coordinates_to_genomic(
+            mane_features, transcript_end)
+    else:
+        start_genome = convert_transcript_coordinates_to_genomic(
+            mane_features, transcript_end)
+        end_genome = convert_transcript_coordinates_to_genomic(
+            mane_features, transcript_start)
+
+    # Now check if there are introns between the two position
+    exons = mane_features[mane_features['type'] == 'exon']
+    overlapping_exons = exons[((exons['start'] <= start_genome) &
+                               (start_genome <= exons['end'])) |
+                              ((exons['start'] <= end_genome) &
+                              (end_genome <= exons['end']))]
+
+    # If there is an intron between the interval
+    if overlapping_exons.shape[0] > 1:
+
+        # Sort exons by exon number
+        overlapping_exons = overlapping_exons.sort_values(
+            by=['exon_number'], ascending=True)
+
+        # Now
+        first_feature = [{"start": start_genome,
+                         "end": overlapping_exons['end'].values[0]}]
+
+        # If there a multiple traversing exons, add them in the middle
+        if overlapping_exons.shape[0] > 3:
+            middle_features = [overlapping_exons.loc[1:-
+                                                     1, ["start", "end"]].to_dict("records")]
+            first_feature = first_feature+middle_features
+
+        last_feature = [{"start": overlapping_exons['start'].values[overlapping_exons.shape[0]-1],
+                        "end": end_genome}]
+        # Add anything in the middle
+
+        return first_feature+last_feature
+
+    return [{"start": start_genome, "end": end_genome}]
+
+
+def convert_transcript_coordinates_to_genomic(mane_features, pos):
+    """
+    Converts the transcript position to genomic coordinates based
+    on the mane-features of the given pos (corresponding to the gene of interest)
+
+    @param ensembl_transcript_id (str)
     @param pos (int)
     @returns dictionary
     """
-    ensembl_gene_id = convert_betweeen_identifiers(
-        ensembl_transcript_id, "ensembl_transcript", "ensembl_gene")
-    mane_features = read_mane_genomic_features(ensembl_gene_id)
 
     # get strand
     strand = mane_features[mane_features['type'] == 'gene']['strand'].item()
@@ -191,12 +249,11 @@ def find_uorfs_in_transcript(
 
     # Create a dictionary of the element
     uorfs = [{"atg_pos": i[0],
-              'stop_codon': five_prime_utr_seq[i[1]-3:i[1]],
+             'stop_codon': five_prime_utr_seq[i[1]-3:i[1]],
               "stop_codon_pos": i[1]-3,
               'start': i[0],
               'end': i[1],
-              'genome_start': convert_transcript_coordinates_to_genomic(ensembl_transcript_id, i[0]),
-              'genome_end': convert_transcript_coordinates_to_genomic(ensembl_transcript_id, i[1]),
+              'genome_features':find_genomic_interval(ensembl_transcript_id, i[0], i[1]),
               "seq": five_prime_utr_seq[i[0]:i[1]],
               'length': len(five_prime_utr_seq[i[0]:i[1]]),
               "frame": get_relative_frame(start_site, i[0]),
@@ -212,7 +269,7 @@ def find_stop(seq, i):
     Finds the position of an in-frame stop codon
     @param seq : Transcript sequence search space
     @param i : position to start looking for
-    @returns stop_pos 
+    @returns stop_pos
     """
     stop_codons = ['tga', 'taa', 'tag']
     stop_grep_str = "|".join(stop_codons)
@@ -236,8 +293,8 @@ def find_oorf_in_transcript(seq, start_site):
 
 def get_kozak_context(seq, pos):
     """
-    Gets the 3 base context around pos inside 
-    @param seq (str): A cdna sequence 
+    Gets the 3 base context around pos inside
+    @param seq (str): A cdna sequence
     @param pos (int) : position of the sequence
     """
     if pos-3 > 0 and pos+4 < len(seq):
