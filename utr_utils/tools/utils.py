@@ -165,11 +165,11 @@ def find_genomic_interval(
         overlapping_exons = overlapping_exons.sort_values(
             by=['exon_number'], ascending=True)
 
-        # Now
+        # Find the first start-end segment (end of the first exon)
         first_feature = [{"start": start_genome,
                          "end": overlapping_exons['end'].values[0]}]
 
-        # If there a multiple traversing exons, add them in the middle
+        # If there a more than one intron, add them in the middle
         if overlapping_exons.shape[0] > 3:
             middle_features = [overlapping_exons.loc[1:-
                                                      1, ["start", "end"]].to_dict("records")]
