@@ -2,7 +2,6 @@
 TODO : Add indels as well
 """
 
-import utr_utils
 import argparse
 import pandas as pd
 
