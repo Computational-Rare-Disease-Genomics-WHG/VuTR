@@ -9,7 +9,6 @@ from itertools import chain
 from pathlib import Path
 
 bases = ["A", "C", "G", "T"]
-chroms = list(range(1, 23)) + ["X", "Y"]
 mane_version = 0.93
 assembly = 'GRCh38'
 complement_bases = {
@@ -52,11 +51,13 @@ def main(args):
 
     features = features.sort_values(by=['gene_id', 'exon_number'])
     chrom_possible_df = pd.DataFrame()
+    chroms = list(range(1, 23)) + ['X', 'Y']
+
     if args.only_chr_22:
         # filter utr_file to chr_22
         chroms = ['22']
 
-    formated_chroms = ["chr"+i for i in chroms]
+    formated_chroms = ["chr"+str(i) for i in chroms]
 
     for chrom in formated_chroms:
         vprint(f'Starting generating mutations for {chrom}')
