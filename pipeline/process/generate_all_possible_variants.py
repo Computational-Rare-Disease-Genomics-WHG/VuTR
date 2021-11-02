@@ -59,6 +59,7 @@ def main(args):
     formated_chroms = ["chr"+i for i in chroms]
 
     for chrom in formated_chroms:
+        vprint(f'Starting generating mutations for {chrom}')
 
         for gene in features[features['seqid'] == chrom]['gene_id'].unique():
 
