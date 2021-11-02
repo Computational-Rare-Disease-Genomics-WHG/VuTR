@@ -17,6 +17,7 @@ do
     --force_overwrite\
     --species homo_sapiens\
     --cache \
+    --fasta ${VEP_CACHE}/Homo_sapiens.GRCh38.dna.primary_assembly.fa\
     --mane \
     --mane_select\
     --canonical\
