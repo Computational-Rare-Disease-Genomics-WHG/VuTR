@@ -50,7 +50,6 @@ def main(args):
     # Write output
 
     features = features.sort_values(by=['gene_id', 'exon_number'])
-    chrom_possible_df = pd.DataFrame()
     chroms = list(range(1, 23)) + ['X', 'Y']
 
     if args.only_chr_22:
@@ -61,6 +60,7 @@ def main(args):
 
     for chrom in formated_chroms:
         vprint(f'Starting generating mutations for {chrom}')
+        chrom_possible_df = pd.DataFrame()
 
         for gene in features[features['seqid'] == chrom]['gene_id'].unique():
 
