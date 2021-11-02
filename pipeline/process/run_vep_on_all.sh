@@ -5,15 +5,13 @@
 
 INPATH='../../data/pipline/vep_data/input'
 OUTPATH='../../data/pipline/vep_data/output'
-VEP_CACHE=''
+VEP_CACHE='/well/whiffin/shared/vep'
 ASSEMBLY='GRCh38'
 MANE_VERSION='0.93'
 
-
 for i in {1..22} X Y
 do
-    echo $i
-
+    echo "Running VEP with UTR annotator on chr ${i}"
     vep \
     --assembly GRCh38\
     --force_overwrite\
@@ -24,8 +22,8 @@ do
     --canonical\
     --offline\
     --tab \
-    --dir_cache /opt/vep/.vep/Cache \
-    --plugin UTRannotator, /opt/vep/.vep/Plugins/uORF_starts_ends_GRCh38_PUBLIC.txt\
-    -i ${INPATH}/UTR_variants_all_possible_{ASSEMBLY}_{MANE_VERSION}_{i}.txt\
-    -o ${OUTPATH}/UTR_variants_vep_all_possible_{ASSEMBLY}_{MANE_VERSION}_{i}.txt
+    --dir_cache ${VEP_CACHE} \
+    --plugin UTRannotator\
+    -i ${INPATH}/UTR_variants_all_possible_${ASSEMBLY}_${MANE_VERSION}_chr${i}.txt\
+    -o ${OUTPATH}/UTR_variants_vep_all_possible_${ASSEMBLY}_${MANE_VERSION}_chr${i}.txt
 done
