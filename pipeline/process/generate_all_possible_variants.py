@@ -104,6 +104,9 @@ def main(args):
 
         vprint(f'Finish generating mutations for {chrom}')
         vprint(f'Writing to VEP file', args.verbose)
+
+        chrom_possible_df = chrom_possible_df.sort_values(by='start',
+                                                          ascending=True)
         chrom_possible_df.to_csv(script_path /
                                  f"../../data/pipeline/vep_data/input/UTR_variants_all_possible_{assembly}_{mane_version}_{chrom}.txt",
                                  sep="\t",
