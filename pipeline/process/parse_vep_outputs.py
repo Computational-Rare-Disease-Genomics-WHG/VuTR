@@ -1,13 +1,8 @@
-"""
-Parses the outputs from VEP running 
-UTR annotator and saves it as a .tsv
-TODO : Add gnomad when getting access to it
-"""
+"""Parses the outputs from VEP running UTR annotator and saves it as a .tsv"""
 
 import pandas as pd
 import numpy as np
 import argparse
-import sys
 
 
 def wide_to_long(df):
@@ -52,7 +47,7 @@ def main(args):
     # Read clinvar file and the mane summary file
     vep_df = pd.read_csv(vep_file_path,
                          sep='\t',
-                         skiprows=44)
+                         skiprows=args.header_lines)
 
     mane_summary_df = pd.read_csv(mane_summary_path,
                                   sep='\t')
@@ -65,8 +60,6 @@ def main(args):
     # Remove version number
     mane_summary_df['transcript_id'] = mane_summary_df['Ensembl_nuc'].apply(
         lambda x: x[0:15])
-
-    print(mane_summary_df["transcript_id"])
 
     # Filter to consequence on the MANE transcript
     vep_df = vep_df[vep_df['Feature'].isin(
@@ -82,6 +75,12 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Creates a TSV file that creates all possible UTR variants'
+    )
+    parser.add_argument(
+        '--header_lines',
+        required=True,
+        type=int,
+        help='Number of lines to skip when reading in the VEP file'
     )
     parser.add_argument(
         '--vep_file',
