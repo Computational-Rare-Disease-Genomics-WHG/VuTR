@@ -1,4 +1,7 @@
-"""Parses the outputs from VEP running UTR annotator and saves it as a .tsv"""
+"""Parses the outputs from VEP running UTR annotator and saves it as a .tsv
+
+Potential performance improvement : Use Dask as the dataframe are really big
+"""
 
 import pandas as pd
 import numpy as np
@@ -44,14 +47,18 @@ def main(args):
     mane_summary_path = '../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.summary.txt.gz'
     write_path = args.output_file
 
+    print(f'Reading file {vep_file_path}')
     # Read clinvar file and the mane summary file
     vep_df = pd.read_csv(vep_file_path,
                          sep='\t',
                          skiprows=args.header_lines)
 
+    print(f'Read completed')
+
     mane_summary_df = pd.read_csv(mane_summary_path,
                                   sep='\t')
 
+    print(f'Filtering out 5 prime UTR variants with no consequence')
     # Filter to variants that impact uORFs (remove all other variants)
     no_utr_consequence = ['-', '', None, np.nan]
     vep_df = vep_df[~vep_df['five_prime_UTR_variant_annotation'].isin(
@@ -61,13 +68,16 @@ def main(args):
     mane_summary_df['transcript_id'] = mane_summary_df['Ensembl_nuc'].apply(
         lambda x: x[0:15])
 
+    print(f'Filtering to MANE consequences')
     # Filter to consequence on the MANE transcript
     vep_df = vep_df[vep_df['Feature'].isin(
         mane_summary_df['transcript_id'])]
 
+    print(f'Transforming table to long')
     # Convert wide to long data frame
     long_vep_df = wide_to_long(vep_df)
 
+    print(f'Writing to file')
     # Write to file
     long_vep_df.to_csv(write_path, sep="\t", index=False)
 
