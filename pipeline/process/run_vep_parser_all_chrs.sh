@@ -15,6 +15,6 @@ do
     echo "Running parser on chr ${i}"
     python3 parse_vep_outputs.py  \
     --vep_file ${INPATH}/UTR_variants_vep_all_possible_GRCh38_0.93_chr${i}.txt \
-    --output_file ${OUTPUT}/UTR_variants_all_possible_GRCh38_0.93_chr_${i}_parsed_vep.txt \
+    --output_file ${OUTPATH}/UTR_variants_all_possible_GRCh38_0.93_chr_${i}_parsed_vep.txt \
     --header_lines $HEADER_LINES
 done
