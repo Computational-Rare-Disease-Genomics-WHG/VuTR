@@ -6,6 +6,8 @@ TODO : Add gnomad when getting access to it
 
 import pandas as pd
 import numpy as np
+import argparse
+import sys
 
 
 def wide_to_long(df):
@@ -39,37 +41,63 @@ def wide_to_long(df):
     return long_df
 
 
-# TODO : Update directories to cmd line args
-clinvar_vep_path = '../../data/pipeline/vep_data/output/clinvar_utr_filtered.out.txt'
-mane_summary_path = '../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.summary.txt.gz'
-write_path = "../../data/pipeline/CLINVAR/clinvar_processed.tsv"
-# Read clinvar file and the mane summary file
-clinvar_df = pd.read_csv(clinvar_vep_path,
+def main(args):
+    """
+    Main entry point
+    """
+    vep_file_path = args.vep_file
+    mane_summary_path = '../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.summary.txt.gz'
+    write_path = args.output_file
+
+    # Read clinvar file and the mane summary file
+    vep_df = pd.read_csv(vep_file_path,
                          sep='\t',
                          skiprows=44)
 
-mane_summary_df = pd.read_csv(mane_summary_path,
-                              sep='\t')
+    mane_summary_df = pd.read_csv(mane_summary_path,
+                                  sep='\t')
 
-# Filter to variants that impact uORFs (remove all other variants)
-no_utr_consequence = ['-', '', None, np.nan]
-clinvar_df = clinvar_df[~clinvar_df['five_prime_UTR_variant_annotation'].isin(
-    no_utr_consequence)]
+    # Filter to variants that impact uORFs (remove all other variants)
+    no_utr_consequence = ['-', '', None, np.nan]
+    vep_df = vep_df[~vep_df['five_prime_UTR_variant_annotation'].isin(
+        no_utr_consequence)]
 
-# Remove version number
-mane_summary_df['transcript_id'] = mane_summary_df['Ensembl_nuc'].apply(
-    lambda x: x[0:15])
+    # Remove version number
+    mane_summary_df['transcript_id'] = mane_summary_df['Ensembl_nuc'].apply(
+        lambda x: x[0:15])
 
-print(mane_summary_df["transcript_id"])
+    print(mane_summary_df["transcript_id"])
 
-# Filter to consequence on the MANE transcript
-clinvar_df = clinvar_df[clinvar_df['Feature'].isin(mane_summary_df['transcript_id'])]
+    # Filter to consequence on the MANE transcript
+    vep_df = vep_df[vep_df['Feature'].isin(
+        mane_summary_df['transcript_id'])]
+
+    # Convert wide to long data frame
+    long_vep_df = wide_to_long(vep_df)
+
+    # Write to file
+    long_vep_df.to_csv(write_path, sep="\t", index=False)
 
 
-# Convert wide to long data frame
-long_clinvar_df = wide_to_long(clinvar_df)
-
-# Write to file
-long_clinvar_df.to_csv(write_path,
-                       sep="\t",
-                       index=False)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Creates a TSV file that creates all possible UTR variants'
+    )
+    parser.add_argument(
+        '--vep_file',
+        required=True,
+        type=str,
+        help='Input file from VEP + UTR Annotator',
+    )
+    parser.add_argument(
+        '--output_file',
+        required=True,
+        type=str,
+        help='Output file name and location',
+    )
+    parser.add_argument(
+        '--verbose',
+        action='store_true',
+        help='Verbose outputs',
+    )
+    main(args=parser.parse_args())
