@@ -8,6 +8,34 @@ from pathlib import Path
 script_path = Path(__file__).parent
 
 
+def find_transcript_location(
+        glookup_table,
+        variant_pos,
+        ensembl_transcript_id):
+    """
+    Filters the glookup_table to find the genome position's transcript cdna location
+    """
+    return int(glookup_table[(variant_pos == glookup_table['gpos']) &
+                             (ensembl_transcript_id == glookup_table['ensembl_transcript_id'])]['tpos'].values[0])
+
+
+def add_tloc_to_dict(variant_item, glookup_table, ensembl_transcript_id):
+    """
+    Wrapper function that adds a tpos field to a given dictionary element
+    """
+    variant_item['tpos'] = find_transcript_location(glookup_table,
+                                                    variant_item['pos'],
+                                                    ensembl_transcript_id)
+    return variant_item
+
+
+def get_lookup_df(ensembl_transcript_id):
+
+    glookup_table = pd.read_csv(script_path /
+                                "../../data/pipeline/UTR_Genome_Transcript_Coordinates.tsv", sep="\t")
+    return glookup_table[ensembl_transcript_id == glookup_table.ensembl_transcript_id]
+
+
 def read_mane_genomic_features(ensembl_gene_id):
     """
     Reads mane for a specific gene_id from the genomic feature file
