@@ -15,5 +15,5 @@ do
     # Filter gnomAD to sites
     tabix ${GNOMAD_INPATH}/gnomad.genomes.v3.1.1.sites.chr${i}.vcf.bgz \
             -R data/pipeline/UTR_regions.tsv \
-            > ${GNOMAD_OUTPUT}/gnomad.genomes.v3.1.1.sites.chr${i}.vcf
+            > ${GNOMAD_OUTPUT}/gnomad.genomes.v3.1.1.utr_sites.chr${i}.vcf
 done
