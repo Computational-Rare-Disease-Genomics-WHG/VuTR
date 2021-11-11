@@ -13,7 +13,7 @@ do
     echo "Filtering gnomAD on chr${i}"
 
     # Tabix
-    tabix -p vcf {GNOMAD_INPATH}/gnomad.genomes.v3.1.1.sites.chr${i}.vcf.bgz -f
+    tabix -p vcf ${GNOMAD_INPATH}/gnomad.genomes.v3.1.1.sites.chr${i}.vcf.bgz -f
 
     # Filter gnomAD to sites
     tabix ${GNOMAD_INPATH}/gnomad.genomes.v3.1.1.sites.chr${i}.vcf.bgz \
