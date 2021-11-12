@@ -9,6 +9,8 @@ library(data.table)
 library(magrittr)
 library(rtracklayer)
 
+setwd("../../")
+
 # Read genomic feature file
 genomic_mane <- fread("data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.tsv") # nolint
 
