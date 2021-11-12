@@ -115,6 +115,10 @@ fwrite(mane_rna_dt,
     "../../data/pipeline/MANE/0.93/MANE_transcripts_v0.93.tsv",
     sep = "\t"
 )
+fwrite(mane_rna_dt,
+    "../../data/pipeline/MANE_transcripts_v0.93.tsv",
+    sep = "\t"
+)
 
 fwrite(transcript_feats,
     "../../data/pipeline/MANE/0.93/MANE_transcript_features_v0.93.tsv",
