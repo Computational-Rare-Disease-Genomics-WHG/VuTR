@@ -15,6 +15,7 @@ script_path = Path(__file__).parent
 
 def gnomad_search_by_transcript_id(transcript_id):
     """
+    For prototyping purposes
     Access gnomad through the GraphQL API
     @param transcript_id (str) : Ensembl transcript identifier
     (ensure this is the canonical MANE id)
@@ -53,6 +54,7 @@ def gnomad_search_by_transcript_id(transcript_id):
         in_gnomad
         clinvar_variation_id
         gold_stars
+        variant_id
         review_status
         hgvsc
         clinical_significance
@@ -61,6 +63,7 @@ def gnomad_search_by_transcript_id(transcript_id):
       variants(dataset: gnomad_r3) {
         ref
         pos
+        variant_id
         alt
         hgvsc
         genome {
@@ -98,6 +101,8 @@ def gnomad_search_by_transcript_id(transcript_id):
 
 def gnomad_search_by_gene_id(hgnc):
     """
+    For prototyping purposes
+
     Access gnomad through the GraphQL API
 
       Params :
@@ -127,6 +132,7 @@ def gnomad_search_by_gene_id(hgnc):
           alt
           in_gnomad
           clinvar_variation_id
+          variant_id
           gold_stars
           review_status
           hgvsc
