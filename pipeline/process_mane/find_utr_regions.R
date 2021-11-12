@@ -21,8 +21,19 @@ mane_features %<>% .[type == "five_prime_UTR"]
 mane_features %<>% .[, .(seqid, start, end)]
 names(mane_features) <- c("CHROM", "POS", "POS_TO")
 mane_features[, CHROM := as.character(CHROM)]
+
+
+# For use with gnomAD
+fwrite(mane_features,
+    "data/pipeline/UTR_regions_with_chr_prefix.tsv",
+    sep = "\t",
+    col.names = F
+)
+
+
 mane_features[, CHROM := substr(CHROM, 4, nchar(CHROM))]
 
+# For use with clinvar
 fwrite(mane_features,
     "data/pipeline/UTR_regions.tsv",
     sep = "\t",
