@@ -9,7 +9,8 @@ import pandas as pd
 import sys
 import json
 from utr_utils.tools.utr_annotation import (
-    parse_five_prime_UTR_variant_consequence)
+    parse_five_prime_UTR_variant_consequence
+)
 from utr_utils.tools.utils import (
     convert_uploaded_variation_to_variant_id
 )
@@ -37,9 +38,7 @@ def main(args):
     conn.commit()
     print(f'Completed creating tables')
 
-    variant_df = pd.read_csv(
-        '/Users/elstonndsouza/Projects/Oxford/UTR-Visualisation-App/data/pipeline/vep_data/output/UTR_variants_vep_all_possible_GRCh38_0.93_chr5_parsed.txt', sep="\t")
-    variant_df = variant_df.loc[1:10]
+    variant_df = pd.read_csv(args.variant_file, sep="\t")
     for index, row in variant_df.iterrows():
         variant_conseq = row.to_dict()
         print(f'Performing insertion on {index}')
@@ -68,11 +67,16 @@ if __name__ == '__main__':
         help='Output sqlite3 file name and location',
     )
     parser.add_argument(
+        '--variant_file',
+        required=True,
+        type=str,
+        help='The variant tsv file to be injested'
+    )
+    parser.add_argument(
         '--overwrite',
         action='store_true',
         help='Overwrite existing database if exists',
     )
-
     parser.add_argument(
         '--verbose',
         action='store_true',
