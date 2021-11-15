@@ -32,6 +32,7 @@ def main(args):
         """CREATE TABLE IF NOT EXISTS variant_annotations (
             ensembl_transcript_id varchar,
             variant_id varchar,
+            cdna_pos int,
             five_prime_UTR_variant_consequence varchar,
             five_prime_UTR_variant_annotation data,
             annotations data)""")
@@ -42,10 +43,11 @@ def main(args):
     for index, row in variant_df.iterrows():
         variant_conseq = row.to_dict()
         print(f'Performing insertion on {index}')
-        c.execute("insert into variant_annotations values (?, ?, ?, ?, ?)", [
+        c.execute("insert into variant_annotations values (?, ?, ?,?, ?, ?)", [
             variant_conseq['Feature'],
             convert_uploaded_variation_to_variant_id(
                 variant_conseq['#Uploaded_variation']),
+            variant_conseq['cDNA_position'],
             variant_conseq['five_prime_UTR_variant_consequence'],
             json.dumps(parse_five_prime_UTR_variant_consequence(
                 variant_conseq['five_prime_UTR_variant_annotation'])),
