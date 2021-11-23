@@ -5,13 +5,13 @@
 
 
 gnomad_variants_query = '''
-    CREATE TABLE IF NOT EXISTS gnomad_variants 
-        (variant_id varchar, 
-        pop_ac int,
-        pop_af float,
-        ref varchar,
-        alt varchar
-        major_consequence varchar)'''
+CREATE TABLE IF NOT EXISTS gnomad_variants 
+    (variant_id varchar, 
+    pop_ac int,
+    pop_af float,
+    ref varchar,
+    alt varchar
+    major_consequence varchar)'''
 
 clinvar_variants_query = '''
 CREATE TABLE IF NOT EXISTS clinvar_variants 
@@ -22,8 +22,10 @@ CREATE TABLE IF NOT EXISTS clinvar_variants
     review_status varchar,
     clinsig varchar)'''
 
-contraint_query = '''CREATE TABLE IF NOT EXISTS constraint 
-    (ensembl_gene_name varchar, 
+contraint_query = '''
+CREATE TABLE IF NOT EXISTS constraint 
+    (ensembl_gene_name varchar,
+    ensembl_transcript_id varchar,
     loeuf float)'''
 
 possible_utr_variants_query = '''
@@ -78,11 +80,13 @@ CREATE TABLE IF NOT EXISTS mane_transcript_seqs (
 
 
 tbl_queries = {
-    'gnomad_variants': gnomad_variants_query,
-    'clinvar_variants': clinvar_variants_query,
-    'constraint': contraint_query,
-    'possible_utr_variants': possible_utr_variants_query,
-    'mane_summary': mane_summary_query,
-    'mane_genomic_features': mane_features_query,
-    'mane_transcript_features': mane_transcript_seqs_query,
+    "": {
+        'gnomad_variants': gnomad_variants_query,
+        'clinvar_variants': clinvar_variants_query,
+        'constraint': contraint_query,
+        'possible_utr_variants': possible_utr_variants_query,
+        'mane_summary': mane_summary_query,
+        'mane_genomic_features': mane_features_query,
+        'mane_transcript_features': mane_transcript_seqs_query,
+    }
 }
