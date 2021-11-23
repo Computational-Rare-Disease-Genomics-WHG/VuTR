@@ -1,6 +1,6 @@
 ## UTR Visualization App Pipeline 
 
-This directory contains two subdirs and contains the code to query and process the data.
+This directory  contains the code to query and process the data as a pre-requisite to the pipline
 Outputs 
 
 First, is the `downloads` folders that queries all the tools used in the UTR-Visualization Application
@@ -11,10 +11,6 @@ To run the UTR-Visualization application, we need to download and process all of
 
 This document is brief outline of how to run (before moving to a Snakemake pipeline.)
 
-
-## How to run
-
-
 ### Pre-requisites 
 
 Ensure that coreutils are install if you are using macOS
@@ -23,17 +19,24 @@ Ensure that coreutils are install if you are using macOS
 brew install coreutils
 ```
 
-Other dependencies include `wget`, `curl`, `bgzip` (can be installed from samtools), `tabix` and `docker`. Ensure that you also have ENSEMBL's *homo_sapiens* cache installed for the version of Ensembl being used.
+Other dependencies include `wget`, `docker (Optional if not using vep)`, `vep`. 
 
-All other python dependencies are packaged in conda 
+Ensure that you also have ENSEMBL's *homo_sapiens* cache installed for the version of Ensembl being used.
 
-Go to the root directory and install 
+All other python dependencies are packaged in conda. 
+
+Go to the root directory and install the requirements from the conda environment
+
 ```bash
 conda env create -f pipeline-env.yml
 conda activate utr-app-pipeline
 ```
 
-### Downloading data 
+
+
+## Running the pipline 
+
+The aim is to make this automated through Snakemake / Nextflow.
 
 Firstly, we need to create the output directory structure where all of the output files will be held. To do this, run the following command. 
 
@@ -50,8 +53,13 @@ cd ~/downloads
 bash download_all.sh --mane_v MANE_V # Optional argument, default mane version is 0.93
 ```
 
+Run scripts within each of the directories in the following order. 
 
-## Process 
+- downloads
+- process_mane
+- variants
+- database
 
-Next step is to process the data 
-TODO 
+Commands to run each of the scripts are in the directories.
+
+

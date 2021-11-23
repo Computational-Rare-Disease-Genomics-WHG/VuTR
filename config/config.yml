@@ -1,0 +1,33 @@
+---
+output_directory: data/pipeline
+assembly: GRCh38
+chroms: all
+location: hpc
+
+MANE:
+  mane_version: 0.93
+  mane_ftp_url: ftp://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/
+
+gnomAD:
+  gnomad_version: 3.1.1
+  vcf_sites_bucket: gs://gcp-public-data--gnomad/release/3.1.2/vcf/genomes/
+  hail_table: gs://gcp-public-data--gnomad/release/3.1.2/ht/genomes/gnomad.genomes.v3.1.2.sites.ht
+  constraint:
+    transcript: gs://gcp-public-data--gnomad/release/2.1.1/constraint/gnomad.v2.1.1.lof_metrics.by_transcript.txt.bgz
+    gene: gs://gcp-public-data--gnomad/release/2.1.1/constraint/gnomad.v2.1.1.lof_metrics.by_gene.txt.bgz
+
+Ensembl:
+  ensembl_vep_version: 104
+  ensembl_cache: http://ftp.ensembl.org/pub/release-104/variation/indexed_vep_cache/homo_sapiens_vep_104_GRCh38.tar.gz
+  fasta_file: http://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+  cache_storage_location: /well/whiffin/shared/vep/
+  fasta_file_storage_location: /well/whiffin/shared/vep
+
+Clinvar:
+  clinvar_weekly_release_vcf: "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/weekly/clinvar.vcf.gz"
+
+ClinGen:
+  clingen_curation_ftp_url: "ftp://ftp.clinicalgenome.org/ClinGen_gene_curation_list_GRCh38.tsv"
+
+SorfsOrg:
+  sorfs_api_url: http://biomart.biobix.be/martsoap?wsdl
