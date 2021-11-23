@@ -1,30 +1,8 @@
 """Deals with the possible variants"""
 
 import pandas as pd
-import numpy as np
-import re
+import json
 from pathlib import Path
-
-# Define script path
-script_path = Path(__file__).parent
-
-
-def load_possible_variants_df(ensembl_transcript_id):
-    # Currentl
-    possible_df = pd.read_csv(script_path /
-                              "../../data/pipeline/vep_data/output/UTR_variants_vep_all_possible_GRCh38_0.93_chr5_parsed.txt", sep="\t")
-    possible_df = possible_df.set_index('variant_id')
-    return possible_df[ensembl_transcript_id == possible_df.Feature]
-
-
-def parse_five_prime_UTR_variant_consequence(conseq_str):
-    """
-    Parses the consequence str into a keyed dictionary as per 
-    https://github.com/ImperialCardioGenetics/UTRannotator#the-detailed-annotation-for-each-consequence
-
-    """
-    return {annotation.split(':')[0]: annotation.split(':')[1]
-            for annotation in conseq_str.split(',')}
 
 
 def parse_values(val, start_site, buffer_length):
@@ -37,42 +15,58 @@ def parse_values(val, start_site, buffer_length):
         return int(val)
 
 
-def get_utr_annotation_for_list_variants(list_intervals, possible_variants_df, start_site, buffer_length):
-
-    # filter list_intervals to those in possible_variants_df
+def get_utr_annotation_for_list_variants(
+    list_variants,
+    possible_variants_dict,
+    start_site,
+    buffer_length
+):
 
     high_impact_utr_variants = list(set([
-        var for var in list_intervals if var in possible_variants_df.index.to_list()]))
+        v['variant_id'] for v in possible_variants_dict if
+        v['variant_id'] in list_variants
+    ]))
+    print(high_impact_utr_variants)
+
     if len(high_impact_utr_variants) > 0:
-        return list(possible_variants_df.loc[high_impact_utr_variants]
-                    .drop_duplicates()
-                    .apply(
-            lambda var: find_intervals_for_utr_consequence(
-                var_id=var.name,
-                conseq_type=var.five_prime_UTR_variant_consequence,
-                conseq_str=var.five_prime_UTR_variant_annotation,
-                cdna_pos=var.cDNA_position,
+        return [
+            find_intervals_for_utr_consequence(
+                var_id=v['variant_id'],
+                conseq_type=v['five_prime_UTR_variant_consequence'],
+                conseq_dict=v['five_prime_UTR_variant_annotation'],
+                cdna_pos=v['cDNA_position'],
                 start_site=start_site,
                 buffer_length=buffer_length
-            ),
-            axis=1))
+            )
+            for v in
+            possible_variants_dict if v['variant_id'] in high_impact_utr_variants
+        ]
     return []
+
+
+def parse_five_prime_UTR_variant_consequence(conseq_str):
+    """
+    Parses the consequence str into a keyed dictionary as per 
+    https://github.com/ImperialCardioGenetics/UTRannotator#the-detailed-annotation-for-each-consequence
+
+    """
+    return {annotation.split(':')[0]: annotation.split(':')[1]
+            for annotation in conseq_str.split(',')}
 
 
 def find_intervals_for_utr_consequence(
         var_id,
         conseq_type,
-        conseq_str,
+        conseq_dict,
         cdna_pos,
         start_site,
         buffer_length):
     """
     Parses the output of UTR annotator to a dictionary of intervals [start, end] for the visualization
     """
-    conseq_dict = parse_five_prime_UTR_variant_consequence(conseq_str)
-
     intervals = {}
     intervals['variant_id'] = var_id
+    conseq_dict = parse_five_prime_UTR_variant_consequence(conseq_dict)
     if conseq_type == 'uAUG_gained':
         # Done
         intervals['start'] = cdna_pos
@@ -124,3 +118,11 @@ def find_intervals_for_utr_consequence(
         pass
 
     return intervals
+
+
+def get_all_possible_variants(ensembl_transcript_id, cursor):
+    cursor.execute('SELECT annotations FROM variant_annotations WHERE ensembl_transcript_id =?', [
+        ensembl_transcript_id])
+    rows = cursor.fetchall()
+    variants = [json.loads(row[0]) for row in rows]
+    return variants

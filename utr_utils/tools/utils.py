@@ -3,9 +3,28 @@
 import pandas as pd
 import numpy as np
 import re
+import json
 from pathlib import Path
 
 script_path = Path(__file__).parent
+
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
+
+
+def convert_uploaded_variation_to_variant_id(uploaded_variation):
+    """
+    Replaces the uploaded variation in VEP to a gnomad-esq variant id
+    """
+    return uploaded_variation.replace('_', '-').replace('/', '-')
 
 
 def find_transcript_location(
@@ -54,41 +73,6 @@ def read_mane_genomic_features(ensembl_gene_id):
     return gene_data
 
 
-def convert_df_to_db(
-    df,
-    table_name,
-    sql_alchemy_uri
-):
-    """
-    Wrapper function to write dataframe to sqlite3 db
-    @param df (dataframe): The table to write
-    @param table_name (str) : Name of the sqlite3 table
-    @param sql_alchemy_uri (str) : URI in the form
-                    'sqlite:////../path_to_db.sqlite'
-    @returns None
-    """
-    # Create the database
-    engine = create_engine(sql_alchemy_uri, echo=True)
-
-    # Ensure that the database
-    if not database_exists(engine.url):
-        create_database(engine.url)
-
-    # Convert to sql database
-
-    # TODO :
-    # - Figure out how to either modify or
-    #   deal with the resulting schema
-    # - Figure out how to deal with foreign keys
-    try:
-        with engine.begin() as connection:
-            df.to_sql(name=table_name,
-                      con=connection,
-                      if_exists='fail')
-    except Exception as e:
-        print(e)
-
-
 def read_mane_transcript(ensembl_transcript_id):
     """
     Reads through the MANE transcript set to get the transcript sequences
@@ -103,6 +87,14 @@ def read_mane_transcript(ensembl_transcript_id):
         ensembl_transcript_id)]
 
     return transcript_df
+
+
+def read_oorf_features(ensembl_transcript_id):
+
+    orf_df = pd.read_csv(
+        script_path / "../../data/pipeline/ORFS_Features_0.93.tsv", sep='\t')
+
+    return orf_df[orf_df.ensembl_transcript_id.str.contains(ensembl_transcript_id)]
 
 
 def convert_betweeen_identifiers(id, from_type, to_type):
@@ -122,7 +114,9 @@ def convert_betweeen_identifiers(id, from_type, to_type):
         'refseq_mrna': 'RefSeq_nuc',
         'hgnc_symbol': 'symbol',
         'hgnc_id': 'HGNC_ID',
-        'ncbi_gene_id': '#NCBI_GeneID'
+        'ncbi_gene_id': '#NCBI_GeneID',
+        'name': 'name',
+        'mane_status': 'MANE_status',
     }
     # reading mane
     summary = pd.read_csv(script_path /
@@ -282,7 +276,7 @@ def find_uorfs_in_transcript(
               'start': i[0],
               'end': i[1],
               'genome_features':find_genomic_interval(ensembl_transcript_id, i[0], i[1]),
-              "seq": five_prime_utr_seq[i[0]:i[1]],
+              "utr_seq": five_prime_utr_seq[i[0]:i[1]],
               'length': len(five_prime_utr_seq[i[0]:i[1]]),
               "frame": get_relative_frame(start_site, i[0]),
               "kozak_context": get_kozak_context(seq, i[0]),
