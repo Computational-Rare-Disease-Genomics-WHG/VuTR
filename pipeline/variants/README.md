@@ -6,7 +6,6 @@
 - Subsets gnomAD and Clinvar for UTR variants
 
 
-
 ## Future log
 
 - [ ] Update directories and I/O for scripts here
