@@ -9,6 +9,30 @@ library("magrittr")
 library("stringi")
 library("stringr")
 
+#' Returns the TIS -6,+4
+#' @param pos
+#' @param cdna_seq
+#' @returns context : substring containing context TIS (pos-6,pos+4)
+get_context <- function(cdna_seq, pos) {
+    context <- substr(cdna_seq, pos - 6, pos + 4)
+    return(if (nchar(context) == 11 & !is.na(context)) context else "-")
+}
+
+#' Process the strings (to cdna) and
+#' effsiciencies of the translational efficiency table
+#' @param dt : The data.table of the read translation efficiency
+#' @return data.table : the necessary columns and the efficiency per context
+process_te_table <- function(dt) {
+    dt[, tis_context := gsub("u", "t", tolower(sequence))]
+    setkey(dt, tis_context)
+    # Add quantiles
+    eff_quantiles <- quantile(dt$efficiency, prob = seq(0, 1, 0.25))
+    return(dt[, .(
+        tis_context,
+        efficiency
+    )])
+}
+
 #' Get the kozak context
 #' @param seq the transcript sequence
 #' @param start_site the location of the a in the start codon
@@ -84,7 +108,6 @@ transcripts <- fread(
     sep = "\t"
 )
 
-
 # Apply for each transcript id
 transcripts[, orfs := {
     if (start_site_pos > 1) {
@@ -125,6 +148,16 @@ transcripts[, orfs := {
                 ),
                 by = orf_start_codon
             ]
+
+            # Add tis contexts
+            orfs[,
+                context := get_context(
+                    seq,
+                    orf_start_codon
+                ),
+                by = orf_start_codon
+            ]
+
             orfs[,
                 kozak_consensus_strength := get_kozak_consensus_strength(
                     kozak_context
@@ -145,7 +178,6 @@ transcripts[, orfs := {
         }
     }
 }, by = ensembl_transcript_id]
-
 
 # Combine the data tables together
 orfs <- transcripts[
