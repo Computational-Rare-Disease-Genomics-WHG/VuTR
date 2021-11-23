@@ -133,7 +133,7 @@
                         <ol class="breadcrumb float-sm-right">
                            <li class="breadcrumb-item"><a href="#">Home</a></li>
                            <li class="breadcrumb-item"><a href="#">Viewer</a></li>
-                           <li class="breadcrumb-item active">{{ensembl_transcript_id}}({{gnomad_data["transcript"]["gene"]["symbol"]|safe}})</li>
+                           <li class="breadcrumb-item active">{{ensembl_transcript_id}}({{hgnc}})</li>
                         </ol>
                      </div>
                      <!-- /.col -->
@@ -172,12 +172,12 @@
                               <div class="row">
                                  <div class=" col-lg-6 border-0">
                                     <div class="card-body">
-                                       <h6><b>HGNC Symbol</b>: {{gnomad_data["transcript"]["gene"]["hgnc_id"]|safe}}</h6>
-                                       <h6><b>Gene Name</b>: {{gnomad_data["transcript"]["gene"]["name"]|safe}}</h6>
-                                       <h6><b>Ensembl Gene ID</b>: {{gnomad_data["transcript"]["gene"]["gene_id"]|safe}}</h6>
+                                       <h6><b>HGNC Symbol</b>: {{hgnc}}</h6>
+                                       <h6><b>Gene Name</b>: {{name}}</h6>
+                                       <h6><b>Ensembl Gene ID</b>: {{ensembl_gene_id}}</h6>
                                        <h6><b>Ensembl Transcript ID</b>: {{ensembl_transcript_id}}</h6>
-                                       <h6><b>OMIM ID</b>:  {{gnomad_data["transcript"]["gene"]["omim_id"]|safe}}</h6>
-                                       <h6><b>RefSeq Match</b>: {{gnomad_data["transcript"]["gene"]["mane_select_transcript"]["refseq_id"]|safe}}</h6>
+                                       <h6><b>OMIM ID</b>:  {{XXX}}</h6>
+                                       <h6><b>RefSeq Match</b>: {{refseq_match}}</h6>
                                     </div>
                                  </div>
                                  <div class = "col-lg-6 border-0 px-1">
@@ -227,10 +227,10 @@
                               </div>
                            </div>
                            <div class="card-body">
-                              <div id = "chart"></div>
-                              <svg id="utr-architechure-viewer"
+                              <!--div id = "chart"></div-->
+                              <!--svg id="utr-architechure-viewer"
                               viewBox="0 0 960 500"
-                              preserveAspectRatio="xMidYMid meet"></svg>
+                              preserveAspectRatio="xMidYMid meet"></svg-->
                            </div>
                            <div id = "transcript_viewer"></div>
                         </div>
@@ -358,24 +358,26 @@ track_features = track_features.filter(function (obj){
 
 var create_transcript_viewer = function (tr_obj,
                                           div,
-                                          buffer){
+                                          buffer,
+                                          gnomad_utr_impact, 
+                                          clinvar_utr_impact){
 
 // Start site location
-var start_site = tr_obj["start_site"]
+var start_site =  {{five_prime_utr_stats["5_prime_utr_length"]| safe}}
 
 // Subset to the first 100 bases following the CDS
 
 var sequence = tr_obj["full_seq"].substring(0, start_site+buffer); 
 
 var kozak_colors = {
-   Strong : "#3CDBD3", 
-   Moderate : "#7DCE82", 
-   Weak : "#E8E288", 
-   None : "#FF8360"
+   Strong : "#AED9E0", 
+   Moderate : "#B8F2E6", 
+   Weak : "#CF5C36", 
+   None : "#CF5C36"
 };
 
 var ft2 = new FeatureViewer.createFeature(sequence, div, {
-   showAxis : true,
+   showAxis : false,
    showSequence: true, 
    brushActive: true, 
    toolbar:true,
@@ -386,47 +388,110 @@ var ft2 = new FeatureViewer.createFeature(sequence, div, {
 // Don't plot for 
 if (start_site != 0){
    ft2.addFeature({
-      data : [{x:start_site,y:start_site+buffer}], 
-      name : "CDS",
-      className : "CDS_rect", 
-      type : "rect"
+      data : [{x:start_site+1,
+               y:start_site+buffer,
+               color:'#909590', 
+               id:'cds_rect'}, 
+               {
+               x:1, 
+               y:start_site, 
+               color:'#2C302E', 
+               id:'utr_rect'
+               }], 
+      name : "Gene Structure",
+      className : "gene_struct", 
+      type : "rect",
+      color : "#00000"
    });
-   ft2.addFeature({
-      data : [{x:0, y:start_site}], 
-      name : "5' UTR",
-      className : "five_utr_rect", 
-      type : "rect", 
-   });
+   document.getElementById("fcds_rect").setAttribute("height", "30");
+   document.getElementById("fcds_rect").setAttribute("y", "-8");
 }
-// Plot each separate uORF on a separate track
-var uorfs = tr_obj["uORF"]
-uorfs.forEach(element => {
+
+var clinvar_variants = gnomad_data['clinvar_variants']; 
+var clinvar_var_feat_dat = []; 
+clinvar_variants.forEach(element => {
+   clinvar_var_feat_dat.push({x : element['tpos'], y:element['tpos']});
+});
+console.log("Clinvar Variants");
+console.log(clinvar_var_feat_dat);
+ft2.addFeature({
+   data : clinvar_var_feat_dat, 
+   type : "rect",
+   className : "clinvar_var", 
+   name : "ClinVar Variant",
+   color : "#FFA69E"
+});
+
+var pop_variants = gnomad_data['variants']; 
+var pop_var_feat_dat = []; 
+pop_variants.forEach(element => {
+   pop_var_feat_dat.push({x : element['tpos'], y:element['tpos']});
+});
+ft2.addFeature({
+   data : pop_var_feat_dat, 
+   type : "rect",
+   className : "gnomAD_var", 
+   name : "gnomAD Variants",
+   color : "#424242"
+});
+
+// Plot each separate uORF on a separate track based on frame
+
+var uorf_type = ["Inframe", "Out-of-Frame (1bp)", "Out-of-Frame (2bp)"]
+var uorfs = tr_obj["orfs"]
+uorf_type.forEach(element => {
+   
+   var curr_uorf_type = uorfs.filter(function (obj) {return (obj.frame == element)});
+   curr_uorf_frame_dat = [];
+   curr_uorf_type.forEach(e => curr_uorf_frame_dat.push({
+      x: e.orf_start_codon,
+      y: e.orf_stop_codon, 
+      color : kozak_colors[e.kozak_consensus_strength]
+   }))
+
    ft2.addFeature({
-      data: [{x:element.start+1, y:element.end}], 
+      data: curr_uorf_frame_dat, 
       type : "rect",
       className : "uorf_rect",
-      name : "uORF",
-      color : kozak_colors[element.kozak_strength]
+      name : element,
+      color :'#474A48'
    })
    
 });
 
-// add variants  
-var genomic_to_transcript = function(pos, gene_features){
-   // filter gene features to exons 
+clinvar_utr_impact.forEach(
+   element =>{
+      ft2.addFeature({
+      data: [{x:element.start, y:element.end}], 
+      type : "rect",
+      className : "clinvar_high_impact_variant",
+      name : element.variant_id,
+      color : kozak_colors[element.kozak_strength]
+   })
+   }
+)
 
-   // find all of the exons that come before it
-
-   // sum up and return
-};
-var population_variation = gnomad_data["transcript"]["clinvar_variants"];
-
+gnomad_utr_impact.forEach(
+   element =>{
+      ft2.addFeature({
+      data: [{x:element.start, y:element.end}], 
+      type : "rect",
+      className : "gnomAD_high_impact_variant",
+      name : element.variant_id,
+      color : kozak_colors[element.kozak_strength]
+   })
+   }
+)
 }
       
 //create_d3_genomic_viewer("#utr-architechure-viewer");
 var transcript_features = {{transcript_features | safe}};
 var transcript_div = "#transcript_viewer";
-create_transcript_viewer(transcript_features, transcript_div, 50);
+var gnomad_utr_impact = {{gnomad_utr_impact|safe}};
+var clinvar_utr_impact = {{clinvar_utr_impact|safe}};
+
+
+create_transcript_viewer(transcript_features, transcript_div, buffer_zone, gnomad_utr_impact, clinvar_utr_impact);
 
 /*************Population variation*******************/
 
@@ -438,7 +503,7 @@ create_transcript_viewer(transcript_features, transcript_div, 50);
          sorting: true,
          pageSize: 10,
          paging: true,
-         data: gnomad_data["transcript"]["clinvar_variants"],
+         data: gnomad_data["clinvar_variants"],
          fields: [{
                   name: "clinvar_variation_id",
                   type: "text",
@@ -488,7 +553,7 @@ create_transcript_viewer(transcript_features, transcript_div, 50);
          sorting: true,
          pageSize: 10,
          paging: true,
-         data: gnomad_data["transcript"]["variants"],
+         data: gnomad_data["variants"],
          fields: [{
                   name: "variantId",
                   type: "text",

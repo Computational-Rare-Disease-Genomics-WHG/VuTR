@@ -7,12 +7,8 @@ from flask import (
     url_for,
     redirect)
 
-import itertools
-import datetime
 
 main = Blueprint('main', __name__)
-
-# Home Page
 
 
 @main.route("/")
