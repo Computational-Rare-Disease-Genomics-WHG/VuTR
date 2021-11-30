@@ -1,13 +1,47 @@
+
+var strand_corrected_interval = function (start, end, start_site, buffer, strand){
+    if (strand == '+'){
+    return ({
+        'start' : start, 
+        'end' : end
+    })
+    }
+    else {
+        return (
+            {
+            "start": (start_site+buffer)-end, 
+            "end" : (start_site+buffer)-start, 
+            }
+        )
+    }
+}
+
+var reverse = function (x) {
+    const length = x.length;
+    for(let i = 0; i < Math.floor(length / 2); i++) {
+      const temp = x[i]
+      x = x.substring(0, i) + 
+        x.charAt(length - i - 1) +  
+        x.substring(i + 1, length - i - 1) + 
+        temp + 
+        x.substring(length - i)
+    }
+    return x
+  };
+  
+
+
 var create_transcript_viewer = function (tr_obj,
 	div,
 	start_site,
+    strand,
 	buffer,
 	gnomad_utr_impact,
 	clinvar_utr_impact) {
 
 
 	// Subset to the first 100 bases following the CDS
-	var sequence = tr_obj["full_seq"].substring(0, start_site + buffer);
+	var sequence = strand=="+" ? tr_obj["full_seq"].substring(0, start_site + buffer) : reverse(tr_obj["full_seq"].substring(0, start_site + buffer));
 
 	var kozak_colors = {
 		Strong: "#D55E00",
@@ -21,23 +55,24 @@ var create_transcript_viewer = function (tr_obj,
 		showAxis: false,
 		showSequence: true,
 		brushActive: true,
-		toolbar: true,
+		toolbar: false,
 		bubbleHelp: true,
 		zoomMax: 10
 	})
 
+    //********** Gene Structure *********/
 	// Plot where the coding sequence and 5' utrs 
 	if (start_site != 0) {
 		ft2.addFeature({
 			data: [{
-					x: start_site + 1,
-					y: start_site + buffer,
+					x: strand_corrected_interval(start_site + 1, start_site + buffer, start_site, buffer, strand)['start'],
+					y: strand_corrected_interval(start_site + 1, start_site + buffer, start_site, buffer, strand)['end'],
 					color: '#909590',
 					id: 'cds_rect'
 				},
 				{
-					x: 1,
-					y: start_site,
+					x: strand_corrected_interval( 1, start_site, start_site, buffer, strand)['start'],
+					y: strand_corrected_interval( 1, start_site, start_site, buffer, strand)['end'],
 					color: '#2C302E',
 					id: 'utr_rect'
 				}
@@ -51,6 +86,7 @@ var create_transcript_viewer = function (tr_obj,
 		document.getElementById("fcds_rect").setAttribute("y", "-8");
 	}
 
+    //********** ORFS *********/
 
 	// Plot each separate ORF on a separate track based on frame
 	var orf_groups  = [
@@ -79,8 +115,8 @@ var create_transcript_viewer = function (tr_obj,
 		});
 		curr_orf_frame_dat = [];
 		curr_orf_type.forEach(e => curr_orf_frame_dat.push({
-			x: e.orf_start_codon,
-			y: e.orf_stop_codon,
+			x: strand_corrected_interval(e.orf_start_codon, e.orf_stop_codon , start_site, buffer, strand)['start'], 
+			y: strand_corrected_interval(e.orf_start_codon, e.orf_stop_codon , start_site, buffer, strand)['end'],
 			color: kozak_colors[e.kozak_consensus_strength]
 		}))
         if (curr_orf_frame_dat.length > 0){
@@ -95,18 +131,29 @@ var create_transcript_viewer = function (tr_obj,
 
 	});
 
+    //********** Variants *********/
 
+	var variant_ft= new FeatureViewer.createFeature(sequence, 
+        '#variant_viewer', 
+        {
+		showAxis: false,
+		showSequence: false,
+		brushActive: true,
+		toolbar: false,
+		bubbleHelp: false,
+		zoomMax: 10
+	})
 
 	var clinvar_variants = gnomad_data['clinvar_variants'];
 	var clinvar_var_feat_dat = [];
 	clinvar_variants.forEach(element => {
 		clinvar_var_feat_dat.push({
-			x: element['tpos'],
-			y: element['tpos']
+			x: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['start'],  
+			y: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['end']
 		});
 	});
     if (clinvar_var_feat_dat.length>0){
-        ft2.addFeature({
+        variant_ft.addFeature({
             data: clinvar_var_feat_dat,
             type: "rect",
             className: "clinvar_var",
@@ -119,11 +166,11 @@ var create_transcript_viewer = function (tr_obj,
 	var pop_var_feat_dat = [];
 	pop_variants.forEach(element => {
 		pop_var_feat_dat.push({
-			x: element['tpos'],
-			y: element['tpos']
+			x: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['start'],
+			y: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['end'],
 		});
 	});
-	ft2.addFeature({
+	variant_ft.addFeature({
 		data: pop_var_feat_dat,
 		type: "rect",
 		className: "gnomAD_var",
@@ -134,10 +181,10 @@ var create_transcript_viewer = function (tr_obj,
 
 	clinvar_utr_impact.forEach(
 		element => {
-			ft2.addFeature({
+			variant_ft.addFeature({
 				data: [{
-					x: element.start,
-					y: element.end
+					x: strand_corrected_interval(element['start'],element['end'],start_site, buffer, strand)['start'],
+					y: strand_corrected_interval(element['start'],element['end'],start_site, buffer, strand)['end'],
 				}],
 				type: "rect",
 				className: "clinvar_high_impact_variant",
@@ -149,10 +196,10 @@ var create_transcript_viewer = function (tr_obj,
 
 	gnomad_utr_impact.forEach(
 		element => {
-			ft2.addFeature({
+			variant_ft.addFeature({
 				data: [{
-					x: element.start,
-					y: element.end
+					x: strand_corrected_interval(element['start'],element['end'],start_site, buffer, strand)['start'],
+					y: strand_corrected_interval(element['start'],element['end'],start_site, buffer, strand)['end'],
 				}],
 				type: "rect",
 				className: "gnomAD_high_impact_variant",
@@ -161,4 +208,5 @@ var create_transcript_viewer = function (tr_obj,
 			})
 		}
 	)
+
 }
