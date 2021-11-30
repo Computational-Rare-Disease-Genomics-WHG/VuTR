@@ -137,7 +137,7 @@
                         <div class="col-md-8 offset-md-2" >
                             <form action="gene_search" method="post">
                                 <div class="input-group">
-                                    <input name="gene_q" type="search" class="form-control form-control-lg" placeholder="Search by gene name or ENSG">
+                                    <input name="gene_q" type="search" class="form-control form-control-lg" placeholder="Search by gene name (i.e. MEF2C)">
                                     <div class="input-group-append">
                                         <button type="submit" class="btn btn-lg btn-default">
                                             <i class="fa fa-search"></i>
@@ -150,7 +150,9 @@
                     <div class="row">
                         <div class="col-8 mx-auto">
                         <p class="text-center">
-                            The 5’ UTR of a given gene includes cis-elements that regulate mRNA translation such as uORFs. Variants in 5’ UTRs can modify or entirely disrupt translation through various different mechanisms (such as new uAUG that can create uORFs or ORF perturbing variants). Previous work has characterized the role of these in various different loss-of-function mechanisms [Whiffin et al. 2020, Wright et al. 2021] and association in genetic disease. 
+                            The 5’ UTR of a given gene includes elements that have the potential regulate mRNA translation such as uORFs. Variants in 5’ UTRs can modify or entirely disrupt translation through various different mechanisms (such as new creating uAUG that can create uORFs) or alternatively perturb existing ORFs. 
+                             The UTR Visualization application provides an open and easy-to-use interface to visualize high-impact variants within 5' UTRs within population datasets (gnomAD version 3.1.2) and ClinVar on MANE transcripts. 
+                            Users are also able to select their visualize 5' UTR architechure and input their 5' UTR Variant SNV or small indel (2bp) and visualize their UTR consequence through the UTR Annotator Plugin in our application.
                         </p>
                     </div>
                     </div>
