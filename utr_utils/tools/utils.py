@@ -20,6 +20,12 @@ class NpEncoder(json.JSONEncoder):
         return super(NpEncoder, self).default(obj)
 
 
+def read_summary_mane():
+    summary = pd.read_csv(script_path /
+                          '../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.summary.txt.gz', sep='\t')
+    return summary
+
+
 def convert_uploaded_variation_to_variant_id(uploaded_variation):
     """
     Replaces the uploaded variation in VEP to a gnomad-esq variant id

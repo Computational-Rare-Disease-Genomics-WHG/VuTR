@@ -5,16 +5,37 @@ from flask import (
     Blueprint,
     render_template,
     url_for,
+    request,
+    jsonify, render_template,
     redirect)
 
+from utr_utils.tools.utils import convert_betweeen_identifiers
 
 main = Blueprint('main', __name__)
 
 
+@main.route("/search", methods=["POST"])
+def search():
+    # TODO
+    pass
+
+
+@main.route("/gene_search", methods=["POST"])
+def gene_search():
+    gene_name = request.form["gene_q"]
+    ensembl_transcript_id = convert_betweeen_identifiers(
+        gene_name,
+        "hgnc_symbol",
+        "ensembl_transcript")
+    print(ensembl_transcript_id)
+    ensembl_transcript_id = ensembl_transcript_id[0:15]
+    return redirect(url_for('viewer.viewer_page', ensembl_transcript_id=ensembl_transcript_id))
+
+
 @main.route("/")
 def index():
-    # return render_template("index.html")
-    return redirect(url_for("viewer.viewer_page", ensembl_transcript_id="ENST00000504921"))
+    return render_template("index.html")
+    # return redirect(url_for("viewer.viewer_page", ensembl_transcript_id="ENST00000504921"))
 
 
 @main.route("/about")

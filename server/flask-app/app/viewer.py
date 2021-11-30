@@ -82,7 +82,7 @@ def process_gnomad_data(gnomad_data, ensembl_transcript_id):
     return gnomad_data, gnomad_variants_list, clinvar_variants_list
 
 
-@ viewer.route('/viewer/<ensembl_transcript_id>')
+@viewer.route('/viewer/<ensembl_transcript_id>')
 def viewer_page(ensembl_transcript_id):
     """
     Collects data for a given ENST
@@ -119,7 +119,7 @@ def viewer_page(ensembl_transcript_id):
     sorfs = find_sorfs_by_ensg(ensembl_gene_id)
     constraint = get_constraint_by_ensg(ensembl_gene_id)
     clingen_curation_record = get_clingen_curation(hgnc)
-    buffer = 200
+    buffer = 140
     start_site = five_prime_utr_stats["5_prime_utr_length"]+1
 
     possible_variants = get_possible_variants(
