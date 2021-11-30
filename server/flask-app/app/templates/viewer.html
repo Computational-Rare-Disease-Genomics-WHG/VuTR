@@ -108,7 +108,7 @@
                   <a href="#" class="nav-link">Terms</a>
                </li>
             </ul>
-            <form class="form-inline ml-3 ml-md-10">
+            <form class="form-inline ml-8 ml-md-10">
                <div class="input-group input-group-sm">
                  <input class="form-control form-control-navbar" type="search" placeholder="Search by gene name or ENSG" aria-label="Search">
                  <div class="input-group-append">
@@ -188,7 +188,6 @@
                                        <h6><b>Gene Name</b>: {{name}}</h6>
                                        <h6><b>Ensembl Gene ID</b>: {{ensembl_gene_id}}</h6>
                                        <h6><b>Ensembl Transcript ID</b>: {{ensembl_transcript_id}}</h6>
-                                       <h6><b>OMIM ID</b>:  {{XXX}}</h6>
                                        <h6><b>RefSeq Match</b>: {{refseq_match}}</h6>
                                     </div>
                                  </div>
@@ -232,6 +231,7 @@
                                  5' UTR Architechure
                                  </b>
                               </h3>
+
                               <div class="card-tools">
                                  <button type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
                                  <i class="fas fa-question-circle"></i>
@@ -239,12 +239,49 @@
                               </div>
                            </div>
                            <div class="card-body">
-                              <!--div id = "chart"></div-->
-                              <!--svg id="utr-architechure-viewer"
-                              viewBox="0 0 960 500"
-                              preserveAspectRatio="xMidYMid meet"></svg-->
+                              <div>
+                                 <h6 class="text-left"><strong>Upstream UTR elements</strong></h6>
+                                 <div id = "transcript_viewer"></div>
+
+                              </div>
+
+                              <div>
+                                 <h6 class="text-left"><strong>UTR Variants</strong></h6>
+                                 <div id = "variant_viewer"></div>
+
+                              </div>
+                              <div class="container"> 
+                              <div class="row">
+                                 <div class="col-md-3 col-sm-3 col-3">
+                                 <h6 class="text-left"><strong>Kozak Consensus Strength</strong></h6>
+                                 </div>
+                                 <div class="col-md-3 col-sm-3 col-3">
+                                      <div class="">
+                                       <i class="nav-icon far fa-circle" style="color:#D55E00"></i>
+                                        <span class="">Strong</span>
+                                    </div>
+                                  </div>
+   
+                                  <div class="col-md-3 col-sm-3 col-3">
+                        
+                                      <div class="">
+                                       <i class="nav-icon far fa-circle" style="color:#0072B2"></i>
+                                        <span class="">Moderate</span>
+                                    </div>
+                                  </div>
+                                  <div class="col-md-3 col-sm-3 col-3">
+                        
+                                      <div class="">
+                                       <i class="nav-icon far fa-circle" style="color:#009E73"></i>
+                                        <span class="">Weak</span>
+                                    </div>
+                                  </div>
+
+                                 </div>
+   
+   
+                              </div>   
                            </div>
-                           <div id = "transcript_viewer"></div>
                         </div>
                      </section>
                   </div>
@@ -303,7 +340,6 @@
          <div class="float-right d-none d-sm-inline-block">
             <b>UTR Visualisation App</b> version 0.1
          </div>
-         <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
       </footer>
       <!-- Control Sidebar -->
       <aside class="control-sidebar control-sidebar-dark">
@@ -348,7 +384,7 @@
       <!--UTR Visualization-->
       <script src="{{url_for('static', filename ='utrviewer.js')}}"></script>
 
-      
+
       <!--Custom Scripts-->
       <script type="text/javascript">
 // Load data
@@ -363,6 +399,7 @@ var gene_end = gene_features["gene_end"];
 var start_codon_feat = gene_features["features"].find(obj => {
    return obj.type === "start_codon"
 })
+var strand = gene_features["strand"]
 // Filter to features within the UTR.
 track_features = gene_features["features"]
 
@@ -381,6 +418,7 @@ var clinvar_utr_impact = {{clinvar_utr_impact|safe}};
 create_transcript_viewer(transcript_features, 
    transcript_div, 
    start_site, 
+   strand,
    buffer_zone, 
    gnomad_utr_impact, 
    clinvar_utr_impact);
@@ -389,106 +427,105 @@ create_transcript_viewer(transcript_features,
 
       // Fill Clinvar data
 
-      $("#clinvar-js-grid").jsGrid({
-         height: "100%",
-         width: "100%",
-         sorting: true,
-         pageSize: 10,
-         paging: true,
-         data: gnomad_data["clinvar_variants"],
-         fields: [{
-                  name: "clinvar_variation_id",
-                  type: "text",
-                  width: 150,
-                  title: "ClinVar Variation ID"
-            },
-            {
-                  name: "ref",
-                  type: "text",
-                  title: "REF"
-            },
-            {
-                  name: "alt",
-                  type: "text",
-                  title: "ALT"
-            },
-            {
-                  name: "pos",
-                  type: "text",
-                  title: "POS"
-            },
-            {
-                  name: "major_consequence",
-                  type: "text",
-                  title: "Major Consequence"
-            },
-            {
-                  name: "in_gnomad",
-                  type: "checkbox",
-                  title: "In gnomAD?"
-            },
-            {
-                  name: "clinical_significance",
-                  type: "text",
-                  title: "Clincal Significance"
-            },
-            {
-                  name: "hgvsc",
-                  type: "text",
-                  title: "HGVSC"
-            },
-         ]
-      });
-      $("#populationvars-js-grid").jsGrid({
-         height: "100%",
-         width: "100%",
-         sorting: true,
-         pageSize: 10,
-         paging: true,
-         data: gnomad_data["variants"],
-         fields: [{
-                  name: "variantId",
-                  type: "text",
-                  title: "Variation ID"
-            },
-            {
-                  name: "ref",
-                  type: "text",
-                  title: "REF"
-            },
-            {
-                  name: "alt",
-                  type: "text",
-                  title: "ALT"
-            },
-            {
-                  name: "pos",
-                  type: "text",
-                  title: "POS"
-            },
-            {
-                  name: "transcript_consequence.major_consequence",
-                  type: "text",
-                  title: "Consq",
-                  width: 150
-            },
-            {
-                  name: "genome.ac",
-                  type: "text",
-                  title: "AC"
-            },
-            {
-                  name: "genome.af",
-                  type: "text",
-                  title: "AF"
-            },
-            {
-                  name: "hgvsc",
-                  type: "text",
-                  title: "HGVSC"
-            },
-         ]
-      });
+if (gnomad_data["clinvar_variants"].length > 0 ){
+$("#clinvar-js-grid").jsGrid({
+   height: "100%",
+   width: "100%",
+   sorting: true,
+   pageSize: 6,
+   paging: true,
+   data: gnomad_data["clinvar_variants"],
+   fields: [{
+            name: "clinvar_variation_id",
+            type: "text",
+            width: 150,
+            title: "ClinVar Variation ID"
+      },
+      {
+            name: "ref",
+            type: "text",
+            title: "REF"
+      },
+      {
+            name: "alt",
+            type: "text",
+            title: "ALT"
+      },
+      {
+            name: "pos",
+            type: "text",
+            title: "POS"
+      },
+      {
+            name: "major_consequence",
+            type: "text",
+            title: "Major Consequence"
+      },
+      {
+            name: "in_gnomad",
+            type: "checkbox",
+            title: "In gnomAD?"
+      },
+      {
+            name: "clinical_significance",
+            type: "text",
+            title: "Clincal Significance"
+      },
+      {
+            name: "hgvsc",
+            type: "text",
+            title: "HGVSC"
+      },
+   ]
+});
+}
+if (gnomad_data["variants"].length>0){
+$("#populationvars-js-grid").jsGrid({
+   height: "80%",
+   width: "100%",
+   sorting: true,
+   pageSize: 6,
+   paging: true,
+   data: gnomad_data["variants"],
+   fields: [{
+            name: "variant_id",
+            type: "text",
+            title: "Variation ID"
+      },
+      {
+            name: "ref",
+            type: "text",
+            title: "REF"
+      },
+      {
+            name: "alt",
+            type: "text",
+            title: "ALT"
+      },
+      {
+            name: "pos",
+            type: "text",
+            title: "POS"
+      },
+
+      {
+            name: "genome.ac",
+            type: "text",
+            title: "AC"
+      },
+      {
+            name: "genome.af",
+            type: "text",
+            title: "AF"
+      },
+      {
+            name: "hgvsc",
+            type: "text",
+            title: "HGVSC"
+      },
+   ]
+});
+}
       </script>
    </body>
 </html>
