@@ -8,13 +8,13 @@
       <link rel="preconnect" href="https://fonts.gstatic.com">
       <!--Favicon-->
       <link rel="shortcut icon" href="{{url_for('static', filename='favicon.png')}}" type="image/x-icon">
-      <!--link rel="shortcut icon" href="{{url_for('static', filename = 'assets/favicon.png')}}"/>-->
-      <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+      <!--Google Font API-->
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <!--Fonts-->
+      <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
-
       <!-- Font Awesome -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/all.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/brands.css')}}">
@@ -34,41 +34,53 @@
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/daterangepicker/daterangepicker.css')}}">
       <!-- summernote -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.css')}}">
-      <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid-theme.min.css')}}">
-      <!--script src="https://d3js.org/d3.v4.js"></script-->
+
+      <!--Preload scripts-->
+      <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
       <script src="https://unpkg.com/d3"></script>
       <script src="https://unpkg.com/d3fc"></script>
       
 
-
       <style type="text/css">
-         .select2-container--default .select2-selection--multiple .select2-selection__choice {
+      .select2-container--default .select2-selection--multiple .select2-selection__choice {
          background-color: #007bff;
          border-color: #006fe6;
-         }
-         p, h1, h2, h3, h4,h5, h6, a{
-         font-family:'Roboto';
+      }
+
+      p,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      a {
+         font-family: 'Roboto';
          font-weight: 400;
-         }
-         #chart {
-    color: #1b1e23;
-    font-size: small;
-    font-family: sans-serif;
-    height: calc(100vh - 2em);
-    margin: 1em;
-    display: flex;
-}
+      }
 
-#chart > * {
-    flex: auto;
-}
+      #chart {
+         color: #1b1e23;
+         font-size: small;
+         font-family: sans-serif;
+         height: calc(100vh - 2em);
+         margin: 1em;
+         display: flex;
+      }
 
-.domain, .gridline-y, .gridline-x, .annotation-line>line {
-    stroke: currentColor;
-    stroke-opacity: 0.1;
-}
+      #chart>* {
+         flex: auto;
+      }
+
+      .domain,
+      .gridline-y,
+      .gridline-x,
+      .annotation-line>line {
+         stroke: currentColor;
+         stroke-opacity: 0.1;
+      }
       </style>
    </head>
    <body class="hold-transition layout-top-nav" id="main-content" >
@@ -295,11 +307,9 @@
       </footer>
       <!-- Control Sidebar -->
       <aside class="control-sidebar control-sidebar-dark">
-         <!-- Control sidebar content goes here -->
       </aside>
-      <!-- /.control-sidebar -->
+      <!-- /Control sidebar -->
       </div>
-      <!-- ./wrapper -->
       <!-- jQuery -->
       <script src="{{url_for('static', filename = 'plugins/jquery/jquery.min.js')}}"></script>
       <!-- jQuery UI 1.11.4 -->
@@ -334,10 +344,14 @@
       <script src="{{url_for('static', filename = 'dist/js/pages/dashboard.js')}}"></script>
       <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
       <script src="{{url_for('static', filename ='plugins/jsgrid/jsgrid.min.js')}}"></script>
+      
+      <!--UTR Visualization-->
+      <script src="{{url_for('static', filename ='utrviewer.js')}}"></script>
 
+      
+      <!--Custom Scripts-->
       <script type="text/javascript">
-/**************Initial Start Up Routine****************/
-
+// Load data
 var gnomad_data = {{gnomad_data|tojson}};
 
 /*************Info details data*******************/
@@ -355,134 +369,7 @@ track_features = gene_features["features"]
 track_features = track_features.filter(function (obj){
    return obj.type !=="transcript"
 });
-
-var create_transcript_viewer = function (tr_obj,
-                                          div,
-                                          buffer,
-                                          gnomad_utr_impact, 
-                                          clinvar_utr_impact){
-
-// Start site location
-var start_site =  {{five_prime_utr_stats["5_prime_utr_length"]| safe}}
-
-// Subset to the first 100 bases following the CDS
-
-var sequence = tr_obj["full_seq"].substring(0, start_site+buffer); 
-
-var kozak_colors = {
-   Strong : "#AED9E0", 
-   Moderate : "#B8F2E6", 
-   Weak : "#CF5C36", 
-   None : "#CF5C36"
-};
-
-var ft2 = new FeatureViewer.createFeature(sequence, div, {
-   showAxis : false,
-   showSequence: true, 
-   brushActive: true, 
-   toolbar:true,
-   bubbleHelp: true, 
-   zoomMax : 5
-})
-// Plot where the coding sequence and 5' utrs 
-// Don't plot for 
-if (start_site != 0){
-   ft2.addFeature({
-      data : [{x:start_site+1,
-               y:start_site+buffer,
-               color:'#909590', 
-               id:'cds_rect'}, 
-               {
-               x:1, 
-               y:start_site, 
-               color:'#2C302E', 
-               id:'utr_rect'
-               }], 
-      name : "Gene Structure",
-      className : "gene_struct", 
-      type : "rect",
-      color : "#00000"
-   });
-   document.getElementById("fcds_rect").setAttribute("height", "30");
-   document.getElementById("fcds_rect").setAttribute("y", "-8");
-}
-
-var clinvar_variants = gnomad_data['clinvar_variants']; 
-var clinvar_var_feat_dat = []; 
-clinvar_variants.forEach(element => {
-   clinvar_var_feat_dat.push({x : element['tpos'], y:element['tpos']});
-});
-console.log("Clinvar Variants");
-console.log(clinvar_var_feat_dat);
-ft2.addFeature({
-   data : clinvar_var_feat_dat, 
-   type : "rect",
-   className : "clinvar_var", 
-   name : "ClinVar Variant",
-   color : "#FFA69E"
-});
-
-var pop_variants = gnomad_data['variants']; 
-var pop_var_feat_dat = []; 
-pop_variants.forEach(element => {
-   pop_var_feat_dat.push({x : element['tpos'], y:element['tpos']});
-});
-ft2.addFeature({
-   data : pop_var_feat_dat, 
-   type : "rect",
-   className : "gnomAD_var", 
-   name : "gnomAD Variants",
-   color : "#424242"
-});
-
-// Plot each separate uORF on a separate track based on frame
-
-var uorf_type = ["Inframe", "Out-of-Frame (1bp)", "Out-of-Frame (2bp)"]
-var uorfs = tr_obj["orfs"]
-uorf_type.forEach(element => {
-   
-   var curr_uorf_type = uorfs.filter(function (obj) {return (obj.frame == element)});
-   curr_uorf_frame_dat = [];
-   curr_uorf_type.forEach(e => curr_uorf_frame_dat.push({
-      x: e.orf_start_codon,
-      y: e.orf_stop_codon, 
-      color : kozak_colors[e.kozak_consensus_strength]
-   }))
-
-   ft2.addFeature({
-      data: curr_uorf_frame_dat, 
-      type : "rect",
-      className : "uorf_rect",
-      name : element,
-      color :'#474A48'
-   })
-   
-});
-
-clinvar_utr_impact.forEach(
-   element =>{
-      ft2.addFeature({
-      data: [{x:element.start, y:element.end}], 
-      type : "rect",
-      className : "clinvar_high_impact_variant",
-      name : element.variant_id,
-      color : kozak_colors[element.kozak_strength]
-   })
-   }
-)
-
-gnomad_utr_impact.forEach(
-   element =>{
-      ft2.addFeature({
-      data: [{x:element.start, y:element.end}], 
-      type : "rect",
-      className : "gnomAD_high_impact_variant",
-      name : element.variant_id,
-      color : kozak_colors[element.kozak_strength]
-   })
-   }
-)
-}
+var start_site =  {{five_prime_utr_stats["5_prime_utr_length"] | safe}}
       
 //create_d3_genomic_viewer("#utr-architechure-viewer");
 var transcript_features = {{transcript_features | safe}};
@@ -491,7 +378,12 @@ var gnomad_utr_impact = {{gnomad_utr_impact|safe}};
 var clinvar_utr_impact = {{clinvar_utr_impact|safe}};
 
 
-create_transcript_viewer(transcript_features, transcript_div, buffer_zone, gnomad_utr_impact, clinvar_utr_impact);
+create_transcript_viewer(transcript_features, 
+   transcript_div, 
+   start_site, 
+   buffer_zone, 
+   gnomad_utr_impact, 
+   clinvar_utr_impact);
 
 /*************Population variation*******************/
 
