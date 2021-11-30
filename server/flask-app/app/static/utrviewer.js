@@ -44,11 +44,19 @@ var create_transcript_viewer = function (tr_obj,
 	var sequence = strand=="+" ? tr_obj["full_seq"].substring(0, start_site + buffer) : reverse(tr_obj["full_seq"].substring(0, start_site + buffer));
 
 	var kozak_colors = {
-		Strong: "#D55E00",
-		Moderate: "#0072B2",
+		Strong: "#E69F00",
+		Moderate: "#56B4E9",
 		Weak: "#009E73",
 		None: "#009E73"
 	};
+    var pathogenicity_colors = {
+        "Pathogenic" : "#D55E00",
+        "Likely pathogenic" : "#D55E00",
+        "Benign" : "#0072B2",
+        "Likely benign" : "#0072B2",
+        "Conflicting interpretations" : "#CC79A7",
+        "Uncertain significance" : "#000000",
+    }
 
     // Create the feature viewer
 	var ft2 = new FeatureViewer.createFeature(sequence, div, {
@@ -145,11 +153,13 @@ var create_transcript_viewer = function (tr_obj,
 	})
 
 	var clinvar_variants = gnomad_data['clinvar_variants'];
+    console.log(clinvar_variants)
 	var clinvar_var_feat_dat = [];
 	clinvar_variants.forEach(element => {
 		clinvar_var_feat_dat.push({
 			x: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['start'],  
-			y: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['end']
+			y: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['end'], 
+            color : pathogenicity_colors[element.clinical_significance]
 		});
 	});
     if (clinvar_var_feat_dat.length>0){
@@ -158,7 +168,7 @@ var create_transcript_viewer = function (tr_obj,
             type: "rect",
             className: "clinvar_var",
             name: "ClinVar Variants",
-            color: "#FFA69E"
+            color: "#000000"
         });
 }
 
