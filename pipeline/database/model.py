@@ -1,92 +1,81 @@
-# model.py
-
-# Elston D'Souza
-# The declarative Model / Schema for the databases
+"""The declarative schema for the databases"""
+from sqlalchemy.types import BigInteger, Integer, String, Float  # pylint: disable=E0401
 
 
-gnomad_variants_query = '''
-CREATE TABLE IF NOT EXISTS gnomad_variants 
-    (variant_id varchar, 
-    pop_ac int,
-    pop_af float,
-    ref varchar,
-    alt varchar
-    major_consequence varchar)'''
+MANE_VERSION = 0.93
+ENSEMBL_VERSION = 103
 
-clinvar_variants_query = '''
-CREATE TABLE IF NOT EXISTS clinvar_variants 
-    (variant_id varchar, 
-    ref varchar, 
-    alt varchar,
-    allele_id int,
-    review_status varchar,
-    clinsig varchar)'''
-
-contraint_query = '''
-CREATE TABLE IF NOT EXISTS constraint 
-    (ensembl_gene_name varchar,
-    ensembl_transcript_id varchar,
-    loeuf float)'''
-
-possible_utr_variants_query = '''
-CREATE TABLE IF NOT EXISTS possible_utr_variants 
-    (variant_id varchar,
-    five_prime_utr_consequence varchar,
-    five_prime_utr_annotation data,
-    intervals data)'''
-
-
-mane_summary_query = '''
-CREATE TABLE IF NOT EXISTS mane_summary (
-    ensembl_transcript_id varchar, 
-    ensembl_gene_id varchar, 
-    mane_status varchar, 
-    refseq_match varchar,
-    hgnc_name varchar
-)
-'''
-
-mane_features_query = '''
-CREATE TABLE IF NOT EXISTS mane_genomic_features (
-    start int, 
-    stop int, 
-    chr int, 
-    strand varchar
-    type varchar,
-)
-'''
-
-mane_transcript_seqs_query = '''
-CREATE TABLE IF NOT EXISTS mane_transcript_seqs (
-    ensembl_transcript_id  varchar, 
-    annotations varchar,
-    seq varchar, 
-    type varchar, 
-    gene varchar,
-    gene_biotype varchar, 
-    transcript_biotype varchar, 
-    gene_symbol varchar, 
-    description varchar, 
-    build varchar, 
-    chr varchar, 
-    start varchar, 
-    end varchar, 
-    strand varchar,
-    utr_stats data, 
-    uorfs data, 
-    oorfs data,
-)
-'''
-
-
-tbl_queries = {
-    "": {
-        'gnomad_variants': gnomad_variants_query,
-        'clinvar_variants': clinvar_variants_query,
-        'constraint': contraint_query,
-        'possible_utr_variants': possible_utr_variants_query,
-        'mane_summary': mane_summary_query,
-        'mane_genomic_features': mane_features_query,
-        'mane_transcript_features': mane_transcript_seqs_query,
-    }
+tbl_models = {
+    'mane_summary': {
+        'location': '',
+        'remove_version_numbers': True,
+        'dtype': {
+            'ensembl_transcript_id': String,
+            'ensembl_gene_id': String,
+            'mane_status': String,
+            'refseq_match': String,
+            'hgnc_name': String,
+            'hgnc_id': String,
+            'name': String,
+        },
+    },
+    'mane_genomic_features': {
+        'location': '',
+        'remove_version_numbers': True,
+        'dtype': {
+            'start': BigInteger,
+            'stop': BigInteger,
+            'chr': String,
+            'strand': String,
+            'type': String,
+        },
+    },
+    'mane_transcript_features': {
+        'location': '',
+        'remove_version_numbers': True,
+        'dtype': {
+            'ensembl_transcript_id': String,
+            'five_prime_utr_length': Integer,
+            'three_prime_utr_length': Integer,
+            'num_five_prime_utr_exons': Integer,
+            'start_site_pos': Integer,
+            'cds_start': Integer,
+            'cds_end': Integer,
+            'cds_length': Integer,
+        },
+    },
+    'orf_features': {
+        'location': '',
+        'remove_version_numbers': True,
+        'dtype': {
+            'ensembl_transcript_id': String,
+            'orf_start_codon': Integer,
+            'orf_stop_codon': Integer,
+            'orf_seq': String,
+            'orf_type': String,
+            'frame': String,
+            'kozak_context': String,
+            'kozak_consensus_strength': String,
+            'orf_id': String,
+        },
+    },
+    'translational_efficiencies': {
+        'location': '',
+        'remove_version_numbers': False,
+        'dtype': {
+            'sequence': String,
+            'efficiency': Integer,
+            'lower_bound': Integer,
+            'upper_bound': Integer,
+        },
+    },
+    'constraint': {
+        'location': '',
+        'remove_version_numbers': False,
+        'dtype': {
+            'ensembl_gene_name': String,
+            'ensembl_transcript_id': String,
+            'loeuf': Float,
+        },
+    },
 }
