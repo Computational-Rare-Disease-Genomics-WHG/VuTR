@@ -2,8 +2,9 @@
 from sqlalchemy.types import BigInteger, Integer, String, Float  # pylint: disable=E0401
 
 
+# Replace with config/config.yml values
 MANE_VERSION = 0.93
-ENSEMBL_VERSION = 103
+ENSEMBL_VERSION = 104
 
 tbl_models = {
     'mane_summary': {
