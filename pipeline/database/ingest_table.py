@@ -2,6 +2,10 @@
 Takes a table and ingests it into the sqlite3 database
 
 Usage : python3 ingest_table.py --db_name db.sqlite --all --verbose --overwrite
+
+TODO : Dtype specification issue doesn't work
+    either through sqlcol or by manual specification in model.py
+
 """
 from pathlib import Path
 import sqlite3
@@ -94,8 +98,6 @@ def main(args):
             df = strip_version_identifiers(df, tbl_models[tbl]['ensembl_ids'])
 
         # Write to SQLtables
-
-        # TODO : Need to figure out of a way
         print(f'Writing to SQLite DB {args.db_name}')
         df.to_sql(tbl, conn, if_exists='fail', index=False, chunksize=1000)
         print(f'Ingestion for table {tbl} complete')
