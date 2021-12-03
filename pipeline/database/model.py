@@ -221,7 +221,7 @@ tbl_models = {
         'dtype': None,  # To be finalized once we have things sorted out
     },
     'clingen': {
-        'location': f'',
+        'location': f'CLINGEN/ClinGen_gene_curation_list_{ASSEMBLY}.tsv',
         'separator': '\t',
         'col_mappings': {
             '#Gene Symbol': 'hgnc_symbol',
