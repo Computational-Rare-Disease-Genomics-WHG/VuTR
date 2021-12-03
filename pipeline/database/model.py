@@ -75,7 +75,7 @@ tbl_models = {
         },
     },
     'mane_transcript_features': {
-        'location': f'/MANE_transcript_features_v{MANE_VERSION}.tsv',  # pylint: disable=C0301  # noqa: E501
+        'location': f'/MANE/{MANE_VERSION}/MANE_transcripts_v{MANE_VERSION}.tsv',  # pylint: disable=C0301 # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'five_prime_utr_length': 'five_prime_utr_length',
@@ -84,8 +84,12 @@ tbl_models = {
             'start_site_pos': 'start_site_pos',
             'cds_start': 'cds_start',
             'cds_end': 'cds_end',
+            'strand': 'strand',
+            'gene_symbol': 'hgnc_symbol',
+            'seq': 'seq',
             'cds_length': 'cds_length',
             'ensembl_transcript_id': 'ensembl_transcript_id',
+            # Need to add exon features somehow
         },
         'remove_ensembl_id_version_numbers': True,
         'ensembl_ids': ['ensembl_transcript_id'],
@@ -94,6 +98,8 @@ tbl_models = {
             'five_prime_utr_length': Integer(),
             'three_prime_utr_length': Integer(),
             'num_five_prime_utr_exons': Integer(),
+            'strand': VARCHAR(length=30),
+            'seq': VARCHAR(length=100000),
             'start_site_pos': Integer(),
             'cds_start': Integer(),
             'cds_end': Integer(),
@@ -150,7 +156,7 @@ tbl_models = {
         'location': f'/GNOMAD/gnomad.v{GNOMAD_VERSION}.lof_metrics.by_transcript.txt',  # pylint: disable=C0301  # noqa: E501
         'separator': '\t',
         'col_mappings': {
-            'gene': 'hgnc_name',
+            'gene': 'hgnc_symbol',
             'transcript': 'ensembl_transcript_id',
             'gene_id': 'ensembl_gene_id',
             'oe_lof_upper': 'loeuf',
@@ -158,29 +164,60 @@ tbl_models = {
         'remove_ensembl_id_version_numbers': False,
         'ensembl_ids': None,
         'dtype': {
-            'hgnc_name': VARCHAR(length=30),
+            'hgnc_symbol': VARCHAR(length=30),
             'ensembl_gene_id': VARCHAR(length=30),
             'ensembl_transcript_id': VARCHAR(length=30),
             'loeuf': Float(),
         },
     },
+    'mane_genomic_features': {
+        'location': f'/MANE/{MANE_VERSION}/MANE.{ASSEMBLY}.v{MANE_VERSION}.select_ensembl_genomic.tsv',  # pylint: disable=C0301  # noqa: E501
+        'separator': '\t',
+        'col_mappings': {
+            'seqid': 'chr',
+            'source': 'source',
+            'type': 'type',
+            'start': 'start',
+            'end': 'end',
+            'score': 'score',
+            'strand': 'strand',
+            'phase': 'phase',
+            'ID': 'ID',
+            'gene_id': 'ensembl_gene_id',
+            'gene_type': 'gene_type',
+            'gene_name': 'hgnc_symbol',
+            'Parent': 'parent',
+            'transcript_id': 'ensembl_transcript_id',
+            'transcript_type': 'transcript_type',
+            'transcript_name': 'transcript_name',
+            'tag': 'tag',
+            'protein_id': 'ensembl_protein_id',
+            'Dbxref': 'Dbxref',
+            'exon_number': 'exon_number',
+            'exon_id': 'exon_id',
+        },
+        'remove_ensembl_id_version_numbers': True,
+        'ensembl_ids': [
+            'ensembl_transcript_id',
+            'ensembl_gene_id',
+            'ensembl_protein_id',
+            'exon_id',
+        ],  # pylint: disable=C0301  # noqa: E501
+        'dtype': None,  # To be finalized once we have things sorted out
+    },
+    'genome_to_transcript_coordinates': {
+        'location': f'/UTR_Genome_Transcript_Coordinates.tsv',  # pylint: disable=C0301  # noqa: E501
+        'separator': '\t',
+        'col_mappings': {
+            'seqid': 'chr',
+            'ensembl_transcript_id': 'ensembl_transcript_id',
+            'strand': 'strand',
+            'exon_number': 'exon_number',
+            'gpos': 'genomic_pos',
+            'tpos': 'transcript_pos',
+        },
+        'remove_ensembl_id_version_numbers': False,
+        'ensembl_ids': None,
+        'dtype': None,  # To be finalized once we have things sorted out
+    },
 }
-
-# MANE Genomic features needs a little bit of thought on how to replace this
-#     'mane_genomic_features': {
-#        'location':  f'/MANE/{MANE_VERSION}/MANE.{ASSEMBLY}.v{MANE_VERSION}.select_ensembl_genomic.tsv',  # pylint: disable=C0301  # noqa: E501
-#        'separator': '\t',
-#        'col_mappings': {
-#
-#        },
-#        'remove_ensembl_id_version_numbers': True,
-#        'ensembl_ids': ['ensembl_transcript_id', 'ensembl_gene_id', 'ensembl_protein_id'],  # pylint: disable=C0301  # noqa: E501
-#
-#        'dtype': {
-#            'chr': VARCHAR(length=30),
-#            'start': BigInteger(),
-#            'stop': BigInteger(),
-#            'strand': VARCHAR(length=30),
-#            'type': VARCHAR(length=30),
-#        },
-#    },
