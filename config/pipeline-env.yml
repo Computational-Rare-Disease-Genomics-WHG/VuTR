@@ -27,6 +27,7 @@ dependencies:
   - filelock=3.0.12
   - freetype=2.11.0
   - fsspec=2021.11.0
+  - greenlet=1.1.2
   - gsl=2.6
   - heapdict=1.0.1
   - htslib=1.14
@@ -92,6 +93,7 @@ dependencies:
   - setuptools=57.4.0
   - six=1.16.0
   - sortedcontainers=2.4.0
+  - sqlalchemy=1.4.27
   - sqlite=3.36.0
   - tabix=1.11
   - tbb=2021.3.0
@@ -116,4 +118,5 @@ dependencies:
     - idna==3.2
     - numpy==1.21.2
     - requests==2.26.0
+    - sqlitedict==1.7.0
     - urllib3==1.26.7
