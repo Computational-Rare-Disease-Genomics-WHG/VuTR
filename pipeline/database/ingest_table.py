@@ -80,7 +80,7 @@ def main(args):
         # Read the sql table
         print(f'Reading table {tbl} into pandas')
         df = pd.read_csv(
-            SCRIPT_PATH / ('../../data/pipeline' + tbl_models[tbl]['location']),
+            SCRIPT_PATH / ('../../data/pipeline/' + tbl_models[tbl]['location']),
             sep=tbl_models[tbl]['separator'],
         )
 

@@ -41,7 +41,7 @@ GNOMAD_VERSION = '2.1.1'
 
 tbl_models = {
     'mane_summary': {
-        'location': f'/MANE/{MANE_VERSION}/MANE.{ASSEMBLY}.v{MANE_VERSION}.summary.txt.gz',  # pylint: disable=C0301 # noqa: E501
+        'location': f'MANE/{MANE_VERSION}/MANE.{ASSEMBLY}.v{MANE_VERSION}.summary.txt.gz',  # pylint: disable=C0301 # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'Ensembl_nuc': 'ensembl_transcript_id',
@@ -75,7 +75,7 @@ tbl_models = {
         },
     },
     'mane_transcript_features': {
-        'location': f'/MANE/{MANE_VERSION}/MANE_transcripts_v{MANE_VERSION}.tsv',  # pylint: disable=C0301 # noqa: E501
+        'location': f'MANE/{MANE_VERSION}/MANE_transcripts_v{MANE_VERSION}.tsv',  # pylint: disable=C0301 # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'five_prime_utr_length': 'five_prime_utr_length',
@@ -107,7 +107,7 @@ tbl_models = {
         },
     },
     'orf_features': {
-        'location': f'/ORFS_Features_{MANE_VERSION}.tsv',  # pylint: disable=C0301  # noqa: E501
+        'location': f'ORFS_Features_{MANE_VERSION}.tsv',  # pylint: disable=C0301  # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'ensembl_transcript_id': 'ensembl_transcript_id',
@@ -135,7 +135,7 @@ tbl_models = {
         },
     },
     'translational_efficiencies': {
-        'location': f'/translational_efficiency.txt',
+        'location': f'translational_efficiency.txt',
         'separator': '\t',
         'col_mappings': {
             'context': 'context',
@@ -153,7 +153,7 @@ tbl_models = {
         },
     },
     'constraint': {
-        'location': f'/GNOMAD/gnomad.v{GNOMAD_VERSION}.lof_metrics.by_transcript.txt',  # pylint: disable=C0301  # noqa: E501
+        'location': f'GNOMAD/gnomad.v{GNOMAD_VERSION}.lof_metrics.by_transcript.txt',  # pylint: disable=C0301  # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'gene': 'hgnc_symbol',
@@ -171,7 +171,7 @@ tbl_models = {
         },
     },
     'mane_genomic_features': {
-        'location': f'/MANE/{MANE_VERSION}/MANE.{ASSEMBLY}.v{MANE_VERSION}.select_ensembl_genomic.tsv',  # pylint: disable=C0301  # noqa: E501
+        'location': f'MANE/{MANE_VERSION}/MANE.{ASSEMBLY}.v{MANE_VERSION}.select_ensembl_genomic.tsv',  # pylint: disable=C0301  # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'seqid': 'chr',
@@ -206,7 +206,7 @@ tbl_models = {
         'dtype': None,  # To be finalized once we have things sorted out
     },
     'genome_to_transcript_coordinates': {
-        'location': f'/UTR_Genome_Transcript_Coordinates.tsv',  # pylint: disable=C0301  # noqa: E501
+        'location': f'UTR_Genome_Transcript_Coordinates.tsv',  # pylint: disable=C0301  # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'seqid': 'chr',
