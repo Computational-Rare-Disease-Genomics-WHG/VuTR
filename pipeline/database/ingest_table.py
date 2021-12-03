@@ -5,7 +5,6 @@ Usage : python3 ingest_table.py --db_name db.sqlite --all --verbose --overwrite
 
 TODO : Dtype specification issue doesn't work
     either through sqlcol or by manual specification in model.py
-
 """
 from pathlib import Path
 import sqlite3
@@ -23,7 +22,8 @@ SCRIPT_PATH = Path(__file__).parent
 def sqlcol(dfparam):
     """
     Create a dictionary for native SQL alchemy types
-    from a dataframe column
+    from a dataframe column for use in dtype paramater
+    in pandas DataFrame.to_sql
 
     Note : Doesn't work for string for some reason
     hence not used in main()
@@ -67,19 +67,15 @@ def main(args):
 
     # Create connection and cursor with the database
     conn = sqlite3.connect(args.db_name)
-    # c = conn.cursor()
 
-    # List of tables to create
+    # List of tables to create based on query
     tbl_list = []
     if args.single:
         tbl_list = [args.tbl_name]
     elif args.all:
         tbl_list = tbl_models.keys()
 
-    # read the database
     for tbl in tbl_list:
-
-        # Check if the keys in
 
         # Read the sql table
         print(f'Reading table {tbl} into pandas')
