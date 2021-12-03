@@ -1,4 +1,32 @@
-"""The declarative schema for the databases"""
+"""
+The declarative schema for the databases
+
+tbl_models = {
+    'table_name' : {
+        'location' : # location
+        'separator' : # separator between cols
+        'col_mappings' :  #renaming columns, ensure all cols
+                        # that wish to be in the db are mentioned here
+                        # even if the name isn't changed
+            {
+                'old_name' : 'new_name', # new name
+                'old_name' : 'old_name' # retain name
+
+            }
+        'remove_ensembl_id_version_numbers': True, #Whether there are
+        # ensembl identifier with trailing version numbers
+
+        'ensembl_ids': [ # A list of ensembl_ids in this dataframe
+                         # (USING THE NEW COL NAMES)
+            'ensembl_transcript_id',
+            'ensembl_gene_id',
+            'ensembl_protein_id',
+        ],
+
+    }
+}
+
+"""
 from sqlalchemy.types import (
     VARCHAR,
     Integer,
