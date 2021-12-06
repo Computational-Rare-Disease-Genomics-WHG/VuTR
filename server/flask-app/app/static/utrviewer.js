@@ -2,15 +2,15 @@
 var strand_corrected_interval = function (start, end, start_site, buffer, strand){
     if (strand == '+'){
     return ({
-        'start' : start, 
+        'start' : start,
         'end' : end
     })
     }
     else {
         return (
             {
-            "start": (start_site+buffer)-end, 
-            "end" : (start_site+buffer)-start, 
+            "start": (start_site+buffer)-end,
+            "end" : (start_site+buffer)-start,
             }
         )
     }
@@ -20,15 +20,15 @@ var reverse = function (x) {
     const length = x.length;
     for(let i = 0; i < Math.floor(length / 2); i++) {
       const temp = x[i]
-      x = x.substring(0, i) + 
-        x.charAt(length - i - 1) +  
-        x.substring(i + 1, length - i - 1) + 
-        temp + 
+      x = x.substring(0, i) +
+        x.charAt(length - i - 1) +
+        x.substring(i + 1, length - i - 1) +
+        temp +
         x.substring(length - i)
     }
     return x
   };
-  
+
 
 
 var create_transcript_viewer = function (tr_obj,
@@ -55,7 +55,7 @@ var create_transcript_viewer = function (tr_obj,
         "Benign" : "#0072B2",
         "Likely benign" : "#0072B2",
         "Conflicting interpretations" : "#CC79A7",
-        "Uncertain significance" : "#000000",
+        "Uncertain significance" : "#CC79A7",
     }
 
     // Create the feature viewer
@@ -69,7 +69,7 @@ var create_transcript_viewer = function (tr_obj,
 	})
 
     //********** Gene Structure *********/
-	// Plot where the coding sequence and 5' utrs 
+	// Plot where the coding sequence and 5' utrs
 	if (start_site != 0) {
 		ft2.addFeature({
 			data: [{
@@ -99,31 +99,31 @@ var create_transcript_viewer = function (tr_obj,
 	// Plot each separate ORF on a separate track based on frame
 	var orf_groups  = [
     {
-            "grouping_name" : "uORFs", 
-            "orf_type" : "uORF", 
+            "grouping_name" : "uORFs",
+            "orf_type" : "uORF",
             "frame" : ["Inframe", "Out-of-Frame (2bp)", "Out-of-Frame (1bp)"]
-    }, 
+    },
     {
-            "grouping_name" : "Inframe (oORF)", 
-            "orf_type" : "oORF", 
+            "grouping_name" : "Inframe (oORF)",
+            "orf_type" : "oORF",
             "frame" : ["Inframe"]
-    }, 
+    },
     {
             "grouping_name" : "Out-of-Frame (oORF)",
-            "orf_type" : "oORF", 
+            "orf_type" : "oORF",
             "frame" : ["Out-of-Frame (2bp)", "Out-of-Frame (1bp)"]
     }]
 	var uorfs = tr_obj["orfs"]
 	orf_groups.forEach(group => {
-        
-        // Filter based on groups
+		// Filter each ofs based on the grouping criteria
+		// defined above
 		var curr_orf_type = uorfs.filter(function (obj) {
 			return (group.frame.includes(obj.frame) &&
                     obj.orf_type == group.orf_type)
 		});
 		curr_orf_frame_dat = [];
 		curr_orf_type.forEach(e => curr_orf_frame_dat.push({
-			x: strand_corrected_interval(e.orf_start_codon, e.orf_stop_codon , start_site, buffer, strand)['start'], 
+			x: strand_corrected_interval(e.orf_start_codon, e.orf_stop_codon , start_site, buffer, strand)['start'],
 			y: strand_corrected_interval(e.orf_start_codon, e.orf_stop_codon , start_site, buffer, strand)['end'],
 			color: kozak_colors[e.kozak_consensus_strength]
 		}))
@@ -141,8 +141,8 @@ var create_transcript_viewer = function (tr_obj,
 
     //********** Variants *********/
 
-	var variant_ft= new FeatureViewer.createFeature(sequence, 
-        '#variant_viewer', 
+	var gnomad_variant_ft= new FeatureViewer.createFeature(sequence,
+        '#gnomad_tracks',
         {
 		showAxis: false,
 		showSequence: false,
@@ -152,18 +152,27 @@ var create_transcript_viewer = function (tr_obj,
 		zoomMax: 10
 	})
 
+	var clinvar_variant_ft= new FeatureViewer.createFeature(sequence,
+        '#clinvar_tracks',
+        {
+		showAxis: false,
+		showSequence: false,
+		brushActive: true,
+		toolbar: false,
+		bubbleHelp: false,
+		zoomMax: 10
+	})
 	var clinvar_variants = gnomad_data['clinvar_variants'];
-    console.log(clinvar_variants)
 	var clinvar_var_feat_dat = [];
 	clinvar_variants.forEach(element => {
 		clinvar_var_feat_dat.push({
-			x: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['start'],  
-			y: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['end'], 
+			x: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['start'],
+			y: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['end'],
             color : pathogenicity_colors[element.clinical_significance]
 		});
 	});
     if (clinvar_var_feat_dat.length>0){
-        variant_ft.addFeature({
+        clinvar_variant_ft.addFeature({
             data: clinvar_var_feat_dat,
             type: "rect",
             className: "clinvar_var",
@@ -180,7 +189,7 @@ var create_transcript_viewer = function (tr_obj,
 			y: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['end'],
 		});
 	});
-	variant_ft.addFeature({
+	gnomad_variant_ft.addFeature({
 		data: pop_var_feat_dat,
 		type: "rect",
 		className: "gnomAD_var",
@@ -191,7 +200,7 @@ var create_transcript_viewer = function (tr_obj,
 
 	clinvar_utr_impact.forEach(
 		element => {
-			variant_ft.addFeature({
+			clinvar_variant_ft.addFeature({
 				data: [{
 					x: strand_corrected_interval(element['start'],element['end'],start_site, buffer, strand)['start'],
 					y: strand_corrected_interval(element['start'],element['end'],start_site, buffer, strand)['end'],
@@ -206,7 +215,7 @@ var create_transcript_viewer = function (tr_obj,
 
 	gnomad_utr_impact.forEach(
 		element => {
-			variant_ft.addFeature({
+			gnomad_variant_ft.addFeature({
 				data: [{
 					x: strand_corrected_interval(element['start'],element['end'],start_site, buffer, strand)['start'],
 					y: strand_corrected_interval(element['start'],element['end'],start_site, buffer, strand)['end'],
