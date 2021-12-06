@@ -181,13 +181,22 @@ var create_transcript_viewer = function (tr_obj,
         });
 }
 
-	var pop_variants = gnomad_data['variants'];
-	var pop_var_feat_dat = [];
+	var pop_variants = gnomad_data['variants']; // gnomAD variants from the API
+	var pop_var_feat_dat = []; // Visualization intervals to pass to feature viewer
+	var pop_var_tpos = []; // tmp for storing the transcript positions of the variants
 	pop_variants.forEach(element => {
-		pop_var_feat_dat.push({
-			x: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['start'],
-			y: strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)['end'],
-		});
+		tpos = element['tpos']
+		// Only append to the track if didn't exist
+		if (!pop_var_tpos.includes(tpos)){
+			pop_var_tpos.push(tpos);
+			strand_corrected_tpos = strand_corrected_interval(element['tpos'],element['tpos'],start_site, buffer, strand)
+			pop_var_feat_dat.push({
+				x: strand_corrected_tpos['start'],
+				y: strand_corrected_tpos['end'],
+			});
+		}
+
+
 	});
 	gnomad_variant_ft.addFeature({
 		data: pop_var_feat_dat,
