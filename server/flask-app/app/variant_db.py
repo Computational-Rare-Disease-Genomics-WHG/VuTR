@@ -26,7 +26,7 @@ def get_db():
     return g.db
 
 
-def close_db():
+def close_db(e=None):  # pylint: disable=W0613
     """
     Close the db
     """
