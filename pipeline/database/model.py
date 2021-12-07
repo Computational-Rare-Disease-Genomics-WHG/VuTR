@@ -220,6 +220,20 @@ tbl_models = {
         'ensembl_ids': None,
         'dtype': None,  # To be finalized once we have things sorted out
     },
+    'orf_locations': {
+        'location': f'UORFS_Genomic_Positions.tsv',
+        'separator': '\t',
+        'col_mappings': {
+            'transcript_id': 'ensembl_transcript_id',
+            'orf_id': 'orf_id',
+            'strand': 'strand',
+            'start': 'start',
+            'end': 'end',
+        },
+        'remove_ensembl_id_version_numbers': True,
+        'ensembl_ids': ['ensembl_transcript_id', 'orf_id'],
+        'dtype': None,
+    },
     'clingen': {
         'location': f'CLINGEN/ClinGen_gene_curation_list_{ASSEMBLY}.tsv',
         'separator': '\t',
