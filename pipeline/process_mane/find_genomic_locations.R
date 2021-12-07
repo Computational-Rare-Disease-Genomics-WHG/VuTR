@@ -1,3 +1,9 @@
+# find_genomic_locations.R
+# E.D'Souza
+# This looks up the transcript relative coordinates in ORFS
+# and converts them to genomic locations
+
+
 library(data.table)
 library(magrittr)
 
@@ -27,7 +33,6 @@ setkey(mane_gff, transcript_id, transcript_start, transcript_end)
 uorfs_genomic_positions <- data.table()
 
 for (i in seq(nrow(uorfs))) {
-    print(i)
     # Find values for this iteration
     orf_id <- uorfs[i]$orf_id
     this_transcript_id <- uorfs[i]$ensembl_transcript_id
