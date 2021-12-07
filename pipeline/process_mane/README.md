@@ -1,10 +1,9 @@
-# Process MANE 
+# Process MANE
 
 Set of scripts to run to process MANE files
 
-## TODO 
+## TODO
 
-- [ ] find_genomic_locations.R
 - [ ] Get rid of hardcoded path
 - [ ] Fix working directories
 - [ ] Generate regions sort of like (`find_utr_regions.R`) files for 15 nt introns.
@@ -20,7 +19,7 @@ Rscript convert_mane_features_to_tsv.R
 Rscript find_utr_regions.R
 
 # Parses the transcript files and annotates with CDS/UTR features
-Rscript transcripts.R 
+Rscript transcripts.R
 
 # Creates a table mapping genomic locations with transcript locations
 Rscript create_gpos_lookup.R
@@ -29,5 +28,5 @@ Rscript create_gpos_lookup.R
 Rscript find_uorfs.R
 
 # Finds the genomic locations of the uORFS
-Rscript find_genomic_locations.R # TODO
+Rscript find_genomic_locations.R
 ```
