@@ -3,8 +3,8 @@ library(magrittr)
 
 setwd("../../")
 uorfs <- fread("data/pipeline/ORFS_Features_0.93.tsv")
-mane_gff <- "data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.tsv"  # nolint
-    %>% fread() # nolint
+mane_gff <- "data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.tsv" %>% # nolint
+    fread() # nolint
 
 # Filter to exons only
 mane_gff %<>% .[type == "exon"]
