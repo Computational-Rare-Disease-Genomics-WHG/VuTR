@@ -108,4 +108,7 @@ for (i in seq(nrow(uorfs))) {
     )
 }
 
-fwrite(uorfs_genomic_positions, "data/pipeline/UORFS_Genomic_Positions.tsv")
+fwrite(uorfs_genomic_positions,
+    "data/pipeline/UORFS_Genomic_Positions.tsv",
+    sep = "\t"
+)
