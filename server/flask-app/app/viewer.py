@@ -33,6 +33,19 @@ from . import variant_db
 viewer = Blueprint('viewer', __name__)
 
 
+def find_all_high_impact_utr_variants(ensembl_transcript_id):
+    """
+    Finds all possible UTR variants for a given transcript id from the database
+    """
+    db = variant_db.get_db()
+    cursor = db.execute(
+        'SELECT variant_id FROM variant_annotations WHERE ensembl_transcript_id=?',
+        [ensembl_transcript_id],
+    )
+    rows = cursor.fetchall()
+    return [i[0] for i in rows]
+
+
 @viewer.route('/viewer/utr_impact', methods=['GET', 'POST'])
 def get_utr_impacts():
     """
@@ -40,7 +53,6 @@ def get_utr_impacts():
     @param variant_id e.g. 5-150904976-T-A
     @param ensembl_transcript_id e.g. ENST00000274599
     """
-    print(request.args)
     variant_id = request.args['variant_id']
     ensembl_transcript_id = request.args['ensembl_transcript_id']
     try:
@@ -161,6 +173,12 @@ def viewer_page(ensembl_transcript_id):
     clinvar_utr_impact = get_utr_annotation_for_list_variants(
         clinvar_variants_list, possible_variants, start_site, buffer
     )
+
+    #
+    all_possible_variants = find_all_high_impact_utr_variants(
+        ensembl_transcript_id=ensembl_transcript_id
+    )
+    print(all_possible_variants)
     # Render template
     return render_template(
         'viewer.html',
@@ -178,4 +196,5 @@ def viewer_page(ensembl_transcript_id):
         transcript_features=transcript_features,
         gnomad_utr_impact=gnomad_utr_impact,
         clinvar_utr_impact=clinvar_utr_impact,
+        all_possible_variants=all_possible_variants,
     )
