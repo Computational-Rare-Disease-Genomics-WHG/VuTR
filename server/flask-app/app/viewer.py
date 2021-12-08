@@ -26,7 +26,10 @@ from utr_utils.tools.utils import (
     get_lookup_df,
     add_tloc_to_dict,
 )
-from utr_utils.tools.utr_annotation import get_utr_annotation_for_list_variants
+from utr_utils.tools.utr_annotation import (
+    get_utr_annotation_for_list_variants,
+    find_intervals_for_utr_consequence,
+)
 
 from . import variant_db
 
@@ -55,16 +58,31 @@ def get_utr_impacts():
     """
     variant_id = request.args['variant_id']
     ensembl_transcript_id = request.args['ensembl_transcript_id']
+    start_site = request.args['start_site']
+    buffer = request.args['buffer']
     try:
         db = variant_db.get_db()
         cursor = db.execute(
-            'SELECT annotations FROM variant_annotations'
-            'WHERE ensembl_transcript_id =? AND variant_id=?',
+            'SELECT annotations FROM variant_annotations WHERE ensembl_transcript_id =? AND variant_id=?',  # noqa: E501 # pylint: disable=C0301
             [ensembl_transcript_id, variant_id],
         )
         rows = cursor.fetchall()
-        variants = [json.loads(row[0]) for row in rows]
-        response_object = {'status': 'Success', 'message': 'Ok', 'data': variants}
+        variant = [json.loads(row[0]) for row in rows][0]
+        response_object = {
+            'status': 'Success',
+            'message': 'Ok',
+            'data': {
+                'variant': variant,
+                'intervals': find_intervals_for_utr_consequence(
+                    var_id=variant['variant_id'],
+                    conseq_type=variant['five_prime_UTR_variant_consequence'],
+                    conseq_dict=variant['five_prime_UTR_variant_annotation'],
+                    cdna_pos=variant['cDNA_position'],
+                    start_site=start_site,
+                    buffer_length=buffer,
+                ),
+            },
+        }
         return response_object, 200
     except Exception as e:  # pylint: disable=W0703
         response_object = {
