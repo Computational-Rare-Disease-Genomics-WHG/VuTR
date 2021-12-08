@@ -36,7 +36,8 @@
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid-theme.min.css')}}">
-
+      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/select2/css/select2.min.css')}}">
+      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
       <!--Preload scripts-->
       <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
       <script src="https://unpkg.com/d3"></script>
@@ -267,8 +268,6 @@
                                      </div>
 
                                     </div>
-                                 </div>
-                                 <div class="container">
                                     <div class="row">
                                        <div class="col-2">
                                        <h6 class="text-left"><strong>Clinical Significance</strong></h6>
@@ -299,10 +298,9 @@
 
                                       </div>
 
-                                       </div>
-
-
+                                    </div>
                                  </div>
+
                               <div class="container">
                               <div class="row">
                                  <div class="col-8">
@@ -318,6 +316,7 @@
                                     <h6 class="text-left"><strong>ClinVar Variants</strong></h6>
                                     </div>
                                  </div>
+
                                  <div id = "clinvar_tracks">
                                  </div>
                                  </div>
@@ -329,6 +328,26 @@
                               </div>
                               <div id = "gnomad_tracks">
                               </div>
+                              </div>
+
+                              <div class="container">
+                                 <div class="row">
+                                    <div class="col-8">
+                                    <h6 class="text-left"><strong>Input variant </strong></h6>
+                                    <select id ="input_variant" class="form-control select2"  multiple="multiple" data-placeholder="Search by variant id e.g. {{all_possible_variants[0]| safe}}">
+                                       {% for var in all_possible_variants %}
+                                       <option>{{var}}</option>
+                                       {% endfor %}
+                                    </select>
+
+                                    <div class="input_variant">
+
+
+                                    </div>
+                                    </div>
+                                 </div>
+                                 <div id = "user_variants">
+                                 </div>
                               </div>
 
                            </div>
@@ -380,7 +399,7 @@
          <strong>Copyright &copy; 2021 <a href="https://rarediseasegenomics.com.au">Computational Rare Disease Genomics</a></strong>.
          The data released here is available free of restrictions under the Creative Commons Zero Public Domain Dedication.
          <div class="float-right d-none d-sm-inline-block">
-            <b>UTR Visualisation App</b> version 0.1
+            <b>UTR Visualisation App</b> version 0.2
          </div>
       </footer>
       <!-- Control Sidebar -->
@@ -429,10 +448,18 @@
 
       <!--Custom Scripts-->
       <script type="text/javascript">
+
+      $('#input_variant').select2();
+
+
+
+
       var gnomad_data = {{gnomad_data|tojson}};
       var nan = null;
       var gene_features = {{gene_features|safe}};
-      const buffer_zone = 50;
+      var ensembl_transcript_id = "{{ensembl_transcript_id| safe}}";
+
+      var buffer = 50;
       var gene_start = gene_features["gene_start"];
       var gene_end = gene_features["gene_end"];
       var start_codon_feat = gene_features["features"].find(obj => {
@@ -456,9 +483,40 @@
          transcript_div,
          start_site,
          strand,
-         buffer_zone,
+         buffer,
          gnomad_utr_impact,
          clinvar_utr_impact);
+
+      var user_viewer = initialize_user_viewer('#user_variants',
+         transcript_features,
+         start_site,
+         strand,
+         buffer)
+
+      $('#input_variant').on('select2:select', function (e) {
+         // reset viewer
+         $.ajax({
+            url: 'http://127.0.0.1:5000/viewer/utr_impact',
+            data: {
+               'variant_id': e.params.data.text,
+               'ensembl_transcript_id' : ensembl_transcript_id,
+               'start_site' : start_site,
+               'buffer' : buffer
+            },
+            error : function (e){
+               console.log(e)
+            },
+            success: function(res){
+               add_user_supplied_feature(user_viewer,
+               res["data"]["intervals"],
+               e.params.data.text,
+               start_site,
+               buffer,
+               strand)
+            },
+            dataType: 'json'
+         });
+      });
 
       // Add clinvar data to a table
       if (gnomad_data["clinvar_variants"].length > 0 ){
