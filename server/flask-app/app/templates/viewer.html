@@ -425,102 +425,45 @@
 
       <!--UTR Visualization-->
       <script src="{{url_for('static', filename ='utrviewer.js')}}"></script>
-
+      <script src="{{url_for('static', filename ='variant_table.js')}}"></script>
 
       <!--Custom Scripts-->
       <script type="text/javascript">
-// Load data
-var gnomad_data = {{gnomad_data|tojson}};
+      var gnomad_data = {{gnomad_data|tojson}};
+      var nan = null;
+      var gene_features = {{gene_features|safe}};
+      const buffer_zone = 50;
+      var gene_start = gene_features["gene_start"];
+      var gene_end = gene_features["gene_end"];
+      var start_codon_feat = gene_features["features"].find(obj => {
+         return obj.type === "start_codon"
+      })
+      var strand = gene_features["strand"]
+      // Filter to features within the UTR.
 
-/*************Info details data*******************/
-var nan = null;
-var gene_features = {{gene_features|safe}};
-const buffer_zone = 50;
-var gene_start = gene_features["gene_start"];
-var gene_end = gene_features["gene_end"];
-var start_codon_feat = gene_features["features"].find(obj => {
-   return obj.type === "start_codon"
-})
-var strand = gene_features["strand"]
-// Filter to features within the UTR.
-track_features = gene_features["features"]
+      track_features = gene_features["features"]
+      track_features = track_features.filter(function (obj){
+         return obj.type !=="transcript"
+      });
+      var start_site =  {{five_prime_utr_stats["5_prime_utr_length"] | safe}};
+      var transcript_features = {{transcript_features | safe}};
+      var transcript_div = "#transcript_viewer";
+      var gnomad_utr_impact = {{gnomad_utr_impact|safe}};
+      var clinvar_utr_impact = {{clinvar_utr_impact|safe}};
+      var all_possible_variants={{all_possible_variants|safe}};
 
-track_features = track_features.filter(function (obj){
-   return obj.type !=="transcript"
-});
-var start_site =  {{five_prime_utr_stats["5_prime_utr_length"] | safe}}
+      create_transcript_viewer(transcript_features,
+         transcript_div,
+         start_site,
+         strand,
+         buffer_zone,
+         gnomad_utr_impact,
+         clinvar_utr_impact);
 
-//create_d3_genomic_viewer("#utr-architechure-viewer");
-var transcript_features = {{transcript_features | safe}};
-var transcript_div = "#transcript_viewer";
-var gnomad_utr_impact = {{gnomad_utr_impact|safe}};
-var clinvar_utr_impact = {{clinvar_utr_impact|safe}};
-
-
-create_transcript_viewer(transcript_features,
-   transcript_div,
-   start_site,
-   strand,
-   buffer_zone,
-   gnomad_utr_impact,
-   clinvar_utr_impact);
-
-/*************Population variation*******************/
-
-      // Fill Clinvar data
-
-if (gnomad_data["clinvar_variants"].length > 0 ){
-$("#clinvar-js-grid").jsGrid({
-   height: "100%",
-   width: "100%",
-   sorting: true,
-   pageSize: 6,
-   paging: true,
-   data: gnomad_data["clinvar_variants"],
-   fields: [{
-            name: "clinvar_variation_id",
-            type: "text",
-            width: 150,
-            title: "ClinVar Variation ID"
-      },
-      {
-            name: "ref",
-            type: "text",
-            title: "REF"
-      },
-      {
-            name: "alt",
-            type: "text",
-            title: "ALT"
-      },
-      {
-            name: "pos",
-            type: "text",
-            title: "POS"
-      },
-      {
-            name: "major_consequence",
-            type: "text",
-            title: "Major Consequence"
-      },
-      {
-            name: "in_gnomad",
-            type: "checkbox",
-            title: "In gnomAD?"
-      },
-      {
-            name: "clinical_significance",
-            type: "text",
-            title: "Clincal Significance"
-      },
-      {
-            name: "hgvsc",
-            type: "text",
-            title: "HGVSC"
-      },
-   ]
-});
-}
+      // Add clinvar data to a table
+      if (gnomad_data["clinvar_variants"].length > 0 ){
+         create_variant_table("#clinvar-js-grid", gnomad_data["clinvar_variants"])
+      }
 
       </script>
    </body>
