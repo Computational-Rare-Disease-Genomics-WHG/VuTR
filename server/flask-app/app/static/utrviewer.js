@@ -1,4 +1,19 @@
 
+	var kozak_colors = {
+		Strong: "#E69F00",
+		Moderate: "#56B4E9",
+		Weak: "#009E73",
+		None: "#009E73"
+	};
+    var pathogenicity_colors = {
+        "Pathogenic" : "#D55E00",
+        "Likely pathogenic" : "#D55E00",
+        "Benign" : "#0072B2",
+        "Likely benign" : "#0072B2",
+        "Conflicting interpretations" : "#CC79A7",
+        "Uncertain significance" : "#CC79A7",
+    }
+
 var strand_corrected_interval = function (start, end, start_site, buffer, strand){
     if (strand == '+'){
     return ({
@@ -43,20 +58,6 @@ var create_transcript_viewer = function (tr_obj,
 	// Subset to the first 100 bases following the CDS
 	var sequence = strand=="+" ? tr_obj["full_seq"].substring(0, start_site + buffer) : reverse(tr_obj["full_seq"].substring(0, start_site + buffer));
 
-	var kozak_colors = {
-		Strong: "#E69F00",
-		Moderate: "#56B4E9",
-		Weak: "#009E73",
-		None: "#009E73"
-	};
-    var pathogenicity_colors = {
-        "Pathogenic" : "#D55E00",
-        "Likely pathogenic" : "#D55E00",
-        "Benign" : "#0072B2",
-        "Likely benign" : "#0072B2",
-        "Conflicting interpretations" : "#CC79A7",
-        "Uncertain significance" : "#CC79A7",
-    }
 
     // Create the feature viewer
 	var ft2 = new FeatureViewer.createFeature(sequence, div, {
@@ -236,5 +237,32 @@ var create_transcript_viewer = function (tr_obj,
 			})
 		}
 	)
+
+}
+
+var initialize_user_viewer = function (div, tr_obj, start_site, strand, buffer){
+	var sequence = strand=="+" ? tr_obj["full_seq"].substring(0, start_site + buffer) : reverse(tr_obj["full_seq"].substring(0, start_site + buffer));
+	user_viewer = new FeatureViewer.createFeature(sequence, div, {
+		showAxis: false,
+		showSequence: false,
+		brushActive: true,
+		toolbar: false,
+		bubbleHelp: true,
+		zoomMax: 10
+	})
+	return user_viewer
+}
+
+var add_user_supplied_feature =  function(user_viewer, dat, var_name, start_site, buffer, strand){
+	intervals = [{x: strand_corrected_interval(dat['start'],dat['end'],start_site, buffer, strand)['start'],
+	y:  strand_corrected_interval(dat['start'],dat['end'],start_site, buffer, strand)['end']}]
+
+	user_viewer.addFeature({
+		data: intervals,
+		type: "rect",
+		className: "user_var"+var_name,
+		name: var_name,
+		color: kozak_colors[dat.kozak_strength]
+	});
 
 }
