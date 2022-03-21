@@ -12,8 +12,86 @@ var pathogenicity_colors = {
     "Conflicting interpretations": "#CC79A7",
     "Uncertain significance": "#CC79A7",
 }
+var detail_mapping = {
 
-var strand_corrected_interval = function(start, end, start_site, buffer, strand) {
+    // gnomAD mappings
+    "alt": "ALT",
+    "clinical_significance": "Clinical Significance",
+    "clinvar_variation_id": "ClinVar Variation ID",
+    "gold_stars": "Gold Stars",
+    "hgvsc": "HGVSC",
+    "in_gnomad": "Is variant in gnomAD?",
+    "major_consequence": "Major Consequence (VEP)",
+    "pos": "Position",
+    "ref": "REF",
+    "review_status": "Review Status",
+    "tpos": "Transcript Position",
+    "transcript_id": "Ensembl Transcript ID",
+
+
+    /// ORF Details
+    "ensembl_transcript_id": "Ensembl Transcript ID",
+    "orf_start_codon": "ORF Start Codon",
+    "orf_seq": "ORF Sequence",
+    "orf_stop_codon": "ORF Stop codon",
+    "orf_type": "ORF Type",
+    "frame": "ORF Frame w.r.t. CDS",
+    "kozak_context": "7bp context",
+    "context": "11 bp context",
+    "kozak_consensus_strength": "Kozak Consensus Strength",
+    "orf_id": "ORF ID",
+
+    /// UTR Annotator details
+    "variant_id": "Variant ID",
+    // uAUG gained mappings
+    "uAUG_gained_CapDistanceToStart": "uAUG-gained Distance from Cap to start",
+    "uAUG_gained_DistanceToCDS": "uAUG-gained Distance to CDS",
+    "uAUG_gained_DistanceToStop": "uAUG-gained Distance to Stop codon",
+    "uAUG_gained_KozakContext": "uAUG-gained Kozak Context",
+    "uAUG_gained_KozakStrength": "uAUG-gained Kozak Strength",
+    "uAUG_gained_type": "uAUG-gained Type",
+
+    // uAUG Lost
+    "uAUG_lost_type": "uAUG-Lost Type",
+    "uAUG_lost_KozakContext": "uAUG-Lost Kozak Context",
+    "uAUG_lost_KozakStrength": "uAUG-Lost Kozak Strength",
+    "uAUG_lost_CapDistanceToStart": "uAUG-Lost Distance from Cap to start",
+    "uAUG_lost_DistanceToCDS": "uAUG-Lost Distance to CDS",
+    "uAUG_lost_DistanceToSTOP": "uAUG-Lost Distance to Stop",
+
+    // uStop Lost mapping
+    "uSTOP_lost_AltStop": "uSTOP-Lost ALT Stop",
+    "uSTOP_lost_AltStopDistanceToCDS": "uSTOP-Lost ALT Stop Distance to CDS",
+    "uSTOP_lost_KozakContext": "uSTOP-Lost Kozak Context",
+    "uSTOP_lost_KozakStrength": "uSTOP-Lost Kozak Strength",
+    "uSTOP_lost_FrameWithCDS": "uSTOP-Lost Frame w.r.t. CDS",
+
+    // uSTOP gained mappings
+    "uSTOP_gained_ref_StartDistanceToCDS": "uSTOP-gained Distance to CDS",
+    "uSTOP_gained_ref_type": "uSTOP-gained REF Type",
+    "uSTOP_gained_KozakContext": "uSTOP-gained Kozak Context",
+    "uSTOP_gained_KozakStrength": "uSTOP-gained Kozak Strength",
+    "uSTOP_gained_newSTOPDistanceToCDS": "uSTOP-gained Distance from Stop to CDS"
+
+    /*
+    To be defined when we have frameshift variants with indels
+
+    "uFrameshift_ref_type":,
+    "uFrameshift_ref_type_length":,
+    "uFrameshift_StartDistanceToCDS":,
+    "uFrameshift_alt_type":,
+    "uFrameshift_alt_type_length":,
+    "uFrameshift_KozakContext":,
+    "uFrameshift_KozakStrength": "Kozak Strength", */
+}
+
+var strand_corrected_interval = function(
+    start,
+    end,
+    start_site,
+    buffer,
+    strand
+) {
     if (strand == '+') {
         return ({
             'start': start,
@@ -28,12 +106,12 @@ var strand_corrected_interval = function(start, end, start_site, buffer, strand)
 }
 
 /* On click event handlers*/
-var open_modal = function (data){
-	// Clear previous
-	$("#modal-container").empty();
+var open_modal = function(data) {
+    // Clear previous
+    $("#modal-container").empty();
 
 
-	var custom = `
+    var custom = `
 		<div class="modal fade" id="feature-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
 		<div class="modal-dialog " role="document">
 		  <div class="modal-content">
@@ -52,26 +130,29 @@ var open_modal = function (data){
 		</div>
 	  </div>
 		`;
-	document.getElementById('modal-container')
-	.insertAdjacentHTML('beforeend',
-	custom);
+    document.getElementById('modal-container')
+        .insertAdjacentHTML('beforeend',
+            custom);
 
-	// Filter data
-	var ul = document.getElementById('feature-modal-data');
-	for (const [key, value] of Object.entries(data)) {
-		var li = document.createElement('li');
-		ul.appendChild(li);
-		li.innerHTML += `<b>${key}</b>: ${value}`;
-	}
-	$('#feature-modal').modal();
+    // Filter data
+    var ul = document.getElementById('feature-modal-data');
+    for (const [key, value] of Object.entries(data)) {
+        var li = document.createElement('li');
+        ul.appendChild(li);
+        // Map the VEP consequence terms to formatted strings
+        li.innerHTML += `<b>${detail_mapping[key]}</b>: ${value}`;
+    }
+    $('#feature-modal').modal();
 }
 
-var search_obj = function (data, id, id_var){
-	/**
-	 * Quick wrapper to function to search through an
-	 * array of objects
-	 */
-	return (data.filter(e=>{return (e[id_var] == id)})[0])
+var search_obj = function(data, id, id_var) {
+    /**
+     * Quick wrapper to function to search through an
+     * array of objects
+     */
+    return (data.filter(e => {
+        return (e[id_var] == id)
+    })[0])
 }
 
 
@@ -102,8 +183,8 @@ var create_transcript_viewer = function(tr_obj,
 
     // Subset to the first 100 bases following the CDS
     var sequence = strand == "+" ? tr_obj["full_seq"]
-		.substring(0, start_site + buffer) :
-		reverse(tr_obj["full_seq"].substring(0, start_site + buffer));
+        .substring(0, start_site + buffer) :
+        reverse(tr_obj["full_seq"].substring(0, start_site + buffer));
 
 
     // Create the feature viewer
@@ -175,7 +256,7 @@ var create_transcript_viewer = function(tr_obj,
             x: strand_corrected_interval(e.orf_start_codon, e.orf_stop_codon, start_site, buffer, strand)['start'],
             y: strand_corrected_interval(e.orf_start_codon, e.orf_stop_codon, start_site, buffer, strand)['end'],
             color: kozak_colors[e.kozak_consensus_strength],
-			id: e.orf_id,
+            id: e.orf_id,
         }))
         if (curr_orf_frame_dat.length > 0) {
             ft2.addFeature({
@@ -189,9 +270,9 @@ var create_transcript_viewer = function(tr_obj,
 
     });
 
-	ft2.onFeatureSelected(function (d){
-		open_modal(search_obj(uorfs, d.detail.id,'orf_id'));
-	});
+    ft2.onFeatureSelected(function(d) {
+        open_modal(search_obj(uorfs, d.detail.id, 'orf_id'));
+    });
     //********** Variants *********/
 
     var gnomad_variant_ft = new FeatureViewer.createFeature(sequence,
@@ -263,7 +344,7 @@ var create_transcript_viewer = function(tr_obj,
                 data: [{
                     x: strand_corrected_interval(element['start'], element['end'], start_site, buffer, strand)['start'],
                     y: strand_corrected_interval(element['start'], element['end'], start_site, buffer, strand)['end'],
-					id : element.variant_id
+                    id: element.variant_id
                 }],
                 type: "rect",
                 className: "clinvar_high_impact_variant",
@@ -288,13 +369,13 @@ var create_transcript_viewer = function(tr_obj,
         }
     )
 
-	clinvar_variant_ft.onFeatureSelected(function (d){
-		open_modal(search_obj(clinvar_variants, d.detail.id, 'variant_id'))
-	});
-	gnomad_variant_ft.onFeatureSelected(function (d){
-		open_modal(search_obj(pop_variants, d.detail.id, 'variant_id'))
+    clinvar_variant_ft.onFeatureSelected(function(d) {
+        open_modal(search_obj(clinvar_variants, d.detail.id, 'variant_id'))
+    });
+    gnomad_variant_ft.onFeatureSelected(function(d) {
+        open_modal(search_obj(pop_variants, d.detail.id, 'variant_id'))
 
-	});
+    });
 }
 
 var initialize_user_viewer = function(div, tr_obj, start_site, strand, buffer) {
@@ -310,13 +391,14 @@ var initialize_user_viewer = function(div, tr_obj, start_site, strand, buffer) {
     return user_viewer
 }
 
-var add_user_supplied_feature = function(user_viewer, payload, var_name,
-	start_site, buffer, strand) {
-	dat = payload["data"]["intervals"]
-	intervals = [{
+var add_user_supplied_feature = function(
+    user_viewer, payload, var_name,
+    start_site, buffer, strand) {
+    dat = payload["data"]["intervals"]
+    intervals = [{
         x: strand_corrected_interval(dat['start'], dat['end'], start_site, buffer, strand)['start'],
         y: strand_corrected_interval(dat['start'], dat['end'], start_site, buffer, strand)['end'],
-		id : dat['variant_id']
+        id: dat['variant_id']
     }]
 
     user_viewer.addFeature({
