@@ -63,16 +63,17 @@ def get_utr_impacts():
     try:
         db = variant_db.get_db()
         cursor = db.execute(
-            'SELECT annotations FROM variant_annotations WHERE ensembl_transcript_id =? AND variant_id=?',  # noqa: E501 # pylint: disable=C0301
+            'SELECT annotations, five_prime_UTR_variant_annotation FROM variant_annotations WHERE ensembl_transcript_id =? AND variant_id=?',  # noqa: E501 # pylint: disable=C0301
             [ensembl_transcript_id, variant_id],
         )
         rows = cursor.fetchall()
         variant = [json.loads(row[0]) for row in rows][0]
+        annotation = [json.loads(row[1]) for row in rows][0]
         response_object = {
             'status': 'Success',
             'message': 'Ok',
             'data': {
-                'variant': variant,
+                'variant': {**{'variant_id': variant['variant_id']}, **annotation},
                 'intervals': find_intervals_for_utr_consequence(
                     var_id=variant['variant_id'],
                     conseq_type=variant['five_prime_UTR_variant_consequence'],
@@ -167,7 +168,7 @@ def viewer_page(ensembl_transcript_id):
     sorfs = find_sorfs_by_ensg(ensembl_gene_id)
     constraint = get_constraint_by_ensg(ensembl_gene_id)
     clingen_curation_record = get_clingen_curation(hgnc)
-    buffer = 140
+    buffer = 40
     start_site = five_prime_utr_stats['5_prime_utr_length'] + 1
 
     possible_variants = get_possible_variants(

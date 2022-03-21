@@ -6,10 +6,24 @@
 
 library(data.table)
 library(magrittr)
+library(optparser)
 
 setwd("../../")
-uorfs <- fread("data/pipeline/ORFS_Features_0.93.tsv")
-mane_gff <- "data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.tsv" %>% # nolint
+
+option_list <- list(
+    make_option(c("-m", "--mane_version"),
+        type = "character", default = "1.00",
+        help = "dataset file name", metavar = "character"
+    ),
+)
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+mane_version <- opt$mane_version
+
+
+uorfs <- fread(sprintf("data/pipeline/ORFS_Features_%s.tsv", mane_version))
+mane_gff <- "data/pipeline/MANE/%s/MANE.GRCh38.v%s.select_ensembl_genomic.tsv" %>% # nolint
+    sprintf(., mane_version) %>%
     fread() # nolint
 
 # Filter to exons only

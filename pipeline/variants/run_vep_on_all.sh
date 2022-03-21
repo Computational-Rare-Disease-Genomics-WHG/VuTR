@@ -9,7 +9,7 @@ INPATH='../../data/pipeline/vep_data/input'
 OUTPATH='../../data/pipeline/vep_data/output'
 VEP_CACHE='/well/whiffin/shared/vep'
 ASSEMBLY='GRCh38'
-MANE_VERSION='0.93'
+MANE_VERSION='1.0'
 
 for i in {1..22} X Y
 do

@@ -243,9 +243,9 @@
                               </div>
                            </div>
                            <div class="card-body">
-                              <div class="container">
+                              <div class="">
                                  <div class="row">
-                                    <div class="col-2">
+                                    <div class="col-3">
                                     <h6 class="text-left"><strong>Kozak Consensus Strength</strong></h6>
                                     </div>
                                     <div class="col-3">
@@ -271,40 +271,10 @@
                                      </div>
 
                                     </div>
-                                    <div class="row">
-                                       <div class="col-2">
-                                       <h6 class="text-left"><strong>Clinical Significance</strong></h6>
-                                       </div>
-                                       <div class="col-3">
-                                            <div class="">
-                                             <i class="nav-icon fas fa-circle" style="color:#D55E00"></i>
-                                              <span class="">Pathogenic / Likely Pathogenic</span>
-                                          </div>
-                                        </div>
 
-                                        <div class="col-3">
+                              </div>
 
-                                            <div class="">
-                                             <i class="nav-icon fas fa-circle" style="color:#0072B2"></i>
-                                              <span class="">Benign / Likely Benign</span>
-                                          </div>
-                                        </div>
-                                        <div class="col-3">
-
-                                            <div class="">
-                                             <i class="nav-icon fas fa-circle" style="color:#CC79A7"></i>
-                                              <span class="">Conflicting Evidence / Uncertain significance</span>
-                                          </div>
-                                        </div>
-                                        <div class=" col-3">
-
-
-                                      </div>
-
-                                    </div>
-                                 </div>
-
-                              <div class="container">
+                              <div class="">
                               <div class="row">
                                  <div class="col-8">
                                  <h6 class="text-left"><strong>Upstream UTR elements</strong></h6>
@@ -313,17 +283,42 @@
                               <div id = "transcript_viewer">
                               </div>
                               </div>
-                              <div class="container">
+                              <div class="">
+
                                  <div class="row">
-                                    <div class="col-8">
-                                    <h6 class="text-left"><strong>ClinVar Variants</strong></h6>
+                                    <div class="col-2">
+                                       <h6 class="text-left"><strong>ClinVar Variants</strong></h6>
+
                                     </div>
+
+                                    <div class="col-3">
+                                         <div class="">
+                                          <i class="nav-icon fas fa-circle" style="color:#D55E00"></i>
+                                           <span class="">Pathogenic / Likely Pathogenic</span>
+                                       </div>
+                                     </div>
+
+                                     <div class="col-3">
+
+                                         <div class="">
+                                          <i class="nav-icon fas fa-circle" style="color:#0072B2"></i>
+                                           <span class="">Benign / Likely Benign</span>
+                                       </div>
+                                     </div>
+                                     <div class="col-3">
+
+                                         <div class="">
+                                          <i class="nav-icon fas fa-circle" style="color:#CC79A7"></i>
+                                           <span class="">Conflicting Evidence / Uncertain significance</span>
+                                       </div>
+                                     </div>
+
                                  </div>
 
                                  <div id = "clinvar_tracks">
                                  </div>
                                  </div>
-                              <div class="container">
+                              <div class="">
                               <div class="row">
                                  <div class="col-8">
                                  <h6 class="text-left"><strong>gnomAD Variants</strong></h6>
@@ -332,12 +327,12 @@
                               <div id = "gnomad_tracks">
                               </div>
                               </div>
-
-                              <div class="container">
+                              <!--Search bar-->
+                              <div class="">
                                  <div class="row">
-                                    <div class="col-8">
-                                    <h6 class="text-left"><strong>Input variant </strong></h6>
-                                    <select id ="input_variant" class="form-control select2"  multiple="multiple" data-placeholder="Search by variant id e.g. {{all_possible_variants[0]| safe}}">
+                                    <div class="col-12">
+                                    <h6 class="text-left"><strong>Input variant</strong></h6>
+                                    <select id ="input_variant" class="form-control select2 text-center mx-auto"  multiple="multiple" data-placeholder="Search by variant id e.g. {{all_possible_variants[0]| safe}}">
                                        {% for var in all_possible_variants %}
                                        <option>{{var}}</option>
                                        {% endfor %}
@@ -410,6 +405,9 @@
       </aside>
       <!-- /Control sidebar -->
       </div>
+
+      <div id="modal-container"></div>
+
       <!-- jQuery -->
       <script src="{{url_for('static', filename = 'plugins/jquery/jquery.min.js')}}"></script>
       <!-- jQuery UI 1.11.4 -->
@@ -461,8 +459,7 @@
       var nan = null;
       var gene_features = {{gene_features|safe}};
       var ensembl_transcript_id = "{{ensembl_transcript_id| safe}}";
-
-      var buffer = 50;
+      var buffer = 40;
       var gene_start = gene_features["gene_start"];
       var gene_end = gene_features["gene_end"];
       var start_codon_feat = gene_features["features"].find(obj => {
@@ -490,14 +487,19 @@
          gnomad_utr_impact,
          clinvar_utr_impact);
 
+      // Initialize user suplied visualization
       var user_viewer = initialize_user_viewer('#user_variants',
          transcript_features,
          start_site,
          strand,
          buffer)
+      var user_variant_data = [];
+      // Add event handler
+      user_viewer.onFeatureSelected(function (d){
+		   open_modal(search_obj(user_variant_data, d.detail.id,'variant_id'));
+	   });
 
       $('#input_variant').on('select2:select', function (e) {
-         // reset viewer
          $.ajax({
             url: 'http://127.0.0.1:5000/viewer/utr_impact',
             data: {
@@ -510,12 +512,17 @@
                console.log(e)
             },
             success: function(res){
+
+               // Create visualization
                add_user_supplied_feature(user_viewer,
-               res["data"]["intervals"],
+               res,
                e.params.data.text,
                start_site,
                buffer,
-               strand)
+               strand);
+
+               // Append variant data
+               user_variant_data.push(res['data']['variant'])
             },
             dataType: 'json'
          });

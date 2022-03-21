@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Runs the parser on all possible variants
-# This splits each row of the annotated VEP table 
+# This splits each row of the annotated VEP table
 # to a single row per variant consequence
 # Also merges the chrom_separated table to a single table
 
@@ -14,7 +14,7 @@ OUTPATH='../../data/pipeline/vep_data/output'
 PIPLINE_OUTPATH='../../data/pipeline'
 VEP_CACHE='/well/whiffin/shared/vep'
 ASSEMBLY='GRCh38'
-MANE_VERSION='0.93'
+MANE_VERSION='1.0'
 HEADER_LINES=47
 
 for i in {1..22} X Y

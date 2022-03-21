@@ -8,6 +8,7 @@ library("data.table")
 library("magrittr")
 library("stringi")
 library("stringr")
+library("optparser")
 
 #' Returns the TIS -6,+4
 #' @param pos
@@ -23,13 +24,20 @@ get_context <- function(cdna_seq, pos) {
 #' @param dt : The data.table of the read translation efficiency
 #' @return data.table : the necessary columns and the efficiency per context
 process_te_table <- function(dt) {
-    dt[, tis_context := gsub("u", "t", tolower(sequence))]
-    setkey(dt, tis_context)
+    dt[, tis_context := gsub("u", "t", tolower(sequence))] # nolint
+    setkey(dt, tis_context) # nolint
     # Add quantiles
-    eff_quantiles <- quantile(dt$efficiency, prob = seq(0, 1, 0.25))
+    eff_quantiles <- quantile(dt$efficiency, prob = seq(0, 1, 0.1))
+    dt[, efficiency_decile := as.numeric(cut(efficiency,
+        eff_quantiles,
+        include.lowest = T,
+        label = F
+    ))]
+
     return(dt[, .(
         tis_context,
-        efficiency
+        efficiency,
+        efficiency_decile
     )])
 }
 
@@ -102,11 +110,18 @@ categorize_frame <- function(start_pos, ref_pos) {
     }
 }
 
-
-transcripts <- fread(
-    "../../data/pipeline/MANE/0.93/MANE_transcripts_v0.93.tsv",
-    sep = "\t"
+option_list <- list(
+    make_option(c("-m", "--mane_version"),
+        type = "character", default = "1.0",
+        help = "dataset file name", metavar = "character"
+    ),
 )
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+mane_version <- opt$mane_version
+transcripts <- "../../data/pipeline/MANE/%s/MANE_transcripts_v%s.tsv" %>%
+    sprintf(., mane_version) %>%
+    fread(., sep = "\t")
 
 # Apply for each transcript id
 transcripts[, orfs := {
@@ -190,6 +205,6 @@ orfs <- transcripts[
 
 # Write to file
 fwrite(orfs,
-    "../../data/pipeline/ORFS_Features_0.93.tsv",
+    sprintf("../../data/pipeline/ORFS_Features_%s.tsv", mane_version),
     sep = "\t"
 )
