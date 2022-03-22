@@ -23,30 +23,20 @@ from utr_utils.tools.sorfs import find_sorfs_by_ensg
 from utr_utils.tools.clingen import get_clingen_curation
 from utr_utils.tools.utils import (
     convert_betweeen_identifiers,
-    get_lookup_df,
-    add_tloc_to_dict,
 )
 from utr_utils.tools.utr_annotation import (
     get_utr_annotation_for_list_variants,
     find_intervals_for_utr_consequence,
 )
+from .helpers import (
+    get_possible_variants,
+    process_gnomad_data,
+    find_all_high_impact_utr_variants,
+)
 
 from . import variant_db
 
 viewer = Blueprint('viewer', __name__)
-
-
-def find_all_high_impact_utr_variants(ensembl_transcript_id):
-    """
-    Finds all possible UTR variants for a given transcript id from the database
-    """
-    db = variant_db.get_db()
-    cursor = db.execute(
-        'SELECT variant_id FROM variant_annotations WHERE ensembl_transcript_id=?',
-        [ensembl_transcript_id],
-    )
-    rows = cursor.fetchall()
-    return [i[0] for i in rows]
 
 
 @viewer.route('/viewer/utr_impact', methods=['GET', 'POST'])
@@ -93,52 +83,6 @@ def get_utr_impacts():
         return response_object, 400
 
 
-def get_possible_variants(ensembl_transcript_id):
-    """
-    Searches the database for variants
-    """
-    db = variant_db.get_db()
-    cursor = db.execute(
-        'SELECT annotations FROM variant_annotations WHERE ensembl_transcript_id =?',
-        [ensembl_transcript_id],
-    )
-    rows = cursor.fetchall()
-    variants = [json.loads(row[0]) for row in rows]
-    return variants
-
-
-def process_gnomad_data(gnomad_data, ensembl_transcript_id):
-    """
-    Get the gnomAD data and find their transcript coordinates
-    and filter to 5' UTR variants
-    """
-    # Check if transcript id is in MANE
-    glookup_table = get_lookup_df(ensembl_transcript_id=ensembl_transcript_id)
-    # Filtering to SNVs for now
-    gnomad_data['clinvar_variants'] = [
-        add_tloc_to_dict(clinvar, glookup_table, ensembl_transcript_id)
-        for clinvar in gnomad_data['clinvar_variants']
-        if clinvar['major_consequence'] == '5_prime_UTR_variant'
-        and len(clinvar['ref']) == 1
-        and len(clinvar['alt']) == 1
-    ]
-
-    gnomad_data['variants'] = [
-        add_tloc_to_dict(var, glookup_table, ensembl_transcript_id)
-        for var in gnomad_data['variants']
-        if var['transcript_consequence']['major_consequence'] == '5_prime_UTR_variant'
-        and len(var['ref']) == 1
-        and len(var['alt']) == 1
-    ]
-    gnomad_variants_list = [var['variant_id'] for var in gnomad_data['variants']]
-
-    clinvar_variants_list = [
-        var['variant_id'] for var in gnomad_data['clinvar_variants']
-    ]
-
-    return gnomad_data, gnomad_variants_list, clinvar_variants_list
-
-
 @viewer.route('/viewer/<ensembl_transcript_id>')
 def viewer_page(ensembl_transcript_id):
     """
@@ -164,6 +108,9 @@ def viewer_page(ensembl_transcript_id):
     gene_features = genomic_features_by_ensg(ensembl_gene_id)
     five_prime_utr_stats = get_utr_stats(ensembl_gene_id)
     transcript_features = get_transcript_features(ensembl_transcript_id)
+
+    print(transcript_features)
+    print(five_prime_utr_stats)
 
     sorfs = find_sorfs_by_ensg(ensembl_gene_id)
     constraint = get_constraint_by_ensg(ensembl_gene_id)
@@ -197,7 +144,6 @@ def viewer_page(ensembl_transcript_id):
     all_possible_variants = find_all_high_impact_utr_variants(
         ensembl_transcript_id=ensembl_transcript_id
     )
-    print(all_possible_variants)
     # Render template
     return render_template(
         'viewer.html',

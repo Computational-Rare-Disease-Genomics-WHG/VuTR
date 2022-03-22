@@ -85,6 +85,10 @@ var detail_mapping = {
     "uFrameshift_KozakStrength": "Kozak Strength", */
 }
 
+var loop_over_exons = function(){
+
+}
+
 var strand_corrected_interval = function(
     start,
     end,
@@ -172,15 +176,16 @@ var reverse = function(x) {
 
 
 
-var create_transcript_viewer = function(tr_obj,
+var create_transcript_viewer = function(
+    tr_obj,
     div,
     start_site,
     strand,
     buffer,
     gnomad_utr_impact,
-    clinvar_utr_impact) {
-
-
+    clinvar_utr_impact
+) {
+    console.log(tr_obj)
     // Subset to the first 100 bases following the CDS
     var sequence = strand == "+" ? tr_obj["full_seq"]
         .substring(0, start_site + buffer) :
