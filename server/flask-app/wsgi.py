@@ -1,6 +1,8 @@
-from app import * 
+"""WSGI to run the application"""
 
-app = create_app("prod")
+from app import create_app  # pylint: disable=C0114
 
-if __name__ == "__main__": 
+app = create_app()
+
+if __name__ == '__main__':
     app.run()
