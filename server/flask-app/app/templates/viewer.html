@@ -49,6 +49,14 @@
          background-color: #007bff;
          border-color: #006fe6;
       }
+      .gene_structText{
+         color:white !important;
+         fill:white !important;
+      }
+      #futr_rect + .gene_structText{
+         color:black !important;
+         fill:black !important;
+      }
 
       p,
       h1,
@@ -175,7 +183,7 @@
                                  </b>
                               </h3>
                               <div class="card-tools">
-                                 <button type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
+                                 <button onclick="$('#detailmodal').modal()" type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
                                  <i class="fas fa-question-circle"></i>
                                  </button>
                               </div>
@@ -194,9 +202,9 @@
                                  </div>
                                  <div class = "col-lg-6 border-0 px-1">
                                     <div class="card-body">
-                                       <h6><b>5' UTR exon count</b>:{{five_prime_utr_stats["count"]}}</h6>
-                                       <h6><b>5' UTR length</b>: {{five_prime_utr_stats["5_prime_utr_length"]}}</h6>
-                                       <h6><b>Gene LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> {{constraint['oe_lof_upper']| safe}}</span></h6>
+                                       <h6><b>5' UTR exon count</b>:{{five_prime_utr_stats["num_five_prime_utr_exons"]}}</h6>
+                                       <h6><b>5' UTR length</b>: {{five_prime_utr_stats["five_prime_utr_length"]}}</h6>
+                                       <h6><b>Gene LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> {{constraint| safe}}</span></h6>
                                        <!--h6><b>ClinGen Haploinsufficiency Score</b>: {{clingen_curation_record['Haploinsufficiency Score'] | safe}}</h6-->
                                        <h6><b>External Resources</b>: View gene in
                                           <a href="#">OMIM</a>,
@@ -234,7 +242,7 @@
                               </h3>
 
                               <div class="card-tools">
-                                 <button type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
+                                 <button onclick="$('#archmodal').modal()" type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
                                  <i class="fas fa-question-circle"></i>
                                  </button>
                               </div>
@@ -372,7 +380,83 @@
       <!-- /Control sidebar -->
       </div>
 
-      <div id="modal-container"></div>
+      <div id="modal-container">
+
+         <div class="modal fade" id="archmodal" tabindex="-1" role="dialog" aria-labelledby="helpRole" aria-hidden="true">
+            <div class="modal-dialog " role="document">
+              <div class="modal-content">
+               <div class="modal-header">
+                 <h5 class="modal-title" id="exampleModalLongTitle">Help</h5>
+                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                 </button>
+               </div>
+               <div class="modal-body">
+                  <h6 class=""><strong>5' UTR Architechure</strong></h6>
+
+                  <p class="">
+                     The UTR Visualisation app is able to visualize the various different uORFs and oORFs within a 5' UTR. This is done by scanning through from 5' to 3' end of the UTR and identifying all ATGs with an in-frame stop codon.
+                     These are then characterized whether they are (a) uORF (b) in-frame oORFs causing a N-terminal extension or (c) an out-of-frame oORF. These ORFs are separately viewed on different tracks on the viewer.
+                     They are color coded with their match to Kozak Consensus Sequence (5'-(gcc)gccRcc<u>AUG</u>G-3') and categorized as either (a) Strong, (b) Moderate or (c) Weak.
+                  </p>
+                  <p>Users are able to view additional contextual detail such as the sequence, frame, context and transcript positions by clicking on the ORF of their choice.
+                  </p>
+                  <h6 class=""><strong>ClinVar and gnomAD variants</strong></h6>
+                  <p class="">
+                     We use gnomAD's GraphQL API to access variants within 5' UTR exons. ClinVar variants are placed in separate tracks, one for each variant with a 5' UTR consequence.
+                     gnomAD (version 3.1.2) was used for a population reference variation.
+                  </p>
+                  <h6 class=""><strong>Finding the impact your favourite variant</strong></h6>
+                  <p class="">
+                     Users are available to input their favorite variant in the box user-supplied variant section in the following format CHROM-POS-REF-ALT (e.g. 5-88823796-G-A).
+                     Only variants with a 5' UTR impact are searchable all other SNV variants in 5' UTR regions are assumed to have no 5' UTR consequence.
+                     Clicking on the ORF that is either created or gain will allow users to view the consequences provided from VEP's <a href="https://github.com/ImperialCardioGenetics/UTRannotator">UTR annotator</a>.
+                  </p>
+
+               </div>
+
+              </div>
+            </div>
+           </div>
+
+           <div class="modal fade" id="detailmodal" tabindex="-1" role="dialog" aria-labelledby="helpArch" aria-hidden="true">
+            <div class="modal-dialog " role="document">
+              <div class="modal-content">
+               <div class="modal-header">
+                 <h5 class="modal-title" id="exampleModalLongTitle">Gene detail card</h5>
+                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                 </button>
+               </div>
+               <div class="modal-body">
+                  <p>The gene detail card contains information about the gene chosen
+                     including alternate identifiers and links to external sources for that
+                     gene.
+                    We include the following information:                         </p>
+
+                    <ul>
+                            <li><b>HGNC Symbol:</b> The gene's HGNC symbol</li>
+                            <li><b>Gene Name:</b> The gene's common name</li>
+                            <li><b>Ensembl Gene ID:</b> Ensembl's gene identifier (e.g. ENSG000001000)</li>
+                            <li><b>Ensembl Transcript ID:</b> The Ensembl transcript of that gene according to MANE Select 1.0</li>
+                            <li><b>RefSeq Match:</b> The RefSeq transcript identifier according to MANE Select 1.0</li>
+                            <li><b>5' UTR exon count:</b>The number of exons in the 5' UTR</li>
+                            <li><b>5' UTR length:</b> The length of the 5' UTR (in bps)</li>
+                            <li><b>Gene LOEUF: </b>Constraint scores according to gnomAD v.2.1.1</li>
+                            <li><b>External Resources</b> See this gene in other resources such as gnomAD, ClinVar, sORFs, and ClinGen.</li>
+                    </ul>
+                    <br></br>
+
+               </div>
+
+              </div>
+            </div>
+           </div>
+
+
+
+
+      </div>
 
       <!-- jQuery -->
       <script src="{{url_for('static', filename = 'plugins/jquery/jquery.min.js')}}"></script>
@@ -423,39 +507,33 @@
 
       var gnomad_data = {{gnomad_data|tojson}};
       var nan = null;
-      var gene_features = {{gene_features|safe}};
+      var None = null;
       var ensembl_transcript_id = "{{ensembl_transcript_id| safe}}";
       var buffer = 40;
-      var gene_start = gene_features["gene_start"];
-      var gene_end = gene_features["gene_end"];
-      var start_codon_feat = gene_features["features"].find(obj => {
-         return obj.type === "start_codon"
-      })
-      var strand = gene_features["strand"]
+      var strand = "{{gene_features[0]["strand"]|safe}}";
+      var genomic_features = {{gene_features | safe}};
       // Filter to features within the UTR.
 
-      track_features = gene_features["features"]
-      track_features = track_features.filter(function (obj){
-         return obj.type !=="transcript"
-      });
-      var start_site =  {{five_prime_utr_stats["5_prime_utr_length"] | safe}};
+      var start_site =  {{five_prime_utr_stats["five_prime_utr_length"] | safe}};
       var transcript_features = {{transcript_features | safe}};
       var transcript_div = "#transcript_viewer";
       var gnomad_utr_impact = {{gnomad_utr_impact|safe}};
       var clinvar_utr_impact = {{clinvar_utr_impact|safe}};
       var all_possible_variants={{all_possible_variants|safe}};
-
+      var seq = "{{five_prime_utr_stats["seq"]|safe}}";
       create_transcript_viewer(transcript_features,
          transcript_div,
          start_site,
          strand,
          buffer,
+         seq,
          gnomad_utr_impact,
-         clinvar_utr_impact);
+         clinvar_utr_impact,genomic_features);
 
       // Initialize user suplied visualization
       var user_viewer = initialize_user_viewer('#user_variants',
          transcript_features,
+         seq,
          start_site,
          strand,
          buffer)

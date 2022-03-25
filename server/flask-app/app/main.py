@@ -20,7 +20,6 @@ def gene_search():
     ensembl_transcript_id = convert_betweeen_identifiers(
         gene_name, 'hgnc_symbol', 'ensembl_transcript'
     )
-    print(ensembl_transcript_id)
     ensembl_transcript_id = ensembl_transcript_id[0:15]
     return redirect(
         url_for('viewer.viewer_page', ensembl_transcript_id=ensembl_transcript_id)

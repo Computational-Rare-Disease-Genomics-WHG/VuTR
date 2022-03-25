@@ -4,6 +4,7 @@ var kozak_colors = {
     Weak: "#009E73",
     None: "#009E73"
 };
+
 var pathogenicity_colors = {
     "Pathogenic": "#D55E00",
     "Likely pathogenic": "#D55E00",
@@ -11,7 +12,8 @@ var pathogenicity_colors = {
     "Likely benign": "#0072B2",
     "Conflicting interpretations": "#CC79A7",
     "Uncertain significance": "#CC79A7",
-}
+};
+
 var detail_mapping = {
 
     // gnomAD mappings
@@ -31,9 +33,11 @@ var detail_mapping = {
 
     /// ORF Details
     "ensembl_transcript_id": "Ensembl Transcript ID",
-    "orf_start_codon": "ORF Start Codon",
+    "orf_start_codon": "Transcript pos. Start Codon",
     "orf_seq": "ORF Sequence",
-    "orf_stop_codon": "ORF Stop codon",
+    "orf_stop_codon": "Transcript pos. Stop codon",
+    "uorf_start_genome" : "Genomic pos. Start Codon",
+    "uorf_stop_genome" : "Genomic pos. Stop Codon",
     "orf_type": "ORF Type",
     "frame": "ORF Frame w.r.t. CDS",
     "kozak_context": "7bp context",
@@ -83,11 +87,8 @@ var detail_mapping = {
     "uFrameshift_alt_type_length":,
     "uFrameshift_KozakContext":,
     "uFrameshift_KozakStrength": "Kozak Strength", */
-}
+};
 
-var loop_over_exons = function(){
-
-}
 
 var strand_corrected_interval = function(
     start,
@@ -107,6 +108,37 @@ var strand_corrected_interval = function(
             "end": (start_site + buffer) - start,
         })
     }
+}
+
+
+var get_exon_structure = function (genomic_features, buffer, start_site, strand){
+
+    /* Filter to five prime UTR*/
+    var genomic_features =  genomic_features.filter(e => {
+        return (e.type === 'five_prime_UTR');
+    });
+
+    /* Sort by exon number */
+    genomic_features.sort((a,b) => (a.exon_number > b.exon_number) ? 1: -1);
+
+    var new_x = 1;
+    var output = [];
+    /* Loop over genomic features */
+    genomic_features.forEach((element, index)=> {
+        /* Find the width of the exon*/
+        width_exon = element['end']-element['start'];
+        output.push({
+            'x' : strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['start'],
+            'y' : strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['end'],
+            color: '#A4AAAC',
+            description: 'Exon '+ (index+1),
+
+        });
+        /* Add exon length*/
+        new_x=new_x+width_exon+1;
+
+    });
+    return (output);
 }
 
 /* On click event handlers*/
@@ -137,7 +169,7 @@ var open_modal = function(data) {
     document.getElementById('modal-container')
         .insertAdjacentHTML('beforeend',
             custom);
-
+    console.log(data)
     // Filter data
     var ul = document.getElementById('feature-modal-data');
     for (const [key, value] of Object.entries(data)) {
@@ -182,14 +214,17 @@ var create_transcript_viewer = function(
     start_site,
     strand,
     buffer,
+    seq,
     gnomad_utr_impact,
-    clinvar_utr_impact
+    clinvar_utr_impact,
+    genomic_features
 ) {
-    console.log(tr_obj)
+    console.log(tr_obj);
+
     // Subset to the first 100 bases following the CDS
-    var sequence = strand == "+" ? tr_obj["full_seq"]
+    var sequence = strand == "+" ? seq
         .substring(0, start_site + buffer) :
-        reverse(tr_obj["full_seq"].substring(0, start_site + buffer));
+        reverse(seq.substring(0, start_site + buffer));
 
 
     // Create the feature viewer
@@ -209,23 +244,34 @@ var create_transcript_viewer = function(
             data: [{
                     x: strand_corrected_interval(start_site + 1, start_site + buffer, start_site, buffer, strand)['start'],
                     y: strand_corrected_interval(start_site + 1, start_site + buffer, start_site, buffer, strand)['end'],
-                    color: '#909590',
+                    color: '#58565F',
+                    description: "\t\tCDS",
                     id: 'cds_rect',
                 },
                 {
                     x: strand_corrected_interval(1, start_site, start_site, buffer, strand)['start'],
                     y: strand_corrected_interval(1, start_site, start_site, buffer, strand)['end'],
-                    color: '#2C302E',
+                    color: '#A4AAAC',
+                    description: "\t\t5' UTR",
                     id: 'utr_rect'
                 }
             ],
             name: "Gene Structure",
             className: "gene_struct",
             type: "rect",
-            color: "#00000"
+            color: "#A4AAAC"
         });
         document.getElementById("fcds_rect").setAttribute("height", "30");
         document.getElementById("fcds_rect").setAttribute("y", "-8");
+
+        ft2.addFeature({
+            data: get_exon_structure(genomic_features, buffer, start_site, strand),
+            color:'#2C302E',
+            name : 'Exon Structure',
+            className : 'exon_struct',
+            type: 'rect',
+            color : '#000000'
+        });
     }
 
 
@@ -248,7 +294,7 @@ var create_transcript_viewer = function(
             "frame": ["Out-of-Frame (2bp)", "Out-of-Frame (1bp)"]
         }
     ]
-    var uorfs = tr_obj["orfs"]
+    var uorfs = tr_obj;
     orf_groups.forEach(group => {
         // Filter each ofs based on the grouping criteria
         // defined above
@@ -305,7 +351,8 @@ var create_transcript_viewer = function(
         clinvar_var_feat_dat.push({
             x: strand_corrected_interval(element['tpos'], element['tpos'], start_site, buffer, strand)['start'],
             y: strand_corrected_interval(element['tpos'], element['tpos'], start_site, buffer, strand)['end'],
-            color: pathogenicity_colors[element.clinical_significance]
+            color: pathogenicity_colors[element.clinical_significance],
+            id : element['variant_id']
         });
     });
     if (clinvar_var_feat_dat.length > 0) {
@@ -330,6 +377,7 @@ var create_transcript_viewer = function(
             pop_var_feat_dat.push({
                 x: strand_corrected_tpos['start'],
                 y: strand_corrected_tpos['end'],
+                id : element['variant_id']
             });
         }
 
@@ -353,9 +401,9 @@ var create_transcript_viewer = function(
                 }],
                 type: "rect",
                 className: "clinvar_high_impact_variant",
-                name: element.variant_id,
+                name: element['variant_id'],
                 color: kozak_colors[element.kozak_strength]
-            })
+            });
         }
     )
 
@@ -363,28 +411,34 @@ var create_transcript_viewer = function(
         element => {
             gnomad_variant_ft.addFeature({
                 data: [{
-                    x: strand_corrected_interval(element['start'], element['end'], start_site, buffer, strand)['start'],
+                    x: strand_corrected_interval(element['start'],
+                            element['end'],
+                            start_site,
+                            buffer,
+                            strand)['start'],
                     y: strand_corrected_interval(element['start'], element['end'], start_site, buffer, strand)['end'],
+                    id : element["variant_id"]
                 }],
                 type: "rect",
                 className: "gnomAD_high_impact_variant",
-                name: element.variant_id,
+                name: element['variant_id'],
                 color: kozak_colors[element.kozak_strength]
             })
         }
     )
+    console.log(pop_variants)
+    gnomad_variant_ft.onFeatureSelected(function(m) {
+        open_modal(search_obj(pop_variants, m.detail.id, 'variant_id'));
 
+    });
     clinvar_variant_ft.onFeatureSelected(function(d) {
-        open_modal(search_obj(clinvar_variants, d.detail.id, 'variant_id'))
+        open_modal(search_obj(clinvar_variants, d.detail.id, 'variant_id'));
     });
-    gnomad_variant_ft.onFeatureSelected(function(d) {
-        open_modal(search_obj(pop_variants, d.detail.id, 'variant_id'))
 
-    });
 }
 
-var initialize_user_viewer = function(div, tr_obj, start_site, strand, buffer) {
-    var sequence = strand == "+" ? tr_obj["full_seq"].substring(0, start_site + buffer) : reverse(tr_obj["full_seq"].substring(0, start_site + buffer));
+var initialize_user_viewer = function(div, tr_obj,  seq, start_site, strand, buffer) {
+    var sequence = strand == "+" ? seq.substring(0, start_site + buffer) : reverse(seq.substring(0, start_site + buffer));
     user_viewer = new FeatureViewer.createFeature(sequence, div, {
         showAxis: false,
         showSequence: false,

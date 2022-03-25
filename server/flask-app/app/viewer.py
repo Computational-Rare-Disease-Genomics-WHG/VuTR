@@ -11,19 +11,11 @@ from flask import (  # pylint: disable=E0401
 
 # import from the packages
 from utr_utils.tools.gnomad import (
-    get_constraint_by_ensg,
     get_gnomad_variants_in_utr_regions,
 )
-from utr_utils.tools.mane import (
-    genomic_features_by_ensg,
-    get_transcript_features,
-    get_utr_stats,
-)
-from utr_utils.tools.sorfs import find_sorfs_by_ensg
+
+# from utr_utils.tools.sorfs import find_sorfs_by_ensg
 from utr_utils.tools.clingen import get_clingen_curation
-from utr_utils.tools.utils import (
-    convert_betweeen_identifiers,
-)
 from utr_utils.tools.utr_annotation import (
     get_utr_annotation_for_list_variants,
     find_intervals_for_utr_consequence,
@@ -32,6 +24,11 @@ from .helpers import (
     get_possible_variants,
     process_gnomad_data,
     find_all_high_impact_utr_variants,
+    get_genomic_features,
+    get_transcript_features,
+    convert_between_ids,
+    get_constraint_score,
+    get_all_orfs_features,
 )
 
 from . import variant_db
@@ -91,42 +88,39 @@ def viewer_page(ensembl_transcript_id):
     """
 
     # Find ENSG by ENST
-    ensembl_gene_id = convert_betweeen_identifiers(
-        ensembl_transcript_id, 'ensembl_transcript', 'ensembl_gene'
+    ensembl_gene_id = convert_between_ids(
+        ensembl_transcript_id, 'ensembl_transcript_id', 'ensembl_gene_id'
     )
-    hgnc = convert_betweeen_identifiers(
-        ensembl_transcript_id, 'ensembl_transcript', 'hgnc_symbol'
+    hgnc = convert_between_ids(
+        ensembl_transcript_id, 'ensembl_transcript_id', 'hgnc_symbol'
     )
-    name = convert_betweeen_identifiers(
-        ensembl_transcript_id, 'ensembl_transcript', 'name'
-    )
-    refseq_match = convert_betweeen_identifiers(
-        ensembl_transcript_id, 'ensembl_transcript', 'refseq_mrna'
+    name = convert_between_ids(ensembl_transcript_id, 'ensembl_transcript_id', 'name')
+    refseq_match = convert_between_ids(
+        ensembl_transcript_id, 'ensembl_transcript_id', 'refseq_transcript_id'
     )
 
     # Get features
-    gene_features = genomic_features_by_ensg(ensembl_gene_id)
-    five_prime_utr_stats = get_utr_stats(ensembl_gene_id)
-    transcript_features = get_transcript_features(ensembl_transcript_id)
+    gene_features = get_genomic_features(ensembl_gene_id)
+    five_prime_utr_stats = get_transcript_features(ensembl_transcript_id)
+    transcript_features = get_all_orfs_features(ensembl_transcript_id)
 
-    print(transcript_features)
-    print(five_prime_utr_stats)
-
-    sorfs = find_sorfs_by_ensg(ensembl_gene_id)
-    constraint = get_constraint_by_ensg(ensembl_gene_id)
+    # sorfs = find_sorfs_by_ensg(ensembl_gene_id)
+    constraint = get_constraint_score(ensembl_gene_id)
     clingen_curation_record = get_clingen_curation(hgnc)
     buffer = 40
-    start_site = five_prime_utr_stats['5_prime_utr_length'] + 1
+    start_site = five_prime_utr_stats['start_site_pos']
 
     possible_variants = get_possible_variants(
         ensembl_transcript_id=ensembl_transcript_id
     )
 
+    utr_regions = [i for i in gene_features if i['type'] == 'five_prime_UTR']
+
     # This needs in a specific functon
     # to search if the gene / transcript
     # of interest actually exists
     gnomad_data, gnomad_variants_list, clinvar_variants_list = process_gnomad_data(
-        get_gnomad_variants_in_utr_regions(five_prime_utr_stats['utr_region']),
+        get_gnomad_variants_in_utr_regions(utr_regions=utr_regions),
         ensembl_transcript_id,
     )
 
@@ -155,7 +149,6 @@ def viewer_page(ensembl_transcript_id):
         gnomad_data=gnomad_data,
         constraint=constraint,
         clingen_curation_record=clingen_curation_record,
-        sorfs=sorfs,
         gene_features=gene_features,
         five_prime_utr_stats=five_prime_utr_stats,
         transcript_features=transcript_features,

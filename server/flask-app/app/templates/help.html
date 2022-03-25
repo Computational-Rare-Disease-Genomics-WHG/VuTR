@@ -119,7 +119,7 @@
 
                     <div class="row">
                         <div class="col-9 mx-auto">
-                            <h2 class="">Using the Visualization App</h2>
+                            <h2 class="">Using the Visualisation App</h2>
                             <hr>
 
                         <div class="my-3">
@@ -128,11 +128,10 @@
 
                         <p class="">
                             You can easily search for a gene of your choice using.
-                            Currently we only support either HGNC symbols and Ensembl transcript IDs.
-                            However, we plan to introduce.
+                            Currently we only support either HGNC gene names.
+                            However, we plan to introduce search through other entities as well.
 
-                            To search for a gene of your choice, visit the Home page and enter the identifier of choice
-                            (alongside the identity type e.g. either Ensembl transcript ID or HGNC gene name).
+                            To visualise the 5'UTR of a gene of your choice, visit the Home page and enter the gene name in the search bar.
 
                             For each gene searched, users are directed to a viewer with the following cards.
                         </p>
@@ -158,17 +157,17 @@
                                 <li><b>Gene LOEUF: </b>Constraint scores according to gnomAD v.2.1.1</li>
                                 <li><b>External Resources</b> See this gene in other resources such as gnomAD, ClinVar, sORFs, and ClinGen.</li>
                         </ul>
-                        <img width="700px" src="{{url_for('static', filename='gene_details.png')}}"/>
+                        <img width="700px" src="{{url_for('static', filename='Gene_Details.png')}}"/>
                         <br></br>
-                        <h4 class="">Visualizing the 5' UTR Architechure</h4>
+                        <h4 class="">Visualising the 5' UTR Architechure</h4>
 
 
                         <p class="">
-                           The UTR Visualization app is able to visualize the various different uORFs and oORFs within a 5' UTR. This is done by scanning through from 5' to 3' end of the UTR and identifying all ATGs with an in-frame stop codon.
+                           The UTR Visualisation app is able to visualise the various different uORFs and oORFs within a 5' UTR. This is done by scanning through from 5' to 3' end of the UTR and identifying all ATGs with an in-frame stop codon.
                            These are then characterized whether they are (a) uORF (b) in-frame oORFs causing a N-terminal extension or (c) an out-of-frame oORF. These ORFs are separately viewed on different tracks on the viewer.
                            They are color coded with their match to Kozak Consensus Sequence (5'-(gcc)gccRcc<u>AUG</u>G-3') and categorized as either (a) Strong, (b) Moderate or (c) Weak.
                         </p>
-                        <img width="700px" src="{{url_for('static', filename='utr_arch.png')}}"/>
+                        <img width="700px" src="{{url_for('static', filename='UTR_Arch.png')}}"/>
                         <br></br>
 
                         <p>Users are able to view additional contextual detail such as the sequence, frame, context and transcript positions by clicking on the ORF of their choice.
@@ -182,17 +181,24 @@
                            We use gnomAD's GraphQL API to access variants within 5' UTR exons. ClinVar variants are placed in separate tracks, one for each variant with a 5' UTR consequence.
                            gnomAD (version 3.1.2) was used for a population reference variation.
                         </p>
-                        <img width="700px" src="{{url_for('static', filename='clinvar_gnomad.png')}}"/>
-
+                        <img width="700px" src="{{url_for('static', filename='ClinVar_gnomAD_tracks.png')}}"/>
+                        <p>
+                           Click on the track to get more contextual details on the specific variant.
+                        </p>
+                        <img width="700px" src="{{url_for('static', filename='ClinVar Details.png')}}"/>
 
                         <br></br>
                         <h4 class="">Finding the impact your favourite variant</h4>
                         <p class="">
                            Users are available to input their favorite variant in the box user-supplied variant section in the following format CHROM-POS-REF-ALT (e.g. 5-88823796-G-A).
                            Only variants with a 5' UTR impact are searchable all other SNV variants in 5' UTR regions are assumed to have no 5' UTR consequence.
+                        </p>
+                        <img width="700px" src="{{url_for('static', filename='Input_options.png')}}"/>
+
+                        <p class="">
                            Clicking on the ORF that is either created or gain will allow users to view the consequences provided from VEP's <a href="https://github.com/ImperialCardioGenetics/UTRannotator">UTR annotator</a>.
                         </p>
-                        <img width="700px" src="{{url_for('static', filename='utr_annotator_impact.png')}}"/>
+                        <img width="700px" src="{{url_for('static', filename='Input_impact.png')}}"/>
                         <br></br>
                         <h2 class="">Frequently Asked Questions (FAQs)</h2>
                         <hr>
@@ -207,10 +213,7 @@
                             however the UTR Annotator doesn't support intronic variants yet.</p>
 
                         <p><b>Who do I contact regarding an error or a bug?</b></p>
-                        <p>If you face any issues or wish to report a bug whilst using the UTR Visualization Application please get in touch with us <a href="mailto:nwhiffin@well.ox.ac.uk">here</a> or by submitting a ticket through our <a href="https://github.com/Computational-Rare-Disease-Genomics-WHG/UTR-Visualisation-App/issues">Github issues page</a>.</p>
-
-                        <p><b>Do you have an API?</b></p>
-                        <p>We have a simple API built using Flask in-progress</p>
+                        <p>If you face any issues or wish to report a bug whilst using the UTR Visualisation Application please get in touch with us <a href="mailto:nwhiffin@well.ox.ac.uk">here</a> or by submitting a ticket through our <a href="https://github.com/Computational-Rare-Disease-Genomics-WHG/UTR-Visualisation-App/issues">Github issues page</a>.</p>
 
                     </div>
                     </div>
