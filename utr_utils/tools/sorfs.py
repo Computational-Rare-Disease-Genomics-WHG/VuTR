@@ -1,3 +1,6 @@
+# pylint: skip-file
+# flake8: noqa
+# TODO: Clean utils
 """
 Accesses the downloaded sorfs data
 """

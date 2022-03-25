@@ -1,12 +1,11 @@
+# pylint: skip-file
+# flake8: noqa
+# TODO: Clean utils
 """
 Provides utility function to get access to the feature track data from MANE
 """
 
-from .utils import (
-    read_mane_transcript,
-    read_mane_genomic_features,
-    read_oorf_features
-)
+from .utils import read_mane_transcript, read_mane_genomic_features, read_oorf_features
 
 
 def get_transcript_features(ensembl_transcript_id):
@@ -17,8 +16,9 @@ def get_transcript_features(ensembl_transcript_id):
     transcript_entry = read_mane_transcript(ensembl_transcript_id=ensembl_transcript_id)
     transcript_feats["full_seq"] = transcript_entry["seq"].values[0]
 
-    transcript_feats['orfs'] = read_oorf_features(
-        ensembl_transcript_id).to_dict('records')
+    transcript_feats['orfs'] = read_oorf_features(ensembl_transcript_id).to_dict(
+        'records'
+    )
 
     return transcript_feats
 
@@ -74,6 +74,7 @@ def genomic_features_by_ensg(ensembl_gene_id):
 
     # Load up MANE
     gene_data = read_mane_genomic_features(ensembl_gene_id)
+    print(gene_data)
     gene_data['width'] = gene_data['end'] - gene_data['start'] + 1
     genomic_features = {}
     genomic_features['gene_start'] = gene_data[gene_data['type'] == 'gene'][
