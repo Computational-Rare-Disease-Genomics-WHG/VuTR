@@ -152,7 +152,7 @@ tbl_models = {
             'upper_bound': Integer(),
         },
     },
-    'constraint': {
+    'loeuf_constraint': {
         'location': f'GNOMAD/gnomad.v{GNOMAD_VERSION}.lof_metrics.by_transcript.txt',  # pylint: disable=C0301  # noqa: E501
         'separator': '\t',
         'col_mappings': {

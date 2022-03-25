@@ -15,7 +15,7 @@ import sqlite3
 import argparse
 import os
 import sys
-from model import tbl_queries
+from model import tbl_models  # pylint: disable=E0401
 
 
 def main(args):
@@ -30,13 +30,13 @@ def main(args):
     c = conn.cursor()
 
     if args.table_name == 'all':
-        options = tbl_queries.keys()
+        options = tbl_models.keys()
     else:
         options = [args.table_name]
 
     for opt in options:
         print(f'Creating table {opt} in database {args.db_name}')
-        c.execute(tbl_queries[opt])
+        c.execute(tbl_models[opt])
         conn.commit()
     print(f'Completed creating tables')
     conn.close()
@@ -44,14 +44,14 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Creates a TSV file that creates all possible UTR variants'
+        description='Creates a table that stores utr features'
     )
     parser.add_argument(
         '--table_name',
         required=True,
         type=str,
         default='all',
-        help='Name of the table that we wish to create (Default: all)'
+        help='Name of the table that we wish to create (Default: all)',
     )
     parser.add_argument(
         '--db_name',
