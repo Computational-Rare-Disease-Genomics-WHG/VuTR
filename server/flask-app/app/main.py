@@ -8,7 +8,7 @@ from flask import (  # pylint: disable=E0401
     redirect,
 )
 
-from utr_utils.tools.utils import convert_betweeen_identifiers
+from .helpers import convert_between_ids
 
 main = Blueprint('main', __name__)
 
@@ -17,10 +17,9 @@ main = Blueprint('main', __name__)
 def gene_search():
     """Search by gene"""
     gene_name = request.form['gene_q']
-    ensembl_transcript_id = convert_betweeen_identifiers(
-        gene_name, 'hgnc_symbol', 'ensembl_transcript'
+    ensembl_transcript_id = convert_between_ids(
+        gene_name, 'hgnc_symbol', 'ensembl_transcript_id'
     )
-    ensembl_transcript_id = ensembl_transcript_id[0:15]
     return redirect(
         url_for('viewer.viewer_page', ensembl_transcript_id=ensembl_transcript_id)
     )

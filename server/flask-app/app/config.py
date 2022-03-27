@@ -8,8 +8,8 @@ class Config:
     FLASK_APP = 'app'
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    VARIANT_DATABASE = 'sqlite:////../../../pipeline/database/test.db'
-    FEATURES_DATABASE = 'sqlite:////../../../pipeline/database/features.db'
+    VARIANT_DATABASE = 'sqlite:///../../../pipeline/database/test.db'
+    FEATURES_DATABASE = 'sqlite:///../../../pipeline/database/features.db'
 
 
 class DevelopmentConfig(Config):

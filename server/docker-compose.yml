@@ -1,20 +1,10 @@
-services : 
-	nginx :
-		build : nginx
-		restart : always
-		ports : 
-			- 80:80 
-			- 443:443 # To be added once we have ssl encryption
-		networks : 
-			- appnet
-		#healthcheck:
-			#test: ["CMD-SHELL", "curl --silent --fail localhost:80/health-check || exit 1"]
-			#interval: 10s
-			#timeout: 10s
-			#retries: 3  
-	app : 
-		depends_on : 
-			- nginx
-		build : flask-app
-		ports : 
-			- "5000:5000"
+version: "3.7"
+services:
+  app:
+    build: flask-app
+    ports:
+      - "8080:8080"
+    volumes:
+      - "../pipeline/database/features.db:/features.db"
+      - "../pipeline/database/test.db:/test.db"
+      - "../utr_utils/:/utr_utils"
