@@ -9,11 +9,6 @@ from flask import (  # pylint: disable=E0401
     request,
 )  # pylint disable=E0401
 
-# import from the packages
-from utr_utils.tools.gnomad import (
-    get_gnomad_variants_in_utr_regions,
-)
-
 
 from .helpers import (
     get_possible_variants,
@@ -26,6 +21,7 @@ from .helpers import (
     get_all_orfs_features,
     get_utr_annotation_for_list_variants,
     find_intervals_for_utr_consequence,
+    get_gnomad_variants_in_utr_regions,
 )
 
 from . import variant_db

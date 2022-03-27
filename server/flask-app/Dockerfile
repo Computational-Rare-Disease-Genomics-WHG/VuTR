@@ -17,13 +17,12 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # copy the dependencies file to the working directory
 COPY requirements.txt .
 
-# install dependencies
-ENV PYTHONPATH=/utr_utils
 
 # copy the content of the local src directory to the working directory
 COPY ./app /app
 COPY wsgi.py .
 COPY setup_gunicorn.sh .
+ENV FLASK_ENV='production'
 
 # To run as gunicorn
 ENTRYPOINT ["./setup_gunicorn.sh"]

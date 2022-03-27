@@ -1,6 +1,8 @@
 """ ___init__.py"""
 
+from os import environ
 from flask import Flask  # pylint: disable=E0401
+
 from .config import config_by_name
 
 # Variant DB as a key value store of variant consequences
@@ -19,7 +21,7 @@ def create_app():
     """
     app = Flask(__name__)
     # create the app through the app configuration
-    app.config.from_object(config_by_name['development'])
+    app.config.from_object(config_by_name[environ.get('FLASK_ENV')])
 
     variant_db.init_app(app)
     features_db.init_app(app)
