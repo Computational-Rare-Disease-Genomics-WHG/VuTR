@@ -24,8 +24,8 @@ class ProductionConfig(Config):
 
     DEBUG = False
     PORT = 8080
-    VARIANT_DATABASE = 'sqlite:////test.db'
-    FEATURES_DATABASE = 'sqlite:////features.db'
+    VARIANT_DATABASE = '/test.db'
+    FEATURES_DATABASE = '/features.db'
 
 
 config_by_name = dict(production=ProductionConfig, development=DevelopmentConfig)
