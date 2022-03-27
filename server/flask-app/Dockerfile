@@ -1,3 +1,4 @@
+
 # Dockerfile
 # Elston N. D'Souza
 
@@ -19,6 +20,7 @@ COPY ./app /app
 COPY wsgi.py .
 COPY setup_gunicorn.sh .
 ENV FLASK_ENV='production'
+ENV PYTHONUNBUFFERED=1
 
 # To run as gunicorn
 ENTRYPOINT ["./setup_gunicorn.sh"]
