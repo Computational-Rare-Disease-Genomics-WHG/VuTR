@@ -30,7 +30,6 @@ def get_utr_annotation_for_list_variants(
             ]
         )
     )
-    print(high_impact_utr_variants)
 
     if len(high_impact_utr_variants) > 0:
         return [
@@ -69,6 +68,7 @@ def find_intervals_for_utr_consequence(
     intervals = {}
     intervals['variant_id'] = var_id
     conseq_dict = parse_five_prime_UTR_variant_consequence(conseq_dict)
+    print(conseq_dict)
     if conseq_type == 'uAUG_gained':
         # Done
         intervals['start'] = cdna_pos
@@ -116,6 +116,7 @@ def find_intervals_for_utr_consequence(
     # Once we have indels as well
     elif conseq_type == 'uFrameshift':
         pass
+    intervals.update(conseq_dict)
 
     return intervals
 
