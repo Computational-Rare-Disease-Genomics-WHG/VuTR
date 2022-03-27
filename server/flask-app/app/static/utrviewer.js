@@ -256,6 +256,12 @@ var search_obj = function(data, id, id_var) {
     })[0])
 }
 
+var handleZoom = function (ft, d){
+    var start = d.detail.start;
+    var end  = d.detail.end;
+    ft.zoom(start, end);
+
+}
 
 var reverse = function(x) {
     const length = x.length;
@@ -282,8 +288,7 @@ var create_transcript_viewer = function(
     seq,
     gnomad_utr_impact,
     clinvar_utr_impact,
-    genomic_features,
-    user_viewer
+    genomic_features
 ) {
 
     // Subset to the first 100 bases following the CDS
@@ -517,19 +522,16 @@ var create_transcript_viewer = function(
             'clinvar');
     });
 
-    var handleZoom = function (ft, d){
-        var start = d.detail.start;
-        var end  = d.detail.end;
-        ft.zoom(start, end);
+    var viewers = {
+        'clinvar_ft' : clinvar_variant_ft,
+        'gnomad_ft' : gnomad_variant_ft,
+        'arch_ft' : ft2
+    };
 
-    }
+    return viewers;
 
-    ft2.onZoom(function (d){
-        handleZoom(clinvar_variant_ft, d);
-        handleZoom(gnomad_variant_ft, d);
-        handleZoom(user_viewer, d)
-    });
 }
+
 
 var initialize_user_viewer = function(div, tr_obj,  seq, start_site, strand, buffer) {
     var sequence = strand == "+" ? seq.substring(0, start_site + buffer) : reverse(seq.substring(0, start_site + buffer));

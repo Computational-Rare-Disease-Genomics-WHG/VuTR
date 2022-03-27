@@ -523,6 +523,17 @@
       var all_possible_variants={{all_possible_variants|safe}};
       var seq = "{{five_prime_utr_stats["seq"]|safe}}";
 
+
+
+      var viewers = create_transcript_viewer(transcript_features,
+         transcript_div,
+         start_site,
+         strand,
+         buffer,
+         seq,
+         gnomad_utr_impact,
+         clinvar_utr_impact,genomic_features);
+
     // Initialize user suplied visualization
     var user_viewer = initialize_user_viewer('#user_variants',
          transcript_features,
@@ -536,17 +547,15 @@
 		   open_modal(search_obj(user_variant_data, d.detail.id,'variant_id'));
 	   });
 
-      create_transcript_viewer(transcript_features,
-         transcript_div,
-         start_site,
-         strand,
-         buffer,
-         seq,
-         gnomad_utr_impact,
-         clinvar_utr_impact,genomic_features,
-         user_viewer);
+      var arch_ft = viewers['arch_ft']
+      var gnomad_ft = viewers['gnomad_ft']
+      var clinvar_ft = viewers['clinvar_ft']
 
-
+      arch_ft.onZoom(function (d){
+         handleZoom(gnomad_ft, d);
+         handleZoom(clinvar_ft, d);
+         handleZoom(user_viewer, d)
+      });
 
       $('#input_variant').on('select2:select', function (e) {
          $.ajax({
