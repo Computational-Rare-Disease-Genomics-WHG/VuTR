@@ -127,13 +127,7 @@
                         <h4 class="">Searching for the gene of your choice</h4>
 
                         <p class="">
-                            You can easily search for a gene of your choice using.
-                            Currently we only support either HGNC gene names.
-                            However, we plan to introduce search through other entities as well.
-
-                            To visualise the 5'UTR of a gene of your choice, visit the Home page and enter the gene name in the search bar.
-
-                            For each gene searched, users are directed to a viewer with the following cards.
+                           You can easily search for a gene of your choice using gene names. We plan to introduce search options through other entities such as Refseq and Ensembl Transcript IDs. To search for a gene of your choice, visit the Home page and enter the gene’s symbol name (e.g. MEF2C). For each gene searched, users are directed to a viewer with the following cards.
                         </p>
                         <img width="700px" src="{{url_for('static', filename='homescreen.png')}}"/>
                      </div>
@@ -163,14 +157,13 @@
 
 
                         <p class="">
-                           The UTR Visualisation app is able to visualise the various different uORFs and oORFs within a 5' UTR. This is done by scanning through from 5' to 3' end of the UTR and identifying all ATGs with an in-frame stop codon.
-                           These are then characterized whether they are (a) uORF (b) in-frame oORFs causing a N-terminal extension or (c) an out-of-frame oORF. These ORFs are separately viewed on different tracks on the viewer.
-                           They are color coded with their match to Kozak Consensus Sequence (5'-(gcc)gccRcc<u>AUG</u>G-3') and categorized as either (a) Strong, (b) Moderate or (c) Weak.
+                           The UTR Visualisation app is able to visualise the various different uORFs (upstream Open Reading Frames) and oORFs (overlapping Open Reading Frames) within a 5' UTR. This is done by scanning through from the 5' to 3' end of the UTR and identifying all ATGs with an in-frame stop codon. These are then characterised as whether they are (a) a uORF with a stop codon in-frame within the UTR (b) in-frame oORFs causing an N-terminal extension or (c) an out-of-frame oORF. These ORFs are separately viewed on different tracks on the viewer. They are colour coded with their match to Kozak Consensus Sequence (5'-(gcc)gccRccAUGG-3') and categorised as either (a) Strong, (b) Moderate or (c) Weak.
                         </p>
                         <img width="700px" src="{{url_for('static', filename='UTR_Arch.png')}}"/>
                         <br></br>
 
-                        <p>Users are able to view additional contextual detail such as the sequence, frame, context and transcript positions by clicking on the ORF of their choice.
+                        <p>
+                           Users are able to view additional contextual detail such as the sequence, frame, context and transcript positions by clicking on the ORF of their choice.
                         </p>
                         <img width="700px" src="{{url_for('static', filename='orf_details.png')}}"/>
                         <br></br>
@@ -190,13 +183,12 @@
                         <br></br>
                         <h4 class="">Finding the impact your favourite variant</h4>
                         <p class="">
-                           Users are available to input their favorite variant in the box user-supplied variant section in the following format CHROM-POS-REF-ALT (e.g. 5-88823796-G-A).
-                           Only variants with a 5' UTR impact are searchable all other SNV variants in 5' UTR regions are assumed to have no 5' UTR consequence.
+                           Users are available to input their favourite variant in the box user-supplied variant section in the following format CHROM-POS-REF-ALT (e.g. 5-88823796-G-A). Only variants with a 5' UTR impact are searchable, all other SNV variants in 5' UTR regions are assumed to not create or disrupt an existing uORF or oORF.
                         </p>
                         <img width="700px" src="{{url_for('static', filename='Input_options.png')}}"/>
 
                         <p class="">
-                           Clicking on the ORF that is either created or gain will allow users to view the consequences provided from VEP's <a href="https://github.com/ImperialCardioGenetics/UTRannotator">UTR annotator</a>.
+                           Clicking on the ORF that is either created or gain will allow users to view the consequences provided from the VEP Plugin <a href="https://github.com/ImperialCardioGenetics/UTRannotator">UTR annotator</a>.
                         </p>
                         <img width="700px" src="{{url_for('static', filename='Input_impact.png')}}"/>
                         <br></br>

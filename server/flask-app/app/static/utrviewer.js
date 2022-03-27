@@ -29,6 +29,9 @@ var detail_mapping = {
     "review_status": "Review Status",
     "tpos": "Transcript Position",
     "transcript_id": "Ensembl Transcript ID",
+    "genome.af": "gnomAD v3 AF",
+    "genome.ac": "gnomAD v3 AC",
+    "genome.an": "gnomAD v3 AN",
 
 
     /// ORF Details
@@ -46,8 +49,9 @@ var detail_mapping = {
     "orf_id": "ORF ID",
 
     /// UTR Annotator details
-    "variant_id": "Variant ID",
+
     // uAUG gained mappings
+    "variant_id": "Variant ID",
     "uAUG_gained_CapDistanceToStart": "uAUG-gained Distance from Cap to start",
     "uAUG_gained_DistanceToCDS": "uAUG-gained Distance to CDS",
     "uAUG_gained_DistanceToStop": "uAUG-gained Distance to Stop codon",
@@ -140,11 +144,60 @@ var get_exon_structure = function (genomic_features, buffer, start_site, strand)
     });
     return (output);
 }
+var flattenObj = (ob) => {
+
+    // The object which contains the
+    // final result
+    let result = {};
+
+    // loop through the object "ob"
+    for (const i in ob) {
+
+        // We check the type of the i using
+        // typeof() function and recursively
+        // call the function again
+        if ((typeof ob[i]) === 'object' && !Array.isArray(ob[i])) {
+            const temp = flattenObj(ob[i]);
+            for (const j in temp) {
+
+                // Store temp in result
+                result[i + '.' + j] = temp[j];
+            }
+        }
+
+        // Else store ob[i] in result directly
+        else {
+            result[i] = ob[i];
+        }
+    }
+    return result;
+};
+
+
 
 /* On click event handlers*/
-var open_modal = function(data) {
-    // Clear previous
+var open_modal = function(data, type) {
+
+    /// Type is the data_type of the detail presented
+
+    // Clear previous modal
     $("#modal-container").empty();
+
+
+    ///
+    if (type === 'gnomad'){
+       delete data['transcript_consequence'];
+       data = flattenObj(data);
+    }
+
+    if (type === 'gnomad' || type === 'clinvar'){
+        delete data['type'];
+        delete data['kozak_strength'];
+        delete data['start'];
+        delete data['end'];
+        delete data['viz_color'];
+        delete data['viz_type'];
+    }
 
 
     var custom = `
@@ -169,7 +222,7 @@ var open_modal = function(data) {
     document.getElementById('modal-container')
         .insertAdjacentHTML('beforeend',
             custom);
-    console.log(data)
+
     // Filter data
     var ul = document.getElementById('feature-modal-data');
     for (const [key, value] of Object.entries(data)) {
@@ -178,6 +231,18 @@ var open_modal = function(data) {
         // Map the VEP consequence terms to formatted strings
         li.innerHTML += `<b>${detail_mapping[key]}</b>: ${value}`;
     }
+    if (type === 'clinvar'){
+        var li = document.createElement('li');
+        ul.appendChild(li);
+        li.innerHTML += `<b>View variant in ClinVar</b>: <a href='https://www.ncbi.nlm.nih.gov/clinvar/variation/${data['clinvar_variation_id']}'>${data['clinvar_variation_id']}</a>`;
+     }
+
+     if (type === 'gnomad'){
+        var li = document.createElement('li');
+        ul.appendChild(li);
+        li.innerHTML += `<b>View variant in gnomad</b>: <a href='https://gnomad.broadinstitute.org/variant/${data['variant_id']}?dataset=gnomad_r3'>${data['variant_id']}</a>`;
+     }
+
     $('#feature-modal').modal();
 }
 
@@ -217,9 +282,9 @@ var create_transcript_viewer = function(
     seq,
     gnomad_utr_impact,
     clinvar_utr_impact,
-    genomic_features
+    genomic_features,
+    user_viewer
 ) {
-    console.log(tr_obj);
 
     // Subset to the first 100 bases following the CDS
     var sequence = strand == "+" ? seq
@@ -322,90 +387,52 @@ var create_transcript_viewer = function(
     });
 
     ft2.onFeatureSelected(function(d) {
-        open_modal(search_obj(uorfs, d.detail.id, 'orf_id'));
+        open_modal(search_obj(uorfs, d.detail.id, 'orf_id'), 'orf');
     });
-    //********** Variants *********/
+    //********** ClinVar *********/
 
+
+
+    /* gnomAD Variant Track */
     var gnomad_variant_ft = new FeatureViewer.createFeature(sequence,
         '#gnomad_tracks', {
             showAxis: false,
             showSequence: false,
-            brushActive: true,
+            brushActive: false,
             toolbar: false,
-            bubbleHelp: false,
+            bubbleHelp: true,
             zoomMax: 10
         })
 
-    var clinvar_variant_ft = new FeatureViewer.createFeature(sequence,
-        '#clinvar_tracks', {
-            showAxis: false,
-            showSequence: false,
-            brushActive: true,
-            toolbar: false,
-            bubbleHelp: false,
-            zoomMax: 10
-        })
-    var clinvar_variants = gnomad_data['clinvar_variants'];
-    var clinvar_var_feat_dat = [];
-    clinvar_variants.forEach(element => {
-        clinvar_var_feat_dat.push({
-            x: strand_corrected_interval(element['tpos'], element['tpos'], start_site, buffer, strand)['start'],
-            y: strand_corrected_interval(element['tpos'], element['tpos'], start_site, buffer, strand)['end'],
-            color: pathogenicity_colors[element.clinical_significance],
-            id : element['variant_id']
+        var pop_variants = gnomad_data['variants']; // gnomAD variants from the API
+        var pop_var_feat_dat = []; // Visualization intervals to pass to feature viewer
+        var pop_var_tpos = []; // tmp for storing the transcript positions of the variants
+        pop_variants.forEach(element => {
+            tpos = element['tpos']
+            // Only append to the track if didn't exist
+            if (!pop_var_tpos.includes(tpos)) {
+                pop_var_tpos.push(tpos);
+                strand_corrected_tpos = strand_corrected_interval(element['tpos'], element['tpos'], start_site, buffer, strand)
+                pop_var_feat_dat.push({
+                    x: strand_corrected_tpos['start'],
+                    y: strand_corrected_tpos['end'],
+                    id : element['variant_id'],
+                    className: 'no_impact_gnomad'
+                });
+            }
+
+
         });
-    });
-    if (clinvar_var_feat_dat.length > 0) {
-        clinvar_variant_ft.addFeature({
-            data: clinvar_var_feat_dat,
+    if (pop_var_feat_dat.length > 0){
+        gnomad_variant_ft.addFeature({
+            data: pop_var_feat_dat,
             type: "rect",
-            className: "clinvar_var",
-            name: "ClinVar Variants",
-            color: "#000000"
+            className: "gnomAD_var",
+            name: "gnomAD Variants",
+            color: "#424242"
         });
     }
 
-    var pop_variants = gnomad_data['variants']; // gnomAD variants from the API
-    var pop_var_feat_dat = []; // Visualization intervals to pass to feature viewer
-    var pop_var_tpos = []; // tmp for storing the transcript positions of the variants
-    pop_variants.forEach(element => {
-        tpos = element['tpos']
-        // Only append to the track if didn't exist
-        if (!pop_var_tpos.includes(tpos)) {
-            pop_var_tpos.push(tpos);
-            strand_corrected_tpos = strand_corrected_interval(element['tpos'], element['tpos'], start_site, buffer, strand)
-            pop_var_feat_dat.push({
-                x: strand_corrected_tpos['start'],
-                y: strand_corrected_tpos['end'],
-                id : element['variant_id']
-            });
-        }
-
-
-    });
-    gnomad_variant_ft.addFeature({
-        data: pop_var_feat_dat,
-        type: "rect",
-        className: "gnomAD_var",
-        name: "gnomAD Variants",
-        color: "#424242"
-    });
-
-    clinvar_utr_impact.forEach(
-        element => {
-            clinvar_variant_ft.addFeature({
-                data: [{
-                    x: strand_corrected_interval(element['start'], element['end'], start_site, buffer, strand)['start'],
-                    y: strand_corrected_interval(element['start'], element['end'], start_site, buffer, strand)['end'],
-                    id: element.variant_id
-                }],
-                type: "rect",
-                className: "clinvar_high_impact_variant",
-                name: element['variant_id'],
-                color: kozak_colors[element.kozak_strength]
-            });
-        }
-    )
 
     gnomad_utr_impact.forEach(
         element => {
@@ -426,15 +453,82 @@ var create_transcript_viewer = function(
             })
         }
     )
-    console.log(pop_variants)
     gnomad_variant_ft.onFeatureSelected(function(m) {
-        open_modal(search_obj(pop_variants, m.detail.id, 'variant_id'));
+        gnomad_utr_conseq = search_obj(gnomad_utr_impact, m.detail.id, 'variant_id')
+        open_modal(Object.assign(search_obj(pop_variants, m.detail.id, 'variant_id'), gnomad_utr_conseq), 'gnomad');
+
+
 
     });
+    var clinvar_variant_ft = new FeatureViewer.createFeature(sequence,
+        '#clinvar_tracks', {
+            showAxis: false,
+            showSequence: false,
+            brushActive: false,
+            toolbar: false,
+            bubbleHelp: true,
+            zoomMax: 10
+        })
+    var clinvar_variants = gnomad_data['clinvar_variants'];
+    var clinvar_var_feat_dat = [];
+    clinvar_variants.forEach(element => {
+        clinvar_var_feat_dat.push({
+            x: strand_corrected_interval(element['tpos'], element['tpos'], start_site, buffer, strand)['start'],
+            y: strand_corrected_interval(element['tpos'], element['tpos'], start_site, buffer, strand)['end'],
+            color: pathogenicity_colors[element.clinical_significance],
+            id : element['variant_id'],
+            className: 'no_impact_clinvar'
+
+        });
+    });
+
+    if (clinvar_var_feat_dat.length > 0) {
+        clinvar_variant_ft.addFeature({
+            data: clinvar_var_feat_dat,
+            type: "rect",
+            className: "clinvar_var",
+            name: "ClinVar Variants",
+            color: "#000000"
+        });
+    }
+
+    clinvar_utr_impact.forEach(
+        element => {
+            clinvar_variant_ft.addFeature({
+                data: [{
+                    x: strand_corrected_interval(element['start'], element['end'], start_site, buffer, strand)['start'],
+                    y: strand_corrected_interval(element['start'], element['end'], start_site, buffer, strand)['end'],
+                    id: element.variant_id
+                }],
+                type: "rect",
+                className: "clinvar_high_impact_variant",
+                name: element['variant_id'],
+                color: kozak_colors[element.kozak_strength]
+            });
+        }
+    )
+
+    /*Event handler to view the Clinvar variant detail page*/
     clinvar_variant_ft.onFeatureSelected(function(d) {
-        open_modal(search_obj(clinvar_variants, d.detail.id, 'variant_id'));
+        clinvar_utr_conseq = search_obj(clinvar_utr_impact, d.detail.id, 'variant_id')
+        open_modal(Object.assign(
+                search_obj(clinvar_variants, d.detail.id, 'variant_id'),
+                clinvar_utr_conseq),
+            'clinvar');
     });
 
+    var handleZoom = function (ft, d){
+        var start = d.detail.start;
+        var end  = d.detail.end;
+        ft.zoom(start, end);
+
+    }
+
+    ft2.onZoom(function (d){
+        handleZoom(clinvar_variant_ft, d);
+        handleZoom(gnomad_variant_ft, d);
+        handleZoom(user_viewer, d)
+    });
 }
 
 var initialize_user_viewer = function(div, tr_obj,  seq, start_site, strand, buffer) {
@@ -442,7 +536,7 @@ var initialize_user_viewer = function(div, tr_obj,  seq, start_site, strand, buf
     user_viewer = new FeatureViewer.createFeature(sequence, div, {
         showAxis: false,
         showSequence: false,
-        brushActive: true,
+        brushActive: false,
         toolbar: false,
         bubbleHelp: true,
         zoomMax: 10

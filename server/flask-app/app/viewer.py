@@ -86,6 +86,7 @@ def viewer_page(ensembl_transcript_id):
     Collects data for a given ENST
     @param ensembl_transcript_id
     """
+    buffer = 40
 
     # Find ENSG by ENST
     ensembl_gene_id = convert_between_ids(
@@ -107,13 +108,13 @@ def viewer_page(ensembl_transcript_id):
     # sorfs = find_sorfs_by_ensg(ensembl_gene_id)
     constraint = get_constraint_score(ensembl_gene_id)
     clingen_curation_record = get_clingen_curation(hgnc)
-    buffer = 40
     start_site = five_prime_utr_stats['start_site_pos']
 
     possible_variants = get_possible_variants(
         ensembl_transcript_id=ensembl_transcript_id
     )
 
+    # Find UTR regions
     utr_regions = [i for i in gene_features if i['type'] == 'five_prime_UTR']
 
     # This needs in a specific functon
@@ -124,9 +125,7 @@ def viewer_page(ensembl_transcript_id):
         ensembl_transcript_id,
     )
 
-    # Filter to 5' UTR (Make this into
-    # a specific function) for both population and clinvar variants
-
+    # Get the annotations for these values.
     gnomad_utr_impact = get_utr_annotation_for_list_variants(
         gnomad_variants_list, possible_variants, start_site, buffer
     )

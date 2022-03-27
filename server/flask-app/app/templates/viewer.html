@@ -248,6 +248,7 @@
                               </div>
                            </div>
                            <div class="card-body">
+
                               <div class="">
                                  <div class="row">
                                     <div class="col-3">
@@ -279,16 +280,25 @@
 
                               </div>
 
-                              <div class="">
+                              <div class="upstream_box">
                               <div class="row">
                                  <div class="col-8">
-                                 <h6 class="text-left"><strong>Upstream UTR elements</strong></h6>
+                                 <h6 class="text-left"><strong>5' UTR elements</strong></h6>
                               </div>
                               </div>
                               <div id = "transcript_viewer">
                               </div>
                               </div>
-                              <div class="">
+                              <div class="gnomad_box">
+                                 <div class="row">
+                                    <div class="col-8">
+                                    <h6 class="text-left"><strong>gnomAD Variants</strong></h6>
+                                    </div>
+                                 </div>
+                                 <div id = "gnomad_tracks">
+                                 </div>
+                                 </div>
+                              <div class="clinvar_box">
 
                                  <div class="row">
                                     <div class="col-2">
@@ -322,16 +332,8 @@
 
                                  <div id = "clinvar_tracks">
                                  </div>
-                                 </div>
-                              <div class="">
-                              <div class="row">
-                                 <div class="col-8">
-                                 <h6 class="text-left"><strong>gnomAD Variants</strong></h6>
-                                 </div>
                               </div>
-                              <div id = "gnomad_tracks">
-                              </div>
-                              </div>
+
                               <!--Search bar-->
                               <div class="">
                                  <div class="row">
@@ -360,8 +362,7 @@
                </div>
             </section>
 
-               </div>
-         </div>
+          </div>
          </section>
          <!-- /.content -->
       </div>
@@ -521,17 +522,9 @@
       var clinvar_utr_impact = {{clinvar_utr_impact|safe}};
       var all_possible_variants={{all_possible_variants|safe}};
       var seq = "{{five_prime_utr_stats["seq"]|safe}}";
-      create_transcript_viewer(transcript_features,
-         transcript_div,
-         start_site,
-         strand,
-         buffer,
-         seq,
-         gnomad_utr_impact,
-         clinvar_utr_impact,genomic_features);
 
-      // Initialize user suplied visualization
-      var user_viewer = initialize_user_viewer('#user_variants',
+    // Initialize user suplied visualization
+    var user_viewer = initialize_user_viewer('#user_variants',
          transcript_features,
          seq,
          start_site,
@@ -542,6 +535,18 @@
       user_viewer.onFeatureSelected(function (d){
 		   open_modal(search_obj(user_variant_data, d.detail.id,'variant_id'));
 	   });
+
+      create_transcript_viewer(transcript_features,
+         transcript_div,
+         start_site,
+         strand,
+         buffer,
+         seq,
+         gnomad_utr_impact,
+         clinvar_utr_impact,genomic_features,
+         user_viewer);
+
+
 
       $('#input_variant').on('select2:select', function (e) {
          $.ajax({
