@@ -10,9 +10,9 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-
 # copy the dependencies file to the working directory
 COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 # copy the content of the local src directory to the working directory
 COPY ./app /app
