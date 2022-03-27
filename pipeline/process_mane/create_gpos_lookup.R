@@ -8,12 +8,24 @@
 library(data.table)
 library(magrittr)
 library(rtracklayer)
+library(optparser)
 
 setwd("../../")
+option_list <- list(
+    make_option(c("-m", "--mane_version"),
+        type = "character", default = "1.0",
+        help = "dataset file name", metavar = "character"
+    ),
+)
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+mane_version <- opt$mane_version
+
 
 # Read genomic feature file
-genomic_mane <- fread("data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.tsv") # nolint
-
+genomic_mane <- "data/pipeline/MANE/%s/MANE.GRCh38.v%s.select_ensembl_genomic.tsv" %>% # nolint
+    sprintf(., mane_version) %>%
+    fread()
 # Filter to exons
 genomic_mane %<>% .[type == "five_prime_UTR"]
 

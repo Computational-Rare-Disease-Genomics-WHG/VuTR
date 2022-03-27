@@ -8,11 +8,24 @@ library("magrittr")
 library("data.table")
 library("seqinr")
 library("stringr")
+library("optparser")
+
+# Pass cmd line args
+option_list <- list(
+    make_option(c("-m", "--mane_version"),
+        type = "character", default = "1.0",
+        help = "dataset file name", metavar = "character"
+    ),
+)
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+mane_version <- opt$mane_version
+
 
 # Read through MANE
-ensembl_rna <-
-    read.fasta(
-        "../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_rna.fna.gz",
+ensembl_rna <- "../../data/pipeline/MANE/%s/MANE.GRCh38.v%s.select_ensembl_rna.fna.gz" %>% # nolint
+    sprintf(., mane_version) %>%
+    read.fasta(.,
         as.string = T
     )
 
@@ -22,8 +35,8 @@ rna_names <- getName(ensembl_rna) %>% unlist()
 rna_annotations <- getAnnot(ensembl_rna) %>% unlist()
 rna_seqs <-
     sapply(rna_names, function(i) {
-          ensembl_rna[[i]][1]
-      }) %>% as.vector()
+        ensembl_rna[[i]][1]
+    }) %>% as.vector()
 
 # Create a dt with these sequences
 mane_rna_dt <-
@@ -86,7 +99,7 @@ mane_rna_dt[, (c(
 mane_rna_dt[, chromosome := NULL]
 
 # Read the features file
-feature_file <- fread("../../data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.tsv", sep = "\t") # nolint
+feature_file <- fread(sprintf("../../data/pipeline/MANE/%s/MANE.GRCh38.v%s.select_ensembl_genomic.tsv", mane_version), sep = "\t") # nolint
 
 # Calculate width and the transcript features
 feature_file[, width := end - start + 1]
@@ -112,15 +125,24 @@ mane_rna_dt <- transcript_feats[mane_rna_dt]
 
 # Save transcript sequences data table in file
 fwrite(mane_rna_dt,
-    "../../data/pipeline/MANE/0.93/MANE_transcripts_v0.93.tsv",
+    sprintf(
+        "../../data/pipeline/MANE/%s/MANE_transcripts_v%s.tsv",
+        mane_version
+    ),
     sep = "\t"
 )
 fwrite(mane_rna_dt,
-    "../../data/pipeline/MANE_transcripts_v0.93.tsv",
+    sprintf(
+        "../../data/pipeline/MANE_transcripts_v%s.tsv",
+        mane_version
+    ),
     sep = "\t"
 )
 
 fwrite(transcript_feats,
-    "../../data/pipeline/MANE/0.93/MANE_transcript_features_v0.93.tsv",
+    sprintf(
+        "../../data/pipeline/MANE/%s/MANE_transcript_features_v%s.tsv",
+        mane_version
+    ),
     sep = "\t"
 )

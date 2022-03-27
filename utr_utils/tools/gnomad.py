@@ -5,6 +5,10 @@ Can test this in in gnomad
 https://gnomad.broadinstitute.org/api
 """
 
+# pylint: skip-file
+# flake8: noqa
+# TODO: Clean utils
+
 import json
 import requests  # pylint: disable=E0401
 
@@ -190,8 +194,11 @@ def get_constraint_by_ensg(ensg):
     @param ensg (str) : Ensembl gene id (stable)
     @returns gene_constraint_records (dict) : Constraint records for the gene (if found)
     """
-    constraint = pd.read_csv(script_path / '../../data/pipeline/GNOMAD/gnomad.v2.1.1.lof_metrics.by_gene.txt', sep='\t'
-                             )
+    constraint = pd.read_csv(
+        script_path
+        / '../../data/pipeline/GNOMAD/gnomad.v2.1.1.lof_metrics.by_gene.txt',
+        sep='\t',
+    )
     # remove version number
     ensg = ensg[0:15]
     gene_constraint_records = constraint[constraint['gene_id'] == ensg].to_dict(
@@ -201,11 +208,12 @@ def get_constraint_by_ensg(ensg):
 
 
 def get_gnomad_variants_in_utr_regions(utr_regions):
-    searches = [gnomad_api_search_by_region(
-        chrom=ur['seqid'][3:],
-        start=ur['start'],
-        stop=ur['end']
-    )['region'] for ur in utr_regions]
+    searches = [
+        gnomad_api_search_by_region(
+            chrom=ur['chr'][3:], start=ur['start'], stop=ur['end']
+        )['region']
+        for ur in utr_regions
+    ]
     data = {}
     # Append
     data['variants'] = sum([s['variants'] for s in searches], [])
@@ -213,10 +221,7 @@ def get_gnomad_variants_in_utr_regions(utr_regions):
     return data
 
 
-def gnomad_api_search_by_region(
-        chrom,
-        start,
-        stop):
+def gnomad_api_search_by_region(chrom, start, stop):
     """
     For prototyping purposes
     """
@@ -269,9 +274,7 @@ query get_data ($chrom : String!,
         data=json.dumps(
             {
                 'query': region_variant_query,
-                'variables': {'start': start,
-                              'stop': stop,
-                              'chrom': chrom},
+                'variables': {'start': start, 'stop': stop, 'chrom': chrom},
             }
         ),
         headers={

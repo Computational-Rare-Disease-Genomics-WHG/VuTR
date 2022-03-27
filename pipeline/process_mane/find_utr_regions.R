@@ -11,10 +11,20 @@ library(data.table)
 library(magrittr)
 library(stringr)
 library(stringi)
-
+library(optparser)
 setwd("../..")
+option_list <- list(
+    make_option(c("-m", "--mane_version"),
+        type = "character", default = "1.0",
+        help = "dataset file name", metavar = "character"
+    ),
+)
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+mane_version <- opt$mane_version
 
-mane_features <- "data/pipeline/MANE/0.93/MANE.GRCh38.v0.93.select_ensembl_genomic.tsv" %>% # nolint
+mane_features <- "data/pipeline/MANE/%s/MANE.GRCh38.v%s.select_ensembl_genomic.tsv" %>% # nolint
+    sprintf(., mane_version) %>%
     fread(., sep = "\t")
 
 mane_features %<>% .[type == "five_prime_UTR"]
