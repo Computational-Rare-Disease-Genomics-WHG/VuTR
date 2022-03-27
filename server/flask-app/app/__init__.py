@@ -20,12 +20,11 @@ def create_app():
     Create the flask app
     """
     app = Flask(__name__)
-    print(config_by_name[environ.get('FLASK_ENV')])
     # create the app through the app configuration
     app.config.from_object(config_by_name[environ.get('FLASK_ENV')])
 
-    variant_db.init_app(app)
     features_db.init_app(app)
+    variant_db.init_app(app)
     app.register_blueprint(viewer_blueprint)
     app.register_blueprint(main_blueprint)
 

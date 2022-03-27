@@ -177,6 +177,7 @@ def find_all_high_impact_utr_variants(ensembl_transcript_id):
         [ensembl_transcript_id],
     )
     rows = cursor.fetchall()
+    variant_db.close_db()
     return [i[0] for i in rows]
 
 
@@ -205,6 +206,7 @@ def get_possible_variants(ensembl_transcript_id):
     )
     rows = cursor.fetchall()
     variants = [json.loads(row[0]) for row in rows]
+    variant_db.close_db()
     return variants
 
 
