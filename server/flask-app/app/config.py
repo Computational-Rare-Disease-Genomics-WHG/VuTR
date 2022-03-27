@@ -24,8 +24,8 @@ class ProductionConfig(Config):
 
     DEBUG = False
     PORT = 8080
-    VARIANT_DATABASE = '/test.db'
-    FEATURES_DATABASE = '/features.db'
+    VARIANT_DATABASE = '/db/variant_store.db'
+    FEATURES_DATABASE = '/db/features.db'
 
 
 config_by_name = dict(production=ProductionConfig, development=DevelopmentConfig)

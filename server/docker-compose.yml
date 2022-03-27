@@ -5,6 +5,5 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - "../pipeline/database/features.db:/features.db"
-      - "../pipeline/database/test.db:/test.db"
-      - "../utr_utils/:/utr_utils"
+      - "../pipeline/database/features.db:/db/features.db"
+      - "../pipeline/database/variant_store.db:/db/variant_store.db"
