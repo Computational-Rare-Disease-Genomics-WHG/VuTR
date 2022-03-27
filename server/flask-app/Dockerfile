@@ -2,17 +2,14 @@
 # Elston N. D'Souza
 
 # set base image (host OS)
-# Taking inspiration from the approach taken in https://github.com/IanVermes/vep_api
+# set base image (host OS)
 FROM python:3.8-slim-buster
-
-
-RUN apt-get update && apt-get install \
-  -y --no-install-recommends python3 python3-virtualenv
 
 # Create Workdir
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
 
 # copy the dependencies file to the working directory
 COPY requirements.txt .
@@ -25,4 +22,4 @@ COPY setup_gunicorn.sh .
 ENV FLASK_ENV='production'
 
 # To run as gunicorn
-ENTRYPOINT ["./setup_gunicorn.sh"]
+CMD ["gunicorn"  , "-b", "0.0.0.0:8080", "wsgi:app"]
