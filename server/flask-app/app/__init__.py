@@ -20,6 +20,7 @@ def create_app():
     Create the flask app
     """
     app = Flask(__name__)
+    print(config_by_name[environ.get('FLASK_ENV')])
     # create the app through the app configuration
     app.config.from_object(config_by_name[environ.get('FLASK_ENV')])
 
