@@ -28,7 +28,6 @@ def get_db():
     Get variant database
     """
     if 'fdb' not in g:
-        print(current_app.config['FEATURES_DATABASE'])
         g.fdb = sqlite3.connect(
             current_app.config['FEATURES_DATABASE'],
             detect_types=sqlite3.PARSE_DECLTYPES,
