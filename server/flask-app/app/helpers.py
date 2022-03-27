@@ -3,14 +3,126 @@ A set of sqlite3 helper functions
 """
 import json
 
-from utr_utils.tools.utils import (
-    get_lookup_df,
-    add_tloc_to_dict,
-)
-
 # import the datasets
 from . import variant_db
 from . import features_db
+
+
+def parse_five_prime_utr_variant_consequence(conseq_str):
+    """
+    Parses the consequence str into a keyed dictionary as per
+    https://github.com/ImperialCardioGenetics/UTRannotator#the-detailed-annotation-for-each-consequence
+
+    """
+    return {
+        annotation.split(':')[0]: annotation.split(':')[1]
+        for annotation in conseq_str.split(',')
+    }
+
+
+def parse_values(val, start_site, buffer_length):
+    """
+    Converts the val into an int
+    """
+    if val == 'NA':  # pylint: disable=R1705
+        return start_site + buffer_length
+    else:
+        return int(val)
+
+
+def get_utr_annotation_for_list_variants(
+    list_variants, possible_variants_dict, start_site, buffer_length
+):
+    """
+    Get the utr annotation for a list of variants
+    """
+
+    high_impact_utr_variants = list(
+        set(  # pylint: disable=R1718
+            [
+                v['variant_id']
+                for v in possible_variants_dict
+                if v['variant_id'] in list_variants
+            ]
+        )
+    )
+
+    if len(high_impact_utr_variants) > 0:
+        return [
+            find_intervals_for_utr_consequence(
+                var_id=v['variant_id'],
+                conseq_type=v['five_prime_UTR_variant_consequence'],
+                conseq_dict=v['five_prime_UTR_variant_annotation'],
+                cdna_pos=v['cDNA_position'],
+                start_site=start_site,
+                buffer_length=buffer_length,
+            )
+            for v in possible_variants_dict
+            if v['variant_id'] in high_impact_utr_variants
+        ]
+    return []
+
+
+def find_intervals_for_utr_consequence(
+    var_id, conseq_type, conseq_dict, cdna_pos, start_site, buffer_length
+):
+    """
+    Parses the output of UTR annotator to a dictionary of
+    intervals [start, end] for the visualization
+    """
+    intervals = {}
+    intervals['variant_id'] = var_id
+    conseq_dict = parse_five_prime_utr_variant_consequence(conseq_dict)
+    if conseq_type == 'uAUG_gained':
+        # Done
+        intervals['start'] = cdna_pos
+        intervals['end'] = cdna_pos + parse_values(
+            conseq_dict['uAUG_gained_DistanceToStop'], start_site, buffer_length
+        )
+        intervals['viz_type'] = 'New Feature'
+        intervals['viz_color'] = 'main'
+        intervals['type'] = 'uAUG_gained'
+        intervals['kozak_strength'] = conseq_dict['uAUG_gained_KozakStrength']
+
+    elif conseq_type == 'uAUG_lost':
+        # Done
+        intervals['start'] = int(conseq_dict['uAUG_lost_CapDistanceToStart'])
+        intervals['end'] = start_site - parse_values(
+            conseq_dict['uAUG_lost_DistanceToCDS'], start_site, buffer_length
+        )
+        intervals['viz_type'] = 'New Feature'
+        intervals['viz_color'] = 'null'
+        intervals['type'] = 'uAUG_lost'
+        intervals['kozak_strength'] = conseq_dict['uAUG_lost_KozakStrength']
+
+    elif conseq_type == 'uSTOP_lost':
+        intervals['start'] = cdna_pos
+        intervals['end'] = cdna_pos
+        intervals['viz_type'] = 'New Feature'
+        intervals['viz_color'] = 'main'
+        intervals['type'] = 'uSTOP_lost'
+        intervals['kozak_strength'] = conseq_dict['uSTOP_lost_KozakStrength']
+
+    elif conseq_type == 'uSTOP_gained':
+        # Get the cdna position of the start site
+        intervals['start'] = start_site - int(
+            conseq_dict['uSTOP_gained_ref_StartDistanceToCDS']
+        )
+        # cDNA position of the new stop gained
+        intervals['end'] = start_site - parse_values(
+            conseq_dict['uSTOP_gained_newSTOPDistanceToCDS'], start_site, buffer_length
+        )
+        intervals['viz_type'] = 'New Feature'
+        intervals['viz_color'] = 'main'
+        intervals['type'] = 'uSTOP_gained'
+        intervals['kozak_strength'] = conseq_dict['uSTOP_gained_KozakStrength']
+
+    # Once we have indels as well
+    elif conseq_type == 'uFrameshift':
+        pass
+    intervals.update(conseq_dict)
+
+    return intervals
 
 
 def convert_between_ids(from_id, from_entity, to_entity):
@@ -67,6 +179,20 @@ def find_all_high_impact_utr_variants(ensembl_transcript_id):
     return [i[0] for i in rows]
 
 
+def get_transcript_position(ensembl_transcript_id, gpos):
+    """
+    Gets the transcript position for the transcript / gpos combo
+    """
+    db = features_db.get_db()
+    cursor = db.execute(
+        'SELECT transcript_pos FROM genome_to_transcript_coordinates WHERE ensembl_transcript_id=? AND genomic_pos=?',  # noqa: E501 # pylint: disable=C0301
+        [ensembl_transcript_id, int(gpos)],
+    )
+    result = cursor.fetchone()
+    features_db.close_db()
+    return result['transcript_pos']
+
+
 def get_possible_variants(ensembl_transcript_id):
     """
     Searches the database for variants
@@ -86,26 +212,34 @@ def process_gnomad_data(gnomad_data, ensembl_transcript_id):
     Get the gnomAD data and find their transcript coordinates
     and filter to 5' UTR variants
     """
-    # Check if transcript id is in MANE
-    glookup_table = get_lookup_df(ensembl_transcript_id=ensembl_transcript_id)
-    # Filtering to SNVs for now
+    # Filtering to SNVs for now and those with a 5' UTR consequence
     gnomad_data['clinvar_variants'] = [
-        add_tloc_to_dict(clinvar, glookup_table, ensembl_transcript_id)
+        clinvar
         for clinvar in gnomad_data['clinvar_variants']
         if clinvar['major_consequence'] == '5_prime_UTR_variant'
         and len(clinvar['ref']) == 1
         and len(clinvar['alt']) == 1
     ]
-
     gnomad_data['variants'] = [
-        add_tloc_to_dict(var, glookup_table, ensembl_transcript_id)
+        var
         for var in gnomad_data['variants']
         if var['transcript_consequence']['major_consequence'] == '5_prime_UTR_variant'
         and len(var['ref']) == 1
         and len(var['alt']) == 1
     ]
+
+    # Add the transcript relative positions for both
+    for clinvar in gnomad_data['clinvar_variants']:
+        clinvar.update(
+            {'tpos': get_transcript_position(ensembl_transcript_id, clinvar['pos'])}
+        )
+    for var in gnomad_data['variants']:
+        var.update({'tpos': get_transcript_position(ensembl_transcript_id, var['pos'])})
+
+    # Get the variant ids
     gnomad_variants_list = [var['variant_id'] for var in gnomad_data['variants']]
 
+    # Get the list of clinvar variants
     clinvar_variants_list = [
         var['variant_id'] for var in gnomad_data['clinvar_variants']
     ]

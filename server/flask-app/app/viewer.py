@@ -14,12 +14,7 @@ from utr_utils.tools.gnomad import (
     get_gnomad_variants_in_utr_regions,
 )
 
-# from utr_utils.tools.sorfs import find_sorfs_by_ensg
-from utr_utils.tools.clingen import get_clingen_curation
-from utr_utils.tools.utr_annotation import (
-    get_utr_annotation_for_list_variants,
-    find_intervals_for_utr_consequence,
-)
+
 from .helpers import (
     get_possible_variants,
     process_gnomad_data,
@@ -29,6 +24,8 @@ from .helpers import (
     convert_between_ids,
     get_constraint_score,
     get_all_orfs_features,
+    get_utr_annotation_for_list_variants,
+    find_intervals_for_utr_consequence,
 )
 
 from . import variant_db
@@ -107,7 +104,6 @@ def viewer_page(ensembl_transcript_id):
 
     # sorfs = find_sorfs_by_ensg(ensembl_gene_id)
     constraint = get_constraint_score(ensembl_gene_id)
-    clingen_curation_record = get_clingen_curation(hgnc)
     start_site = five_prime_utr_stats['start_site_pos']
 
     possible_variants = get_possible_variants(
@@ -147,7 +143,6 @@ def viewer_page(ensembl_transcript_id):
         refseq_match=refseq_match,
         gnomad_data=gnomad_data,
         constraint=constraint,
-        clingen_curation_record=clingen_curation_record,
         gene_features=gene_features,
         five_prime_utr_stats=five_prime_utr_stats,
         transcript_features=transcript_features,
