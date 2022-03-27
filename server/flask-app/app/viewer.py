@@ -7,6 +7,7 @@ from flask import (  # pylint: disable=E0401
     Blueprint,
     render_template,
     request,
+    current_app,
 )  # pylint disable=E0401
 
 
@@ -25,6 +26,7 @@ from .helpers import (
 )
 
 from . import variant_db
+
 
 viewer = Blueprint('viewer', __name__)
 
@@ -129,6 +131,7 @@ def viewer_page(ensembl_transcript_id):
     all_possible_variants = find_all_high_impact_utr_variants(
         ensembl_transcript_id=ensembl_transcript_id
     )
+    impact_url = current_app.config['IMPACT_URL']
     # Render template
     return render_template(
         'viewer.html',
@@ -137,6 +140,7 @@ def viewer_page(ensembl_transcript_id):
         hgnc=hgnc,
         name=name,
         refseq_match=refseq_match,
+        impact_url=impact_url,
         gnomad_data=gnomad_data,
         constraint=constraint,
         gene_features=gene_features,

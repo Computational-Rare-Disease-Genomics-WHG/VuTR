@@ -557,9 +557,11 @@
          handleZoom(user_viewer, d)
       });
 
+      var impact_url = "{{impact_url|safe}}"
+
       $('#input_variant').on('select2:select', function (e) {
          $.ajax({
-            url: 'http://127.0.0.1:5000/viewer/utr_impact',
+            url: impact_url,
             data: {
                'variant_id': e.params.data.text,
                'ensembl_transcript_id' : ensembl_transcript_id,
