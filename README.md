@@ -12,8 +12,4 @@ A set of scripts are available at `pipeline`, these are preprosessing scripts th
 
 ### Web server 
 
-Source code for the web application that will visualize the 5' UTR Architchure. Currently this is hsoted in http://utr.elstondsouza.com.au/viewer/ENST00000340208 for example. 
-
-# Project Outline 
-
-[Link to G-Docs](https://docs.google.com/document/d/1WE4ebzvbc31gTfx3sJxnpKygF7dRTWr-EfOEeyez06A/edit?usp=sharing)
+Source code for the web application that will visualize the 5' UTR Architchure. Currently this is hosted on a Hertzner Server using Docker in [http://49.12.238.72:8080/](http://49.12.238.72:8080/).
