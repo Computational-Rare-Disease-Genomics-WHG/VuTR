@@ -99,16 +99,7 @@
                </li>
 
             </ul>
-            <form class="form-inline ml-8 ml-md-10">
-               <div class="input-group input-group-sm">
-                  <input class="form-control form-control-navbar" type="search" placeholder="Search by gene name" aria-label="Search">
-                  <div class="input-group-append">
-                     <button class="btn btn-navbar" type="submit">
-                     <i class="fas fa-search"></i>
-                     </button>
-                  </div>
-               </div>
-            </form>
+
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
                <!-- Navbar Search -->
@@ -133,9 +124,9 @@
                     </div>
                     <div class="row">
                         <div class="col-md-8 offset-md-2" >
-                            <form action="gene_search" method="post">
+                            <form action="/gene_search" method="post">
                                 <div class="input-group">
-                                    <input name="gene_q" type="search" class="form-control form-control-lg" placeholder="Search by gene name (i.e. MEF2C). Currently only genes on chr5 supported">
+                                    <input name="gene_q" type="search" class="form-control form-control-lg" placeholder="Search by gene name (i.e. MEF2C). Only genes on chr5 curently supported.">
                                     <div class="input-group-append">
                                         <button type="submit" class="btn btn-lg btn-default">
                                             <i class="fa fa-search"></i>

@@ -117,7 +117,7 @@
                   <a href="#" class="nav-link">Changelog</a>
                </li>
             </ul>
-            <form class="form-inline ml-8 ml-md-10" action="http://127.0.0.1:5000/gene_search" method="post">
+            <form class="form-inline ml-8 ml-md-10" action="/gene_search" method="post">
                <div class="input-group input-group-sm">
                  <input class="form-control" name="gene_q" type="search" placeholder="Search by gene name" aria-label="Search">
                  <div class="input-group-append">
@@ -557,9 +557,11 @@
          handleZoom(user_viewer, d)
       });
 
+      var impact_url = "{{impact_url|safe}}"
+
       $('#input_variant').on('select2:select', function (e) {
          $.ajax({
-            url: 'http://127.0.0.1:5000/viewer/utr_impact',
+            url: impact_url,
             data: {
                'variant_id': e.params.data.text,
                'ensembl_transcript_id' : ensembl_transcript_id,

@@ -151,7 +151,7 @@
                                 <li><b>Gene LOEUF: </b>Constraint scores according to gnomAD v.2.1.1</li>
                                 <li><b>External Resources</b> See this gene in other resources such as gnomAD, ClinVar, sORFs, and ClinGen.</li>
                         </ul>
-                        <img width="700px" src="{{url_for('static', filename='Gene_Details.png')}}"/>
+                        <img width="700px" src="{{url_for('static', filename='gene_details.png')}}"/>
                         <br></br>
                         <h4 class="">Visualising the 5' UTR Architechure</h4>
 
@@ -159,7 +159,7 @@
                         <p class="">
                            The UTR Visualisation app is able to visualise the various different uORFs (upstream Open Reading Frames) and oORFs (overlapping Open Reading Frames) within a 5' UTR. This is done by scanning through from the 5' to 3' end of the UTR and identifying all ATGs with an in-frame stop codon. These are then characterised as whether they are (a) a uORF with a stop codon in-frame within the UTR (b) in-frame oORFs causing an N-terminal extension or (c) an out-of-frame oORF. These ORFs are separately viewed on different tracks on the viewer. They are colour coded with their match to Kozak Consensus Sequence (5'-(gcc)gccRccAUGG-3') and categorised as either (a) Strong, (b) Moderate or (c) Weak.
                         </p>
-                        <img width="700px" src="{{url_for('static', filename='UTR_Arch.png')}}"/>
+                        <img width="700px" src="{{url_for('static', filename='utr_arch.png')}}"/>
                         <br></br>
 
                         <p>

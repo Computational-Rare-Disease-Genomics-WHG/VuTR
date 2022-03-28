@@ -8,22 +8,26 @@ class Config:
     FLASK_APP = 'app'
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    VARIANT_DATABASE = 'sqlite:///../../../pipeline/database/test.db'
-    FEATURES_DATABASE = 'sqlite:///../../../pipeline/database/features.db'
 
 
 class DevelopmentConfig(Config):
     """Dev local config"""
 
     DEBUG = True
-    URL = 'http://127.0.0.1:5000'
     PORT = 5000
+    IMPACT_URL = 'http://127.0.0.1:5000/viewer/utr_impact'
+    VARIANT_DATABASE = 'sqlite:///../../../pipeline/database/test.db'
+    FEATURES_DATABASE = 'sqlite:///../../../pipeline/database/features.db'
 
 
 class ProductionConfig(Config):
     """Prod config"""
 
     DEBUG = False
+    PORT = 8080
+    IMPACT_URL = 'http://49.12.238.72:8080/viewer/utr_impact'
+    VARIANT_DATABASE = '/db/variant_store.db'
+    FEATURES_DATABASE = '/db/features.db'
 
 
 config_by_name = dict(production=ProductionConfig, development=DevelopmentConfig)

@@ -7,12 +7,8 @@ from flask import (  # pylint: disable=E0401
     Blueprint,
     render_template,
     request,
+    current_app,
 )  # pylint disable=E0401
-
-# import from the packages
-from utr_utils.tools.gnomad import (
-    get_gnomad_variants_in_utr_regions,
-)
 
 
 from .helpers import (
@@ -26,9 +22,11 @@ from .helpers import (
     get_all_orfs_features,
     get_utr_annotation_for_list_variants,
     find_intervals_for_utr_consequence,
+    get_gnomad_variants_in_utr_regions,
 )
 
 from . import variant_db
+
 
 viewer = Blueprint('viewer', __name__)
 
@@ -133,6 +131,7 @@ def viewer_page(ensembl_transcript_id):
     all_possible_variants = find_all_high_impact_utr_variants(
         ensembl_transcript_id=ensembl_transcript_id
     )
+    impact_url = current_app.config['IMPACT_URL']
     # Render template
     return render_template(
         'viewer.html',
@@ -141,6 +140,7 @@ def viewer_page(ensembl_transcript_id):
         hgnc=hgnc,
         name=name,
         refseq_match=refseq_match,
+        impact_url=impact_url,
         gnomad_data=gnomad_data,
         constraint=constraint,
         gene_features=gene_features,

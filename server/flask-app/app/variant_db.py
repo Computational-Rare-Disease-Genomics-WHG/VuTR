@@ -18,18 +18,18 @@ def get_db():
     """
     Get variant database
     """
-    if 'fdb' not in g:
-        g.fdb = sqlite3.connect(
+    if 'vdb' not in g:
+        g.vdb = sqlite3.connect(
             current_app.config['VARIANT_DATABASE'], detect_types=sqlite3.PARSE_DECLTYPES
         )
-        g.fdb.row_factory = sqlite3.Row
-    return g.fdb
+        g.vdb.row_factory = sqlite3.Row
+    return g.vdb
 
 
 def close_db(e=None):  # pylint: disable=W0613
     """
     Close the db
     """
-    fdb = g.pop('fdb', None)
-    if fdb is not None:
-        fdb.close()
+    vdb = g.pop('vdb', None)
+    if vdb is not None:
+        vdb.close()

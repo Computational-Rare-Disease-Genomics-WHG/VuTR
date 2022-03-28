@@ -2,6 +2,7 @@
 A set of sqlite3 helper functions
 """
 import json
+import requests
 
 # import the datasets
 from . import variant_db
@@ -176,6 +177,7 @@ def find_all_high_impact_utr_variants(ensembl_transcript_id):
         [ensembl_transcript_id],
     )
     rows = cursor.fetchall()
+    variant_db.close_db()
     return [i[0] for i in rows]
 
 
@@ -204,6 +206,7 @@ def get_possible_variants(ensembl_transcript_id):
     )
     rows = cursor.fetchall()
     variants = [json.loads(row[0]) for row in rows]
+    variant_db.close_db()
     return variants
 
 
@@ -316,3 +319,81 @@ def get_constraint_score(ensembl_gene_id):
     result = cursor.fetchone()
     features_db.close_db()
     return result['loeuf']
+
+
+def get_gnomad_variants_in_utr_regions(utr_regions):
+    """
+    gnomAD search in utr regions
+    """
+    searches = [
+        gnomad_api_search_by_region(
+            chrom=ur['chr'][3:], start=ur['start'], stop=ur['end']
+        )['region']
+        for ur in utr_regions
+    ]
+    data = {}
+    # Append
+    data['variants'] = sum([s['variants'] for s in searches], [])
+    data['clinvar_variants'] = sum([s['clinvar_variants'] for s in searches], [])
+    return data
+
+
+def gnomad_api_search_by_region(chrom, start, stop):
+    """
+    For prototyping purposes
+    """
+    region_variant_query = """
+    query get_data ($chrom : String!,
+                    $start : Int!,
+                    $stop : Int!){
+    region(chrom: $chrom, start:$start, stop:$stop, reference_genome:GRCh38){
+    clinvar_variants {
+            transcript_id
+            ref
+            pos
+            alt
+            in_gnomad
+            clinvar_variation_id
+            gold_stars
+            variant_id
+            review_status
+            hgvsc
+            clinical_significance
+            major_consequence
+        }
+        variants(dataset: gnomad_r3) {
+            ref
+            pos
+            alt
+            hgvsc
+            variant_id
+            genome {
+            af
+            an
+            ac
+            }
+            transcript_consequence {
+            is_mane_select
+            major_consequence
+            sift_prediction
+            polyphen_prediction
+            is_mane_select_version
+            }
+        }
+    }
+  }
+  """
+    response = requests.post(
+        'https://gnomad.broadinstitute.org/api',
+        data=json.dumps(
+            {
+                'query': region_variant_query,
+                'variables': {'start': start, 'stop': stop, 'chrom': chrom},
+            }
+        ),
+        headers={
+            'Content-Type': 'application/json',
+        },
+    ).json()
+
+    return response['data']
