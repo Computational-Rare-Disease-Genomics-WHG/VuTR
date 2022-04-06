@@ -31,6 +31,13 @@ def parse_values(val, start_site, buffer_length):
         return int(val)
 
 
+def convert_uploaded_variation_to_variant_id(uploaded_variation):
+    """
+    Replaces the uploaded variation in VEP to a gnomad-esq variant id
+    """
+    return uploaded_variation.replace('_', '-').replace('/', '-')
+
+
 def get_utr_annotation_for_list_variants(
     list_variants, possible_variants_dict, start_site, buffer_length
 ):
@@ -147,7 +154,8 @@ def convert_between_ids(from_id, from_entity, to_entity):
         query = f"SELECT {to_entity} FROM mane_summary WHERE {from_entity}='{from_id}'"
         results = rows.execute(query).fetchone()
         features_db.close_db()
-        return results[to_entity]
+        if results is not None:
+            return results[to_entity]
     return None
 
 
@@ -207,6 +215,16 @@ def get_possible_variants(ensembl_transcript_id):
     rows = cursor.fetchall()
     variants = [json.loads(row[0]) for row in rows]
     variant_db.close_db()
+
+    for v in variants:
+        v.update(
+            {
+                'variant_id': convert_uploaded_variation_to_variant_id(
+                    v['#Uploaded_variation']
+                )
+            }
+        )
+
     return variants
 
 
