@@ -8,14 +8,14 @@ library("magrittr")
 library("data.table")
 library("seqinr")
 library("stringr")
-library("optparser")
+library("optparse")
 
 # Pass cmd line args
 option_list <- list(
     make_option(c("-m", "--mane_version"),
         type = "character", default = "1.0",
         help = "dataset file name", metavar = "character"
-    ),
+    )
 )
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
@@ -23,11 +23,10 @@ mane_version <- opt$mane_version
 
 
 # Read through MANE
-ensembl_rna <- "../../data/pipeline/MANE/%s/MANE.GRCh38.v%s.select_ensembl_rna.fna.gz" %>% # nolint
-    sprintf(., mane_version) %>%
+ensembl_rna <- "../../data/pipeline/MANE/%s/MANE.GRCh38.v%s.ensembl_rna.fna.gz" %>% # nolint
+    sprintf(., mane_version, mane_version) %>%
     read.fasta(.,
-        as.string = T
-    )
+        as.string = T)
 
 
 # functions from https://davetang.org/muse/2013/05/09/using-the-r-seqinr-package/ # nolint
@@ -99,7 +98,7 @@ mane_rna_dt[, (c(
 mane_rna_dt[, chromosome := NULL]
 
 # Read the features file
-feature_file <- fread(sprintf("../../data/pipeline/MANE/%s/MANE.GRCh38.v%s.select_ensembl_genomic.tsv", mane_version), sep = "\t") # nolint
+feature_file <- fread(sprintf("../../data/pipeline/MANE/%s/MANE.GRCh38.v%s.ensembl_genomic.tsv", mane_version, mane_version), sep = "\t") # nolint
 
 # Calculate width and the transcript features
 feature_file[, width := end - start + 1]
@@ -127,7 +126,7 @@ mane_rna_dt <- transcript_feats[mane_rna_dt]
 fwrite(mane_rna_dt,
     sprintf(
         "../../data/pipeline/MANE/%s/MANE_transcripts_v%s.tsv",
-        mane_version
+        mane_version,  mane_version
     ),
     sep = "\t"
 )
@@ -142,7 +141,7 @@ fwrite(mane_rna_dt,
 fwrite(transcript_feats,
     sprintf(
         "../../data/pipeline/MANE/%s/MANE_transcript_features_v%s.tsv",
-        mane_version
+        mane_version, mane_version
     ),
     sep = "\t"
 )

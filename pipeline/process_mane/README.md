@@ -4,10 +4,9 @@ Set of scripts to run to process MANE files
 
 ## TODO
 
-- [ ] Get rid of hardcoded path
 - [ ] Fix working directories
 - [ ] Generate regions sort of like (`find_utr_regions.R`) files for 15 nt introns.
-- [ ] (Optional) Rewrite in python to be consistent with the rest
+- [ ] Rewrite in python to be consistent with the rest
 
 ## Running this set of scripts
 
@@ -25,7 +24,7 @@ Rscript transcripts.R
 Rscript create_gpos_lookup.R
 
 # Finds the uORFS and relatevant fetures per transcript id
-Rscript find_uorfs.R
+Rscript find_orfs.R
 
 # Finds the genomic locations of the uORFS
 Rscript find_genomic_locations.R

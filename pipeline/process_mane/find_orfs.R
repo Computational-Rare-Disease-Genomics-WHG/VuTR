@@ -8,7 +8,7 @@ library("data.table")
 library("magrittr")
 library("stringi")
 library("stringr")
-library("optparser")
+library("optparse")
 
 #' Returns the TIS -6,+4
 #' @param pos
@@ -114,12 +114,12 @@ option_list <- list(
     make_option(c("-m", "--mane_version"),
         type = "character", default = "1.0",
         help = "dataset file name", metavar = "character"
-    ),
+    )
 )
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 mane_version <- opt$mane_version
-transcripts <- "../../data/pipeline/MANE/%s/MANE_transcripts_v%s.tsv" %>%
+transcripts <- "../../data/pipeline/MANE_transcripts_v%s.tsv" %>%
     sprintf(., mane_version) %>%
     fread(., sep = "\t")
 
@@ -194,6 +194,7 @@ transcripts[, orfs := {
     }
 }, by = ensembl_transcript_id]
 
+print(str(transcripts))
 # Combine the data tables together
 orfs <- transcripts[
     ,
