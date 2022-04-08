@@ -34,7 +34,7 @@ from sqlalchemy.types import (
 )  # pylint: disable=E0401
 
 # Replace with config/config.yml values
-MANE_VERSION = 0.93
+MANE_VERSION = 1.0
 ENSEMBL_VERSION = 104
 ASSEMBLY = 'GRCh38'
 GNOMAD_VERSION = '2.1.1'
