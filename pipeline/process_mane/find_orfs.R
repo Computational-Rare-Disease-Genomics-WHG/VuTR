@@ -194,7 +194,6 @@ transcripts[, orfs := {
     }
 }, by = ensembl_transcript_id]
 
-print(str(transcripts))
 # Combine the data tables together
 orfs <- transcripts[
     ,
@@ -204,6 +203,13 @@ orfs <- transcripts[
     ), idcol = "ensembl_transcript_id")
 ]
 
+# Add translational efficiency
+te <- fread("../../data/pipeline/translational_efficiency.txt")
+setkey(te, context)
+setkey(orfs, context)
+orfs <- te[orfs]
+
+setkey(orfs, orf_id)
 # Write to file
 fwrite(orfs,
     sprintf("../../data/pipeline/ORFS_Features_%s.tsv", mane_version),
