@@ -38,7 +38,7 @@ def main(args):
     )  # noqa: E501 # pylint: disable=C0301
     features = pd.read_csv(
         script_path
-        / f'../../data/pipeline/MANE/{mane_version}/MANE.GRCh38.v{mane_version}.select_ensembl_genomic.tsv',  # noqa: E501 # pylint: disable=C0301
+        / f'../../data/pipeline/MANE/{mane_version}/MANE.GRCh38.v{mane_version}.ensembl_genomic.tsv',  # noqa: E501 # pylint: disable=C0301
         sep='\t',
     )
     features = features[features['type'] == 'five_prime_UTR']
