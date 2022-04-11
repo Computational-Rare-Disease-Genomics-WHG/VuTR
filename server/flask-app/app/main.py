@@ -8,7 +8,7 @@ from flask import (  # pylint: disable=E0401
     redirect,
 )
 
-from .helpers import convert_between_ids
+from .helpers import convert_between_ids, search_enst_by_transcript_id
 
 main = Blueprint('main', __name__)
 
@@ -18,6 +18,9 @@ def gene_search():
     """Search by gene"""
     gene_name = request.form['gene_q'].upper().strip()
 
+    # TODO : Figure out which entity is being searched
+
+    # detect query type using grep
     ensembl_transcript_id = convert_between_ids(
         gene_name, 'hgnc_symbol', 'ensembl_transcript_id'
     )
@@ -26,6 +29,23 @@ def gene_search():
             url_for('viewer.viewer_page', ensembl_transcript_id=ensembl_transcript_id)
         )
     return redirect(url_for('main.not_found'))
+
+
+@main.route('/variant_search/<variant>')
+def search_variant(variant):
+    """
+    Route to search by variant to see all of the transcripts
+    """
+    # TODO : Testing
+    # Search the list of transcript ids that this variant
+    # falls under
+
+    # Extract Genomic position
+    variant_list = search_enst_by_transcript_id(variant)
+
+    # TODO : Testing
+    print(variant_list)
+    return render_template('variant.html', variant_list=variant_list)
 
 
 @main.route('/gene_not_found')

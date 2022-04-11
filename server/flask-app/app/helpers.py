@@ -9,6 +9,17 @@ from . import variant_db
 from . import features_db
 
 
+def get_all_te_values():
+    """
+    Gets the translational efficiency values for all orfs
+    """
+    cursor = features_db.get_db()
+    query = cursor.execute('SELECT efficiency from orf_features')
+    result = [te['efficiency'] for te in query.fetchall() if te is not None]
+    features_db.close_db()
+    return result
+
+
 def parse_five_prime_utr_variant_consequence(conseq_str):
     """
     Parses the consequence str into a keyed dictionary as per
@@ -19,6 +30,23 @@ def parse_five_prime_utr_variant_consequence(conseq_str):
         annotation.split(':')[0]: annotation.split(':')[1]
         for annotation in conseq_str.split(',')
     }
+
+
+def search_enst_by_transcript_id(variant_id):
+    """
+    Find all of the transcripts associated with a gpos
+    """
+    gpos = variant_id.split('-')[1]
+    cursor = features_db.get_db()
+
+    # Query and search for results
+    query = cursor.execute(
+        'SELECT ensembl_transcript_id FROM genome_to_transcript_coordinates WHERE genomic_pos=? ',  # noqa: E501 # pylint: disable=C0301
+        [gpos],
+    )
+    result = query.fetchall()
+    features_db.close_db()
+    return result
 
 
 def parse_values(val, start_site, buffer_length):
