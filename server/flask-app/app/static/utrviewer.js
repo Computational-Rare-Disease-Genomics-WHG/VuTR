@@ -119,7 +119,7 @@ var get_exon_structure = function (genomic_features, buffer, start_site, strand)
 
     /* Filter to five prime UTR*/
     var genomic_features =  genomic_features.filter(e => {
-        return (e.type === 'five_prime_UTR');
+        return (e.type === 'exon');
     });
 
     /* Sort by exon number */
@@ -130,14 +130,34 @@ var get_exon_structure = function (genomic_features, buffer, start_site, strand)
     /* Loop over genomic features */
     genomic_features.forEach((element, index)=> {
         /* Find the width of the exon*/
-        width_exon = element['end']-element['start'];
-        output.push({
-            'x' : strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['start'],
-            'y' : strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['end'],
-            color: '#A4AAAC',
-            description: 'Exon '+ (index+1),
 
-        });
+        width_exon = element['end']-element['start'];
+        exon_start = strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['start']
+        exon_end  = strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['end']
+        /* Exclude exons that start before the CDS */
+        if (exon_end > 0){
+            /* Trim exon that goes beyond buffer a little bit */
+            if (exon_start < 0){
+            output.push({
+                'x' : 0,
+                'y' : exon_end,
+                color: '#A4AAAC',
+                description: 'Exon '+ (index+1),
+
+            });
+
+            }
+            else{
+            output.push({
+                'x' : exon_start,
+                'y' : exon_end,
+                color: '#A4AAAC',
+                description: 'Exon '+ (index+1),
+
+            });
+        }
+
+        }
         /* Add exon length*/
         new_x=new_x+width_exon+1;
 
