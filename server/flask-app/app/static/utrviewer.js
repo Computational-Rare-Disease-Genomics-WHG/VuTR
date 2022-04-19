@@ -32,7 +32,9 @@ var detail_mapping = {
     "genome.af": "gnomAD v3 AF",
     "genome.ac": "gnomAD v3 AC",
     "genome.an": "gnomAD v3 AN",
-
+    "efficiency" : "Translational Efficiency",
+    "lower_bound" : "Translational Efficiency (Lower bound)",
+    "upper_bound" : "Translational Efficiency (Upper bound)",
 
     /// ORF Details
     "ensembl_transcript_id": "Ensembl Transcript ID",
@@ -119,7 +121,7 @@ var get_exon_structure = function (genomic_features, buffer, start_site, strand)
 
     /* Filter to five prime UTR*/
     var genomic_features =  genomic_features.filter(e => {
-        return (e.type === 'five_prime_UTR');
+        return (e.type === 'exon');
     });
 
     /* Sort by exon number */
@@ -130,14 +132,34 @@ var get_exon_structure = function (genomic_features, buffer, start_site, strand)
     /* Loop over genomic features */
     genomic_features.forEach((element, index)=> {
         /* Find the width of the exon*/
-        width_exon = element['end']-element['start'];
-        output.push({
-            'x' : strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['start'],
-            'y' : strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['end'],
-            color: '#A4AAAC',
-            description: 'Exon '+ (index+1),
 
-        });
+        width_exon = element['end']-element['start'];
+        exon_start = strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['start']
+        exon_end  = strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['end']
+        /* Exclude exons that start before the CDS */
+        if (exon_end > 0){
+            /* Trim exon that goes beyond buffer a little bit */
+            if (exon_start < 0){
+            output.push({
+                'x' : 0,
+                'y' : exon_end,
+                color: '#A4AAAC',
+                description: 'Exon '+ (index+1),
+
+            });
+
+            }
+            else{
+            output.push({
+                'x' : exon_start,
+                'y' : exon_end,
+                color: '#A4AAAC',
+                description: 'Exon '+ (index+1),
+
+            });
+        }
+
+        }
         /* Add exon length*/
         new_x=new_x+width_exon+1;
 
@@ -184,7 +206,6 @@ var open_modal = function(data, type) {
     $("#modal-container").empty();
 
 
-    ///
     if (type === 'gnomad'){
        delete data['transcript_consequence'];
        data = flattenObj(data);
@@ -242,6 +263,55 @@ var open_modal = function(data, type) {
         ul.appendChild(li);
         li.innerHTML += `<b>View variant in gnomad</b>: <a href='https://gnomad.broadinstitute.org/variant/${data['variant_id']}?dataset=gnomad_r3'>${data['variant_id']}</a>`;
      }
+
+     // Add TE
+     if ('efficiency' in data){
+        var te_chartdiv = document.createElement('li');
+        ul.appendChild(te_chartdiv);
+        te_chartdiv.innerHTML += `<b>Translational Efficiency Distribution</b><br/><canvas id = 'te-plot'></canvas`;
+        const ctx = document.getElementById('te-plot').getContext('2d');
+        // Histogram data from R
+        const labels = ["10-20", "20-30,", "30-40", "40-50", "50-60", "60-70","70-80","80-90","90-100","100-110","110-120","120-130","130-140","140-150"]
+        const counts = [10,  326,  795, 1230, 1628, 2182, 3563, 3510, 2600, 1687,  811,  239,   48,    7]
+        const data = {
+        labels: labels,
+        datasets: [{
+            label: 'Translational Efficiency of all uORFs',
+            data: counts,
+            borderWidth: 1,
+            backgroundColor: 'rgb(75, 192, 192)',
+            borderColor: 'rgb(75, 192, 192)',
+        }]
+        };
+        // Create configurationT
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              },
+              annotation: {
+                annotations: [
+                  {
+                    type: "line",
+                    mode: "vertical",
+                    scaleID: "x-axis-0",
+                    value: data['efficiency'],
+                    borderWidth: 4,
+                    borderColor: "red"
+                  }
+                ]
+              },
+
+            },
+          };
+          new Chart(ctx, config);
+}
+
+
 
     $('#feature-modal').modal();
 }
@@ -533,7 +603,11 @@ var create_transcript_viewer = function(
 }
 
 
-var initialize_user_viewer = function(div, tr_obj,  seq, start_site, strand, buffer) {
+var initialize_user_viewer = function(div,
+     seq,
+     start_site,
+     strand,
+     buffer) {
     var sequence = strand == "+" ? seq.substring(0, start_site + buffer) : reverse(seq.substring(0, start_site + buffer));
     user_viewer = new FeatureViewer.createFeature(sequence, div, {
         showAxis: false,

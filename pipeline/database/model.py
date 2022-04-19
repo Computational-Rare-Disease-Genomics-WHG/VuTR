@@ -34,7 +34,7 @@ from sqlalchemy.types import (
 )  # pylint: disable=E0401
 
 # Replace with config/config.yml values
-MANE_VERSION = 0.93
+MANE_VERSION = 1.0
 ENSEMBL_VERSION = 104
 ASSEMBLY = 'GRCh38'
 GNOMAD_VERSION = '2.1.1'
@@ -119,6 +119,10 @@ tbl_models = {
             'kozak_context': 'kozak_context',
             'kozak_consensus_strength': 'kozak_consensus_strength',
             'orf_id': 'orf_id',
+            'efficiency': 'efficiency',
+            'lower_bound': 'lower_bound',
+            'upper_bound': 'upper_bound',
+            'context': 'context',
         },
         'remove_ensembl_id_version_numbers': True,
         'ensembl_ids': ['ensembl_transcript_id', 'orf_id'],
@@ -132,6 +136,10 @@ tbl_models = {
             'kozak_context': VARCHAR(length=30),
             'kozak_consensus_strength': VARCHAR(length=30),
             'orf_id': VARCHAR(length=30),
+            'efficiency': Integer(),
+            'lower_bound': Integer(),
+            'upper_bound': Integer(),
+            'context': VARCHAR(length=30),
         },
     },
     'translational_efficiencies': {
@@ -171,7 +179,7 @@ tbl_models = {
         },
     },
     'mane_genomic_features': {
-        'location': f'MANE/{MANE_VERSION}/MANE.{ASSEMBLY}.v{MANE_VERSION}.select_ensembl_genomic.tsv',  # pylint: disable=C0301  # noqa: E501
+        'location': f'MANE/{MANE_VERSION}/MANE.{ASSEMBLY}.v{MANE_VERSION}.ensembl_genomic.tsv',  # pylint: disable=C0301  # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'seqid': 'chr',

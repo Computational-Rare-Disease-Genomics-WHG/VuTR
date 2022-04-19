@@ -6,6 +6,7 @@ from itertools import chain
 from pathlib import Path
 import argparse
 import pandas as pd
+import numpy as np
 
 bases = ['A', 'C', 'G', 'T']
 ASSEMBLY = 'GRCh38'
@@ -38,7 +39,7 @@ def main(args):
     )  # noqa: E501 # pylint: disable=C0301
     features = pd.read_csv(
         script_path
-        / f'../../data/pipeline/MANE/{mane_version}/MANE.GRCh38.v{mane_version}.select_ensembl_genomic.tsv',  # noqa: E501 # pylint: disable=C0301
+        / f'../../data/pipeline/MANE/{mane_version}/MANE.GRCh38.v{mane_version}.ensembl_genomic.tsv',  # noqa: E501 # pylint: disable=C0301
         sep='\t',
     )
     features = features[features['type'] == 'five_prime_UTR']
@@ -73,7 +74,6 @@ def main(args):
                 .seq.values[0][0:utr_length]
                 .upper()
             )  # pylint: disable=C0301
-
             # Get the list of positions
             pos = list(
                 chain(
@@ -98,7 +98,7 @@ def main(args):
                     'chrom': [chrom[3:]] * (utr_length * 4),
                     'start': pos * 4,
                     'end': pos * 4,
-                    'ref': seqs * 4,
+                    'ref': np.repeat(seqs, 4),
                     'alt': bases * utr_length,
                     'strand': [strand] * (utr_length * 4),
                 }
@@ -106,7 +106,6 @@ def main(args):
 
             # Remove all rows with ref same as alt
             long_df = long_df[long_df['ref'] != long_df['alt']]
-
             # Format to VEP input
             long_df['allele'] = long_df['ref'] + '/' + long_df['alt']
             long_df = long_df.loc[:, ['chrom', 'start', 'end', 'allele', 'strand']]

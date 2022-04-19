@@ -9,6 +9,17 @@ from . import variant_db
 from . import features_db
 
 
+def get_all_te_values():
+    """
+    Gets the translational efficiency values for all orfs
+    """
+    cursor = features_db.get_db()
+    query = cursor.execute('SELECT efficiency from orf_features')
+    result = [te['efficiency'] for te in query.fetchall() if te is not None]
+    features_db.close_db()
+    return result
+
+
 def parse_five_prime_utr_variant_consequence(conseq_str):
     """
     Parses the consequence str into a keyed dictionary as per
@@ -21,6 +32,23 @@ def parse_five_prime_utr_variant_consequence(conseq_str):
     }
 
 
+def search_enst_by_transcript_id(variant_id):
+    """
+    Find all of the transcripts associated with a gpos
+    """
+    gpos = variant_id.split('-')[1]
+    cursor = features_db.get_db()
+
+    # Query and search for results
+    query = cursor.execute(
+        'SELECT ensembl_transcript_id FROM genome_to_transcript_coordinates WHERE genomic_pos=? ',  # noqa: E501 # pylint: disable=C0301
+        [gpos],
+    )
+    result = query.fetchall()
+    features_db.close_db()
+    return result
+
+
 def parse_values(val, start_site, buffer_length):
     """
     Converts the val into an int
@@ -29,6 +57,13 @@ def parse_values(val, start_site, buffer_length):
         return start_site + buffer_length
     else:
         return int(val)
+
+
+def convert_uploaded_variation_to_variant_id(uploaded_variation):
+    """
+    Replaces the uploaded variation in VEP to a gnomad-esq variant id
+    """
+    return uploaded_variation.replace('_', '-').replace('/', '-')
 
 
 def get_utr_annotation_for_list_variants(
@@ -147,7 +182,8 @@ def convert_between_ids(from_id, from_entity, to_entity):
         query = f"SELECT {to_entity} FROM mane_summary WHERE {from_entity}='{from_id}'"
         results = rows.execute(query).fetchone()
         features_db.close_db()
-        return results[to_entity]
+        if results is not None:
+            return results[to_entity]
     return None
 
 
@@ -207,6 +243,16 @@ def get_possible_variants(ensembl_transcript_id):
     rows = cursor.fetchall()
     variants = [json.loads(row[0]) for row in rows]
     variant_db.close_db()
+
+    for v in variants:
+        v.update(
+            {
+                'variant_id': convert_uploaded_variation_to_variant_id(
+                    v['#Uploaded_variation']
+                )
+            }
+        )
+
     return variants
 
 

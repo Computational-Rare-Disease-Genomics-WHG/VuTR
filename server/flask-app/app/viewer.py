@@ -42,37 +42,40 @@ def get_utr_impacts():
     ensembl_transcript_id = request.args['ensembl_transcript_id']
     start_site = request.args['start_site']
     buffer = request.args['buffer']
-    try:
-        db = variant_db.get_db()
-        cursor = db.execute(
-            'SELECT annotations, five_prime_UTR_variant_annotation FROM variant_annotations WHERE ensembl_transcript_id =? AND variant_id=?',  # noqa: E501 # pylint: disable=C0301
-            [ensembl_transcript_id, variant_id],
-        )
-        rows = cursor.fetchall()
-        variant = [json.loads(row[0]) for row in rows][0]
-        annotation = [json.loads(row[1]) for row in rows][0]
-        response_object = {
-            'status': 'Success',
-            'message': 'Ok',
-            'data': {
-                'variant': {**{'variant_id': variant['variant_id']}, **annotation},
-                'intervals': find_intervals_for_utr_consequence(
-                    var_id=variant['variant_id'],
-                    conseq_type=variant['five_prime_UTR_variant_consequence'],
-                    conseq_dict=variant['five_prime_UTR_variant_annotation'],
-                    cdna_pos=variant['cDNA_position'],
-                    start_site=start_site,
-                    buffer_length=buffer,
-                ),
-            },
-        }
-        return response_object, 200
-    except Exception as e:  # pylint: disable=W0703
-        response_object = {
-            'status': 'Failure',
-            'message': f'Unable to fetch utr consequence error {str(e)}',
-        }
-        return response_object, 400
+    db = variant_db.get_db()
+    cursor = db.execute(
+        'SELECT annotations, five_prime_UTR_variant_annotation FROM variant_annotations WHERE ensembl_transcript_id =? AND variant_id=?',  # noqa: E501 # pylint: disable=C0301
+        [ensembl_transcript_id, variant_id],
+    )
+    rows = cursor.fetchall()
+    variant = [json.loads(row[0]) for row in rows][0]
+    annotation = [json.loads(row[1]) for row in rows][0]
+    print(variant)
+    intervals = find_intervals_for_utr_consequence(
+        var_id=variant_id,
+        conseq_type=variant['five_prime_UTR_variant_consequence'],
+        conseq_dict=variant['five_prime_UTR_variant_annotation'],
+        cdna_pos=variant['cDNA_position'],
+        start_site=start_site,
+        buffer_length=buffer,
+    )
+    print(intervals)
+    response_object = {
+        'status': 'Success',
+        'message': 'Ok',
+        'data': {
+            'variant': {**{'variant_id': variant_id}, **annotation},
+            'intervals': intervals,
+        },
+    }
+    print(response_object)
+    return response_object, 200
+    # except Exception as e:  # pylint: disable=W0703
+    #    response_object = {
+    #        'status': 'Failure',
+    #        'message': f'Unable to fetch utr consequence error {str(e)}',
+    #    }
+    #    return response_object, 400
 
 
 @viewer.route('/viewer/<ensembl_transcript_id>')
@@ -133,6 +136,7 @@ def viewer_page(ensembl_transcript_id):
     )
     impact_url = current_app.config['IMPACT_URL']
     # Render template
+
     return render_template(
         'viewer.html',
         ensembl_transcript_id=ensembl_transcript_id,

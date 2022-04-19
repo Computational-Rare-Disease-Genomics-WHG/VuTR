@@ -7,7 +7,7 @@
 
 INPATH='../../data/pipeline/vep_data/input'
 OUTPATH='../../data/pipeline/vep_data/output'
-VEP_CACHE='/well/whiffin/shared/vep'
+VEP_CACHE='/well/whiffin/projects/vep'
 ASSEMBLY='GRCh38'
 MANE_VERSION='1.0'
 

@@ -38,6 +38,11 @@
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid-theme.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/select2/css/select2.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
+      <!--Bokeh-->
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh.min.css" rel="stylesheet" type="text/css">
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh-widgets.css" rel="stylesheet" type="text/css">
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh-tables.css" rel="stylesheet" type="text/css">
+
       <!--Preload scripts-->
       <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
       <script src="https://unpkg.com/d3"></script>
@@ -381,6 +386,29 @@
       <!-- /Control sidebar -->
       </div>
 
+
+  {% for item in gnomad_utr_impact %}
+
+   <div class="modal fade" id="archmodal" tabindex="-1" role="dialog" aria-labelledby="helpRole" aria-hidden="true">
+      <div class="modal-dialog " role="document">
+        <div class="modal-content">
+         <div class="modal-header">
+           <h5 class="modal-title" id="exampleModalLongTitle">Help</h5>
+           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+           </button>
+         </div>
+         <div class="modal-body">
+         </div>
+
+        </div>
+      </div>
+     </div>
+{% endfor %}
+
+
+
+
       <div id="modal-container">
 
          <div class="modal fade" id="archmodal" tabindex="-1" role="dialog" aria-labelledby="helpRole" aria-hidden="true">
@@ -493,6 +521,10 @@
       <script src="{{url_for('static', filename = 'dist/js/pages/dashboard.js')}}"></script>
       <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
       <script src="{{url_for('static', filename ='plugins/jsgrid/jsgrid.min.js')}}"></script>
+      <!--Bokeh-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh-widgets.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh-tables.js"></script>
 
       <!--UTR Visualization-->
       <script src="{{url_for('static', filename ='utrviewer.js')}}"></script>
@@ -523,8 +555,6 @@
       var all_possible_variants={{all_possible_variants|safe}};
       var seq = "{{five_prime_utr_stats["seq"]|safe}}";
 
-
-
       var viewers = create_transcript_viewer(transcript_features,
          transcript_div,
          start_site,
@@ -536,12 +566,13 @@
 
     // Initialize user suplied visualization
     var user_viewer = initialize_user_viewer('#user_variants',
-         transcript_features,
          seq,
          start_site,
          strand,
          buffer)
       var user_variant_data = [];
+
+
       // Add event handler
       user_viewer.onFeatureSelected(function (d){
 		   open_modal(search_obj(user_variant_data, d.detail.id,'variant_id'));
@@ -588,7 +619,6 @@
          });
       });
 
-      // Add clinvar data to a table
 
       </script>
    </body>

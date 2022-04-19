@@ -56,6 +56,7 @@ def main(args):
     print(f'Completed creating tables')
 
     variant_df = pd.read_csv(args.variant_file, sep='\t')
+    variant_df = variant_df.drop_duplicates()
     for index, row in variant_df.iterrows():
         variant_conseq = row.to_dict()
         print(f'Performing insertion on {index}')
