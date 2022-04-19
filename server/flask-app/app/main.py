@@ -1,5 +1,6 @@
 """Main Blueprint and routes"""
 
+import re
 from flask import (  # pylint: disable=E0401
     Blueprint,
     render_template,
@@ -16,13 +17,14 @@ main = Blueprint('main', __name__)
 @main.route('/gene_search', methods=['POST'])
 def gene_search():
     """Search by gene"""
-    gene_name = request.form['gene_q'].upper().strip()
+    query = request.form['gene_q'].upper().strip()
 
-    # TODO : Figure out which entity is being searched
+    if re.search(r'\d-\d+-\w-\w', query):
+        return redirect(url_for('main.search_variant', variant=query))
 
     # detect query type using grep
     ensembl_transcript_id = convert_between_ids(
-        gene_name, 'hgnc_symbol', 'ensembl_transcript_id'
+        query, 'hgnc_symbol', 'ensembl_transcript_id'
     )
     if ensembl_transcript_id is not None:
         return redirect(
@@ -39,13 +41,12 @@ def search_variant(variant):
     # TODO : Testing
     # Search the list of transcript ids that this variant
     # falls under
-
     # Extract Genomic position
     variant_list = search_enst_by_transcript_id(variant)
 
     # TODO : Testing
     print(variant_list)
-    return render_template('variant.html', variant_list=variant_list)
+    return render_template('variant.html', variant_list=variant_list, variant=variant)
 
 
 @main.route('/gene_not_found')
