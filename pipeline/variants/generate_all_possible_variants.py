@@ -106,6 +106,7 @@ def main(args):
 
             # Remove all rows with ref same as alt
             long_df = long_df[long_df['ref'] != long_df['alt']]
+
             # Format to VEP input
             long_df['allele'] = long_df['ref'] + '/' + long_df['alt']
             long_df = long_df.loc[:, ['chrom', 'start', 'end', 'allele', 'strand']]
@@ -114,7 +115,6 @@ def main(args):
 
         vprint(f'Finish generating mutations for {chrom}')
         vprint(f'Writing to VEP file', args.verbose)
-
         chrom_possible_df = chrom_possible_df.sort_values(by='start', ascending=True)
         chrom_possible_df.to_csv(
             script_path
