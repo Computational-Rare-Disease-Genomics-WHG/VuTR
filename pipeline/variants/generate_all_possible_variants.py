@@ -55,7 +55,7 @@ def main(args):
         chroms = ['22']
 
     formated_chroms = ['chr' + str(i) for i in chroms]
-
+    long_df_list = []
     for chrom in formated_chroms:
         vprint(f'Starting generating mutations for {chrom}')
         chrom_possible_df = pd.DataFrame()
@@ -96,8 +96,8 @@ def main(args):
             long_df = pd.DataFrame(
                 {
                     'chrom': [chrom[3:]] * (utr_length * 4),
-                    'start': pos * 4,
-                    'end': pos * 4,
+                    'start': np.repeat(pos, 4),
+                    'end': np.repeat(pos, 4),
                     'ref': np.repeat(seqs, 4),
                     'alt': bases * utr_length,
                     'strand': [strand] * (utr_length * 4),
@@ -110,12 +110,13 @@ def main(args):
             # Format to VEP input
             long_df['allele'] = long_df['ref'] + '/' + long_df['alt']
             long_df = long_df.loc[:, ['chrom', 'start', 'end', 'allele', 'strand']]
-            long_df = long_df.reset_index(drop=True)
-            chrom_possible_df = pd.concat([chrom_possible_df, long_df])
+            long_df_list.append(long_df)
+
+        chrom_possible_df = pd.concat(long_df_list, ignore_index=True)
 
         vprint(f'Finish generating mutations for {chrom}')
         vprint(f'Writing to VEP file', args.verbose)
-        chrom_possible_df = chrom_possible_df.sort_values(by='start', ascending=True)
+        chrom_possible_df = chrom_possible_df.sort_values(by='start').drop_duplicates()
         chrom_possible_df.to_csv(
             script_path
             / f'../../data/pipeline/vep_data/input/UTR_variants_all_possible_{ASSEMBLY}_{mane_version}_{chrom}.txt',  # noqa: E501 # pylint: disable=C0301
