@@ -55,11 +55,11 @@ def main(args):
         chroms = ['22']
 
     formated_chroms = ['chr' + str(i) for i in chroms]
-    long_df_list = []
+    
     for chrom in formated_chroms:
         vprint(f'Starting generating mutations for {chrom}')
         chrom_possible_df = pd.DataFrame()
-
+        long_df_list = []
         for gene in features[features['seqid'] == chrom]['gene_id'].unique():
 
             # find all of utr features  within that region

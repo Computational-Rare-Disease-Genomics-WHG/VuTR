@@ -25,6 +25,7 @@ do
     --canonical\
     --offline\
     --tab \
+    --fork 10\
     --dir_cache ${VEP_CACHE} \
     --plugin UTRannotator\
     -i ${INPATH}/UTR_variants_all_possible_${ASSEMBLY}_${MANE_VERSION}_chr${i}.txt\
