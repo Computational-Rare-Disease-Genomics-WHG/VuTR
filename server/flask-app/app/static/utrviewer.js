@@ -129,20 +129,21 @@ var get_exon_structure = function (genomic_features, buffer, start_site, strand)
 
     var new_x = 1;
     var output = [];
-    /* Loop over genomic features */
-    genomic_features.forEach((element, index)=> {
+    /* Loop over genomic features */    
+    genomic_features.forEach((element, index) => {
         /* Find the width of the exon*/
 
         width_exon = element['end']-element['start'];
         exon_start = strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['start']
         exon_end  = strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['end']
+        
         /* Exclude exons that start before the CDS */
         if (exon_end > 0){
             /* Trim exon that goes beyond buffer a little bit */
             if (exon_start < 0){
             output.push({
                 'x' : 0,
-                'y' : exon_end,
+                'y' : Math.min(exon_end, start_site+buffer),
                 color: '#A4AAAC',
                 description: 'Exon '+ (index+1),
 
@@ -150,9 +151,10 @@ var get_exon_structure = function (genomic_features, buffer, start_site, strand)
 
             }
             else{
+
             output.push({
                 'x' : exon_start,
-                'y' : exon_end,
+                'y' : Math.min(exon_end, start_site+buffer),
                 color: '#A4AAAC',
                 description: 'Exon '+ (index+1),
 
@@ -164,6 +166,7 @@ var get_exon_structure = function (genomic_features, buffer, start_site, strand)
         new_x=new_x+width_exon+1;
 
     });
+
     return (output);
 }
 var flattenObj = (ob) => {
