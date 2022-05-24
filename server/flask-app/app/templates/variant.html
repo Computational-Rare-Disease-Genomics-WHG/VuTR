@@ -38,9 +38,6 @@
       <script src="https://unpkg.com/d3"></script>
       <script src="https://unpkg.com/d3fc"></script>
 
-
-
-
       <style type="text/css">
          .select2-container--default .select2-selection--multiple .select2-selection__choice {
          background-color: #007bff;
@@ -75,6 +72,10 @@
          stroke: currentColor;
          stroke-opacity: 0.1;
          }
+         .tooltip2, .tooltip3{
+         display:none;
+      }
+
       </style>
    </head>
    <body class="hold-transition layout-top-nav" id="main-content" >
@@ -120,15 +121,27 @@
 
                     <div class="row">
                         <div class="col-9 mx-auto">
-                            <h2 class="">Search by variant id.</h2>
+                            <h2 class="">Search by Variant ID</h2>
                             <p>The variant {{variant}} falls in the 5' UTRs of the following transcripts. Select a transcript to proceed.</p>
                             <hr>
-                            <ul>
                             {% for transcript in variant_list %}
-                            <li>Ensembl transcript ID : <a href="{{url_for('viewer.viewer_page', ensembl_transcript_id=transcript['ensembl_transcript_id'])}}">{{transcript['ensembl_transcript_id']}}.</a></li>
+
+
+                           <div class="card">
+                              <div class="card-header">
+                                 More details : <a href="{{url_for('viewer.viewer_page', ensembl_transcript_id=transcript['ensembl_transcript_id'])}}">{{transcript['ensembl_transcript_id']}}</a>
+                              </div>
+
+                              <div class="card-body">
+                                 <div id="{{transcript['ensembl_transcript_id']}}-viewer">
+                                 </div>
+
+                              </div>
+
+                           </div>
+
 
                             {% endfor %}
-                           </ul>
 
 
                         </div>
@@ -156,6 +169,9 @@
       <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
       <script>
          $.widget.bridge('uibutton', $.ui.button)
+
+
+
       </script>
       <!-- Bootstrap 4 -->
       <script src="{{url_for('static', filename = 'plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
@@ -184,7 +200,111 @@
       <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
       <script src="{{url_for('static', filename ='plugins/jsgrid/jsgrid.min.js')}}"></script>
 
+      <!--UTR Visualization-->
+      <script src="{{url_for('static', filename ='utrviewer.js')}}"></script>
+      <script src="{{url_for('static', filename ='variant_table.js')}}"></script>
+      
       <!--Custom Scripts-->
+
+      <script>
+      var None, nan = null;
+      var variant_dat_list = {{variant_dat_list | safe}};
+      var buffer = 40;
+      var variant = '{{variant | safe}}';
+      var impact_url = '{{impact_url | safe}}';
+      variant_dat_list.forEach((var_impact, index) => {
+         var seq = var_impact['five_prime_utr_stats']['seq'];
+         var start_site = var_impact['five_prime_utr_stats']['five_prime_utr_length'];
+         var genomic_features = var_impact['gene_features'];
+         var strand = genomic_features[0]['strand'];
+         var div = '#'+var_impact['ensembl_transcript_id']+'-viewer';
+         var ensembl_transcript_id = var_impact['ensembl_transcript_id'];
+
+
+         console.log(div)
+
+         // Subset to the first 100 bases following the CDS
+         var sequence = strand == "+" ? seq
+            .substring(0, start_site + buffer) :
+            reverse(seq.substring(0, start_site + buffer));
+
+
+         // Create the feature viewer
+         var ft = new FeatureViewer.createFeature(sequence, div, {
+            showAxis: false,
+            showSequence: true,
+            brushActive: true,
+            toolbar: false,
+            bubbleHelp: true,
+            zoomMax: 10
+         })
+         //********** Gene Structure *********/
+         // Plot where the coding sequence and 5' utrs
+         if (start_site != 0) {
+            ft.addFeature({
+                  data: [{
+                        x: strand_corrected_interval(start_site + 1, start_site + buffer, start_site, buffer, strand)['start'],
+                        y: strand_corrected_interval(start_site + 1, start_site + buffer, start_site, buffer, strand)['end'],
+                        color: '#58565F',
+                        description: "\t\tCDS",
+                        id: 'cds_rect',
+                     },
+                     {
+                        x: strand_corrected_interval(1, start_site, start_site, buffer, strand)['start'],
+                        y: strand_corrected_interval(1, start_site, start_site, buffer, strand)['end'],
+                        color: '#A4AAAC',
+                        description: "\t\t5' UTR",
+                        id: 'utr_rect'
+                     }
+                  ],
+                  name: "Gene Structure",
+                  className: "gene_struct",
+                  type: "rect",
+                  color: "#A4AAAC"
+            });
+            document.getElementById("fcds_rect").setAttribute("height", "30");
+            document.getElementById("fcds_rect").setAttribute("y", "-8");
+
+            ft.addFeature({
+                  data: get_exon_structure(genomic_features, buffer, start_site, strand),
+                  color:'#2C302E',
+                  name : 'Exon Structure',
+                  className : 'exon_struct',
+                  type: 'rect',
+                  color : '#000000'
+            });
+         }
+
+         $.ajax({
+            url: impact_url,
+            data: {
+               'variant_id': variant,
+               'ensembl_transcript_id' : ensembl_transcript_id,
+               'start_site' : start_site,
+               'buffer' : buffer
+            },
+            error : function (e){
+               console.log(e)
+            },
+            success: function(res){
+
+               // Create visualization
+               add_user_supplied_feature(ft,
+                  res,
+                  variant,
+                  start_site,
+                  buffer,
+                  strand
+               );
+            },
+            dataType: 'json'
+         });
+
+
+
+      });
+
+      </script>
 
    </body>
 </html>

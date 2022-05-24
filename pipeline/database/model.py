@@ -266,10 +266,7 @@ tbl_models = {
             'Triplosensitivity PMID4': 'triplo_pmid4',
             'Triplosensitivity PMID5': 'triplo_pmid5',
             'Triplosensitivity PMID6': 'triplo_pmid6',
-            'Date Last Evaluated': 'date_last_evaluated',
-            'Loss phenotype OMIM ID': 'loss_phenotype_omim_id',
-            'Triplosensitive phenotype OMIM ID': 'triplo_phenotype_omim_id',
-        },
+            'Date Last Evaluated': 'date_last_evaluated'        },
         'remove_ensembl_id_version_numbers': False,
         'ensembl_ids': None,
         'dtype': None,  # To be finalized once we have things sorted out

@@ -7,9 +7,15 @@ from flask import (  # pylint: disable=E0401
     url_for,
     request,
     redirect,
+    current_app
 )
 
-from .helpers import convert_between_ids, search_enst_by_transcript_id
+from .helpers import (
+    convert_between_ids,
+    search_enst_by_transcript_id,
+    get_transcript_features,
+    get_genomic_features,
+)
 
 main = Blueprint('main', __name__)
 
@@ -38,15 +44,30 @@ def search_variant(variant):
     """
     Route to search by variant to see all of the transcripts
     """
-    # TODO : Testing
     # Search the list of transcript ids that this variant
     # falls under
     # Extract Genomic position
     variant_list = search_enst_by_transcript_id(variant)
+    variant_dat_list = []
+    for enst in variant_list :
+        print(enst)
+        variant_dat = {}
+        variant_dat['ensembl_transcript_id'] = enst['ensembl_transcript_id']
+        variant_dat['ensembl_gene_id'] = convert_between_ids(enst['ensembl_transcript_id'],
+        'ensembl_transcript_id', 'ensembl_gene_id')
+        variant_dat['gene_features'] = get_genomic_features(
+            variant_dat['ensembl_gene_id'])
+        variant_dat['five_prime_utr_stats'] = get_transcript_features(enst['ensembl_transcript_id'])
+        variant_dat_list.append(variant_dat)
 
-    # TODO : Testing
-    print(variant_list)
-    return render_template('variant.html', variant_list=variant_list, variant=variant)
+    impact_url = current_app.config['IMPACT_URL']
+    return render_template(
+        'variant.html',
+        variant_list=variant_list,
+        variant=variant,
+        variant_dat_list=variant_dat_list,
+        impact_url=impact_url
+    )
 
 
 @main.route('/gene_not_found')
