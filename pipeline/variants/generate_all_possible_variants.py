@@ -2,7 +2,7 @@
 TODO : Add indels as well
 """
 
-from itertools import chain
+from itertools import chain, product
 from pathlib import Path
 import argparse
 import pandas as pd
@@ -11,6 +11,18 @@ import numpy as np
 bases = ['A', 'C', 'G', 'T']
 ASSEMBLY = 'GRCh38'
 complement_bases = {'A': 'T', 'G': 'C', 'C': 'G', 'T': 'A'}
+
+def generate_nbases(n: int):
+    """
+    Generates an array of insertions for a given length
+    @param n int : n >= 2
+    @returns possible_vars: list of strings 
+    """
+    possible_vars = [] 
+    for i in range(2, n+1):
+        possible_vars = possible_vars + [''.join(comb) for comb in product(bases, repeat=i)]
+    return possible_vars
+
 
 
 def vprint(message: str, verbosity: bool = True):
@@ -46,13 +58,15 @@ def main(args):
     features['width'] = features['end'] - features['start'] + 1
 
     # Write output
-
     features = features.sort_values(by=['gene_id', 'exon_number'])
     chroms = list(range(1, 23)) + ['X', 'Y']
 
     if args.only_chr_22:
         # filter utr_file to chr_22
         chroms = ['22']
+
+    if not args.include_indels : 
+        insertion_array = generate_nbases(args.indel_size)
 
     formated_chroms = ['chr' + str(i) for i in chroms]
     
@@ -104,6 +118,25 @@ def main(args):
                 }
             )
 
+
+            # Generate all insertions and add them up
+            if args.include_indels:
+                long_df = pd.concat([long_df, 
+                    pd.DataFrame(
+                        {
+                            'chrom' : [chrom[3:]] * utr_length * len(insertion_array),
+                            'start' : np.repeat(pos, len(insertion_array)),
+                            'end' : np.repeat(pos, len(insertion_array)),
+                            'ref' : np.repeat(seqs, len(insertion_array)),
+                            'alt' : insertion_array * utr_length,
+                            'strand' : [strand] * (utr_length*len(insertion_array))
+                        }
+                    )
+                ])
+
+                # Generate all deletions 
+
+            break
             # Remove all rows with ref same as alt
             long_df = long_df[long_df['ref'] != long_df['alt']]
 
@@ -111,7 +144,7 @@ def main(args):
             long_df['allele'] = long_df['ref'] + '/' + long_df['alt']
             long_df = long_df.loc[:, ['chrom', 'start', 'end', 'allele', 'strand']]
             long_df_list.append(long_df)
-
+        break
         chrom_possible_df = pd.concat(long_df_list, ignore_index=True)
 
         vprint(f'Finish generating mutations for {chrom}')
@@ -124,6 +157,7 @@ def main(args):
             header=None,
             index=False,
         )
+        
 
 
 if __name__ == '__main__':
@@ -136,10 +170,15 @@ if __name__ == '__main__':
         help='Which mane_version to use?',
     )
     parser.add_argument(
-        '--exclude_indels',
+        '--indel_size', 
+        default=3, 
+        help='How large should the simulated indels be?'
+    )
+    parser.add_argument(
+        '--include_indels',
         action='store_true',
-        default=True,
-        help='Whether to exclude indels of (2bps)',
+        default=False,
+        help='Whether to exclude indels of (2bps), defaults to false',
     )
     parser.add_argument(
         '--verbose',
