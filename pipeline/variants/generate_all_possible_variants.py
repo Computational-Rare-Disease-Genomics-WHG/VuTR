@@ -135,6 +135,7 @@ def main(args):
                 ])
 
                 # Generate all deletions 
+                
 
             break
             # Remove all rows with ref same as alt
