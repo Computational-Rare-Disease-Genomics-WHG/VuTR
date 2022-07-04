@@ -23,6 +23,63 @@ def generate_nbases(n: int):
         possible_vars = possible_vars + [''.join(comb) for comb in product(bases, repeat=i)]
     return possible_vars
 
+def get_reverse_complement(seq):
+    """
+    Flips the string to it's reverse complement
+
+    @param seq : str 
+    @returns reverse_complement : str
+    """
+    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
+    reverse_complement = "".join(complement.get(base, base) for base in reversed(seq))
+    return reverse_complement
+
+def variant_id(x, seq, start):
+    """
+    Generates the variant id given the columns
+
+    @param x: Dataframe series with chr, pos and ref attributes 
+    @param seq: The 5' UTR sequence 
+    @param start: the start coordinate
+    @returns variant_id: str the variant id as per gnomad 
+    """
+    prebase = seq[x['pos']-start-1:x['pos']-start]
+    return f'{x["chr"]}-{x["pos"]}-{prebase+x["ref"]}-{prebase}'
+
+def generate_deletions(sequence, chr, start, end, strand, n):
+    """
+    Generates a dataframe of deletions of size <= n
+
+    @param sequence : 5' UTR sequence
+    @param start: int start of the above sequence
+    @param end: int end of the above sequence
+    @param strand : char which strand the sequence is located in
+    @param n: int the size of the deletion
+    @returns var : Dataframe of simulated deletions for the sequence 
+
+    TODO: Add the padding for the boundary cases of the regions
+    """
+    # Get the reverse complement 
+    if strand == '-':
+        sequence = get_reverse_complement(seq=sequence)
+    
+    variant_df = []
+    for i in range(n+1)[1:]:
+        refs = [sequence[x:x + i] for x in range(len(sequence))][0:(len(sequence) if i==1 else -(i-1))]
+        nrow = len(refs)
+        # Generate the data frame
+        var = pd.DataFrame({'chr' : chr, 
+                            'pos': list(range(start, end-i+1)),
+                            'strand' : strand, 
+                            'ref' : refs,
+                            'alt' : '-'
+                            })
+        var['variant_id'] = var.apply(lambda x: variant_id(x, sequence, start), axis=1)
+        # Generate the variant ID column
+        variant_df.append(var)
+
+    # Concatenate the dataframe 
+    return pd.concat(variant_df)
 
 
 def vprint(message: str, verbosity: bool = True):
