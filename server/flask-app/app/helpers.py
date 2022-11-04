@@ -112,7 +112,7 @@ def find_intervals_for_utr_consequence(
     if conseq_type == 'uAUG_gained':
         # Done
         intervals['start'] = cdna_pos
-        intervals['end'] = cdna_pos + parse_values(
+        intervals['end'] = int(cdna_pos) + parse_values(
             conseq_dict['uAUG_gained_DistanceToStop'], start_site, buffer_length
         )
         intervals['viz_type'] = 'New Feature'
