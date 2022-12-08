@@ -155,6 +155,15 @@ transcripts[, orfs := {
                 orf_start_codon
             ), by = orf_start_codon]
 
+            # Find the genomic position of the ORF's start and stop codons
+            orfs[, orf_start_codon_genome := genome_mapper[.(
+                ensembl_transcript_id, orf_start_codon
+            )]$gpos[1], by = orf_start_codon]
+
+            orfs[, orf_stop_codon_genome := genome_mapper[.(
+                ensembl_transcript_id, orf_stop_codon
+            )]$gpos[1], by = orf_stop_codon]
+
             # find the kozak context
             orfs[,
                 kozak_context := get_kozak_context(
@@ -202,6 +211,19 @@ orfs <- transcripts[
         ensembl_transcript_id
     ), idcol = "ensembl_transcript_id")
 ]
+
+# Add genomic coordinates
+genome_mapper <- "../../data/pipeline/UTR_Genome_Transcript_Coordinates.tsv" %>% # nolint
+    fread(., sep = "\t")
+setkey(genome_mapper, transcript_id, tpos)
+g <- genome_mapper[, .(transcript_id, gpos, tpos)]
+setkey(g, transcript_id, tpos)
+orfs[, orf_start_codon_genome := g[.(
+    orfs$ensembl_transcript_id,
+    orfs$orf_start_codon), gpos]]
+orfs[, orf_stop_codon_genome := g[.(
+    orfs$ensembl_transcript_id,
+orfs$orf_stop_codon), gpos]]
 
 # Add translational efficiency
 te <- fread("../../data/pipeline/translational_efficiency.txt")
