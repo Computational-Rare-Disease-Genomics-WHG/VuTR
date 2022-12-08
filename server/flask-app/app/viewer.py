@@ -50,7 +50,6 @@ def get_utr_impacts():
     rows = cursor.fetchall()
     variant = [json.loads(row[0]) for row in rows][0]
     annotation = [json.loads(row[1]) for row in rows][0]
-    print(variant)
     intervals = find_intervals_for_utr_consequence(
         var_id=variant_id,
         conseq_type=variant['five_prime_UTR_variant_consequence'],
@@ -59,7 +58,6 @@ def get_utr_impacts():
         start_site=start_site,
         buffer_length=buffer,
     )
-    print(intervals)
     response_object = {
         'status': 'Success',
         'message': 'Ok',
@@ -68,14 +66,7 @@ def get_utr_impacts():
             'intervals': intervals,
         },
     }
-    print(response_object)
     return response_object, 200
-    # except Exception as e:  # pylint: disable=W0703
-    #    response_object = {
-    #        'status': 'Failure',
-    #        'message': f'Unable to fetch utr consequence error {str(e)}',
-    #    }
-    #    return response_object, 400
 
 
 @viewer.route('/viewer/<ensembl_transcript_id>')

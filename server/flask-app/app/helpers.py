@@ -111,8 +111,8 @@ def find_intervals_for_utr_consequence(
     conseq_dict = parse_five_prime_utr_variant_consequence(conseq_dict)
     if conseq_type == 'uAUG_gained':
         # Done
-        intervals['start'] = cdna_pos
-        intervals['end'] = int(cdna_pos) + parse_values(
+        intervals['start'] = cdna_pos.split('-')[0]
+        intervals['end'] = int(cdna_pos.split('-')[0]) + parse_values(
             conseq_dict['uAUG_gained_DistanceToStop'], start_site, buffer_length
         )
         intervals['viz_type'] = 'New Feature'
@@ -123,7 +123,8 @@ def find_intervals_for_utr_consequence(
     elif conseq_type == 'uAUG_lost':
         # Done
         intervals['start'] = int(conseq_dict['uAUG_lost_CapDistanceToStart'])
-        intervals['end'] = start_site - parse_values(
+
+        intervals['end'] = int(start_site) - parse_values(
             conseq_dict['uAUG_lost_DistanceToCDS'], start_site, buffer_length
         )
         intervals['viz_type'] = 'New Feature'
@@ -154,8 +155,25 @@ def find_intervals_for_utr_consequence(
         intervals['kozak_strength'] = conseq_dict['uSTOP_gained_KozakStrength']
 
     # Once we have indels as well
-    elif conseq_type == 'uFrameshift':
-        pass
+    elif conseq_type == 'uFrameShift':
+        frame_shift_pos = int(start_site) - parse_values(
+            int(conseq_dict['uFrameShift_ref_StartDistanceToCDS']),
+            start_site, buffer_length
+        )
+
+        intervals['start'] = frame_shift_pos
+        intervals['end'] = frame_shift_pos + parse_values(
+            conseq_dict['uFrameShift_alt_type_length'], start_site, buffer_length
+        )
+        print("SAJIDSODJASIDASJODISAJASOIDJSAIODSHELLLLLLLLOOOOOOOO_____________")
+        print(intervals['start'])
+        print(intervals['end'])
+        intervals['viz_type'] = 'New Feature'
+        intervals['viz_color'] = 'main'
+        intervals['type'] = 'uFrameshift'
+        intervals['kozak_strength'] = conseq_dict['uFrameShift_KozakStrength']
+
+
     intervals.update(conseq_dict)
 
     return intervals
@@ -315,6 +333,7 @@ def get_genome_to_transcript_intervals(ensembl_transcript_id, tpos):
     Retrieves all of the features of the uorfs / uorfs
     for the native architechure of the gene
     """
+    print(tpos)
     db = features_db.get_db()
     cursor = db.execute(
         'SELECT genomic_pos FROM genome_to_transcript_coordinates WHERE ensembl_transcript_id=? AND transcript_pos=?',  # noqa: E501 # pylint: disable=C0301
@@ -323,6 +342,7 @@ def get_genome_to_transcript_intervals(ensembl_transcript_id, tpos):
     result = cursor.fetchone()
     features_db.close_db()
     return result['genomic_pos']
+
 
 
 def get_all_orfs_features(ensembl_transcript_id):
@@ -337,16 +357,6 @@ def get_all_orfs_features(ensembl_transcript_id):
     )
     rows = cursor.fetchall()
     features_db.close_db()
-
-    # Add genomic coordinates : TODO Optimize this in the
-    # by adding this in the pipeline
-    for u in rows:
-        u['uorf_start_genome'] = get_genome_to_transcript_intervals(
-            u['ensembl_transcript_id'], u['orf_start_codon']
-        )
-        u['uorf_stop_genome'] = get_genome_to_transcript_intervals(
-            u['ensembl_transcript_id'], u['orf_stop_codon']
-        )
 
     return rows
 
