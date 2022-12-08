@@ -111,8 +111,8 @@ def find_intervals_for_utr_consequence(
     conseq_dict = parse_five_prime_utr_variant_consequence(conseq_dict)
     if conseq_type == 'uAUG_gained':
         # Done
-        intervals['start'] = cdna_pos.split('-')[0]
-        intervals['end'] = int(cdna_pos.split('-')[0]) + parse_values(
+        intervals['start'] = cdna_pos
+        intervals['end'] = cdna_pos + parse_values(
             conseq_dict['uAUG_gained_DistanceToStop'], start_site, buffer_length
         )
         intervals['viz_type'] = 'New Feature'
@@ -172,7 +172,6 @@ def find_intervals_for_utr_consequence(
         intervals['viz_color'] = 'main'
         intervals['type'] = 'uFrameshift'
         intervals['kozak_strength'] = conseq_dict['uFrameShift_KozakStrength']
-
 
     intervals.update(conseq_dict)
 
@@ -239,6 +238,7 @@ def get_transcript_position(ensembl_transcript_id, gpos):
     """
     Gets the transcript position for the transcript / gpos combo
     """
+        
     db = features_db.get_db()
     cursor = db.execute(
         'SELECT transcript_pos FROM genome_to_transcript_coordinates WHERE ensembl_transcript_id=? AND genomic_pos=?',  # noqa: E501 # pylint: disable=C0301
@@ -298,8 +298,7 @@ def process_gnomad_data(gnomad_data, ensembl_transcript_id):
     # Add the transcript relative positions for both
     for clinvar in gnomad_data['clinvar_variants']:
         clinvar.update(
-            {'tpos': get_transcript_position(ensembl_transcript_id, clinvar['pos'])}
-        )
+            {'tpos': get_transcript_position(ensembl_transcript_id, clinvar['pos'])})
     for var in gnomad_data['variants']:
         var.update({'tpos': get_transcript_position(ensembl_transcript_id, var['pos'])})
 
@@ -342,7 +341,6 @@ def get_genome_to_transcript_intervals(ensembl_transcript_id, tpos):
     result = cursor.fetchone()
     features_db.close_db()
     return result['genomic_pos']
-
 
 
 def get_all_orfs_features(ensembl_transcript_id):
