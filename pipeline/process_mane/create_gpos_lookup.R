@@ -27,7 +27,7 @@ genomic_mane <- "data/pipeline/MANE/%s/MANE.GRCh38.v%s.ensembl_genomic.tsv" %>% 
     sprintf(., mane_version, mane_version) %>%
     fread()
 # Filter to exons
-genomic_mane %<>% .[type == "five_prime_UTR"]
+genomic_mane %<>% .[type == "exon"]
 
 # Choose relevant cols
 genomic_mane %<>% .[, .(seqid, start, end, strand, exon_number, transcript_id)]
