@@ -25,7 +25,7 @@ class ProductionConfig(Config):
 
     DEBUG = False
     PORT = 8080
-    IMPACT_URL = 'http://49.12.238.72:8080/viewer/utr_impact'
+    IMPACT_URL = 'http://vutr.rarediseasegenomics.org/viewer/utr_impact'
     VARIANT_DATABASE = '/db/variant_store.db'
     FEATURES_DATABASE = '/db/features.db'
 
