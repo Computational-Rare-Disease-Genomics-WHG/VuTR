@@ -22,24 +22,10 @@
       <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
       <!-- Tempusdominus Bootstrap 4 -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}">
-      <!-- iCheck -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/icheck-bootstrap/icheck-bootstrap.min.css')}}">
       <!-- JQVMap -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jqvmap/jqvmap.min.css')}}">
       <!-- Theme style -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'dist/css/adminlte.min.css')}}">
-      <!-- overlayScrollbars -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css')}}">
-      <!-- Daterange picker -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/daterangepicker/daterangepicker.css')}}">
-      <!-- summernote -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.css')}}">
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid.min.css')}}">
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid-theme.min.css')}}">
-      <!--Preload scripts-->
-      <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
-      <script src="https://unpkg.com/d3"></script>
-      <script src="https://unpkg.com/d3fc"></script>
       <style type="text/css">
          .select2-container--default .select2-selection--multiple .select2-selection__choice {
          background-color: #007bff;
@@ -74,7 +60,31 @@
          stroke: currentColor;
          stroke-opacity: 0.1;
          }
+         #loading{
+            width: 100%;
+            height: 100vh;
+            display: none;
+         }
+         @keyframes slideInFromLeft {
+            0% {
+                transform: translateX(0%);
+            }
+            100% {
+                transform: translateX(50%);
+            }
+            }
+        #largeribo, #smallribo{
+            animation: 5s ease-out 0s 1 slideInFromLeft;
+        }
+        #largeribo.off, #smallribo.off{
+            animation: none;	
+        }
+
+
       </style>
+      <script>
+
+      </script>
    </head>
    <body class="hold-transition layout-top-nav" id="main-content" >
       <div class="wrapper">
@@ -112,11 +122,65 @@
          </nav>
          <!-- /.navbar -->
          <!-- Content Wrapper. Contains page content -->
+         <div id="loading" class="flex-column justify-content-center align-items-center">
+            <svg width="867" height="539" viewBox="0 0 867 539"  xmlns="http://www.w3.org/2000/svg">
+               <rect width="867" height="539" fill="#F5F5F5"/>
+               <rect width="867" height="539" fill="white"/>
+               <path id="largeribo" d="M166.274 290.202C169.73 284.184 184.457 266.99 200.759 269.194C217.06 271.397 224.826 290.202 226.981 294.824C230.933 301.126 235.838 301.927 255 297.765C274.161 293.603 265.417 319.193 262.184 325.496C257.874 330.538 250.833 339.531 236.82 332.921C222.806 326.311 201.428 331.799 192.491 335.369C183.434 337.001 164.606 336.471 161.746 321.292C158.887 306.114 165.082 293.67 166.274 290.202Z" fill="#0037BD" stroke="#F6F5FF"/>
+               <rect x="149" y="298" width="571" height="7" fill="#E4E4E4"/>
+               <rect x="156" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="195" y="273" width="15" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="233" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="272" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="311" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="350" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="389" y="273" width="15" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="427" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="466" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="505" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="544" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="582" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="175.236" y="272.954" width="15.8669" height="21.0153" fill="#FBC304" stroke="black" stroke-width="0.1"/>
+               <rect x="233.415" y="272.954" width="15.8669" height="21.0153" fill="#FBC304" stroke="black" stroke-width="0.1"/>
+               <rect x="310.986" y="272.954" width="15.8669" height="21.0153" fill="#FBC304" stroke="black" stroke-width="0.1"/>
+               <rect x="485.522" y="272.954" width="15.8669" height="21.0153" fill="#FBC304" stroke="black" stroke-width="0.1"/>
+               <rect x="524.308" y="272.954" width="15.8669" height="21.0153" fill="#FBC304" stroke="black" stroke-width="0.1"/>
+               <rect x="582.487" y="272.954" width="15.8669" height="21.0153" fill="#FBC304" stroke="black" stroke-width="0.1"/>
+               <rect x="601.88" y="272.954" width="15.8669" height="21.0153" fill="#FBC304" stroke="black" stroke-width="0.1"/>
+               <rect x="621" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="660" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="214.022" y="272.954" width="15.8669" height="21.0153" fill="#F5415F" stroke="#CD2846" stroke-width="0.1"/>
+               <rect x="272.2" y="272.954" width="15.8669" height="21.0153" fill="#F5415F" stroke="#CD2846" stroke-width="0.1"/>
+               <rect x="407.951" y="272.954" width="15.8669" height="21.0153" fill="#F5415F" stroke="#CD2846" stroke-width="0.1"/>
+               <rect x="446.736" y="272.954" width="15.8669" height="21.0153" fill="#F5415F" stroke="#CD2846" stroke-width="0.1"/>
+               <rect x="504.915" y="272.954" width="15.8669" height="21.0153" fill="#F5415F" stroke="#CD2846" stroke-width="0.1"/>
+               <rect x="660.058" y="272.954" width="15.8669" height="21.0153" fill="#F5415F" stroke="#CD2846" stroke-width="0.1"/>
+               <rect x="194.629" y="272.954" width="15.8669" height="21.0153" fill="#05ACFF" stroke="#05ACFF" stroke-width="0.1"/>
+               <rect x="291.593" y="272.954" width="15.8669" height="21.0153" fill="#05ACFF" stroke="#05ACFF" stroke-width="0.1"/>
+               <rect x="330.379" y="272.954" width="15.8669" height="21.0153" fill="#05ACFF" stroke="#05ACFF" stroke-width="0.1"/>
+               <rect x="369.165" y="272.954" width="15.8669" height="21.0153" fill="#05ACFF" stroke="#05ACFF" stroke-width="0.1"/>
+               <rect x="388.558" y="272.954" width="15.8669" height="21.0153" fill="#05ACFF" stroke="#05ACFF" stroke-width="0.1"/>
+               <rect x="543.701" y="272.954" width="15.8669" height="21.0153" fill="#05ACFF" stroke="#05ACFF" stroke-width="0.1"/>
+               <rect x="621.273" y="272.954" width="15.8669" height="21.0153" fill="#05ACFF" stroke="#05ACFF" stroke-width="0.1"/>
+               <rect x="679.451" y="272.954" width="15.8669" height="21.0153" fill="#05ACFF" stroke="#05ACFF" stroke-width="0.1"/>
+               <rect x="699" y="273" width="16" height="21" fill="#C89B9B" stroke="black" stroke-width="0.1"/>
+               <rect x="155.843" y="272.954" width="15.8669" height="21.0153" fill="white" stroke="#E4E4E4"/>
+               <rect x="349.772" y="272.954" width="15.8669" height="21.0153" fill="white" stroke="#E4E4E4"/>
+               <rect x="252.808" y="272.954" width="15.8669" height="21.0153" fill="white" stroke="#E4E4E4"/>
+               <rect x="563.094" y="272.954" width="15.8669" height="21.0153" fill="white" stroke="#E4E4E4"/>
+               <rect x="427.344" y="272.954" width="15.8669" height="21.0153" fill="white" stroke="#E4E4E4"/>
+               <rect x="466.129" y="272.954" width="15.8669" height="21.0153" fill="white" stroke="#E4E4E4"/>
+               <rect x="640.665" y="272.954" width="15.8669" height="21.0153" fill="white" stroke="#E4E4E4"/>
+               <rect x="698.844" y="272.954" width="15.8669" height="21.0153" fill="white" stroke="#E4E4E4"/>
+               <path id="smallribo" d="M263.409 280.563L263.435 280.545L263.459 280.525C268.011 276.664 270.587 269.988 271.745 262.027C272.906 254.05 272.658 244.691 271.478 235.354C270.274 225.832 263.786 219.355 257.129 215.039C251.822 211.597 246.325 209.483 243.236 208.294C242.456 207.994 241.829 207.753 241.398 207.565C241.249 207.5 241.096 207.432 240.939 207.363C239.106 206.551 236.619 205.45 231.622 204.633C226.215 203.748 217.875 203.197 204.217 203.678C193.908 204.042 186.579 205.575 181.161 207.469C175.74 209.364 172.252 211.613 169.632 213.376C169.417 213.52 169.105 213.716 168.712 213.962C165.959 215.686 159.238 219.895 154.105 226.568C151.166 230.389 148.731 235.035 147.852 240.506C146.972 245.982 147.655 252.253 150.901 259.309C154.991 268.201 158.381 274.138 161.307 277.897C164.223 281.642 166.75 283.317 169.133 283.486C171.52 283.655 173.577 282.297 175.506 280.48C176.478 279.564 177.444 278.507 178.422 277.422C178.52 277.313 178.617 277.205 178.716 277.096C179.603 276.11 180.506 275.107 181.453 274.152C187.267 268.285 194.073 261.511 200.952 258.067C204.382 256.35 207.786 255.484 211.066 255.939C214.333 256.393 217.546 258.168 220.587 261.867C226.513 269.076 234.662 275.371 242.576 279.063C246.534 280.909 250.452 282.114 254.019 282.447C257.584 282.779 260.834 282.243 263.409 280.563Z" fill="#265CDE" stroke="#F6F5FF"/>
+               </svg>
+       
+         </div>
          <div class="content-wrapper" >
             <!-- Content Header (Page header) -->
             <div class="content-header">
                 <div class="container-fluid">
-                    <h2 class="text-center">VuTR</h2>
+                    <h2 class="text-center">VuTR: Visualising the consequences of 5' UTR variants</h2>
                     <div class="row">
                     <div class="col-3 mx-auto text-center p-3">
                         <img class="img-fluid rounded float-none text-center mx-auto" style="height:200px;width:auto;"src="{{url_for('static', filename='dna.png')}}">
@@ -124,11 +188,11 @@
                     </div>
                     <div class="row">
                         <div class="col-md-8 offset-md-2" >
-                            <form action="/gene_search" method="post">
+                            <form action="/gene_search" method="post" id = "search-form">
                                 <div class="input-group">
                                     <input name="gene_q" type="search" class="form-control form-control-lg" placeholder="Search by gene name (i.e. MEF2C or NF2).">
                                     <div class="input-group-append">
-                                        <button type="submit" class="btn btn-lg btn-default">
+                                        <button type="submit" id="searcher" class="btn btn-lg btn-default" onclick="loading()">
                                             <i class="fa fa-search"></i>
                                         </button>
                                     </div>
@@ -209,28 +273,8 @@
       <script src="{{url_for('static', filename ='plugins/jsgrid/jsgrid.min.js')}}"></script>
       <!--Custom Scripts-->
       <script>
-    		$(function() {
-			$("#searchBox").autocomplete({
-				source : function(request, response) {
-					$.ajax({
-						type: "POST",
-						url : "http://localhost:5000/search",
-						dataType : "json",
-						cache: false,
-						data : {
-							q : request.term
-						},
-						success : function(data) {
-							response(data);
-						},
-						error: function(jqXHR, textStatus, errorThrown) {
-							console.log(textStatus + " " + errorThrown);
-						}
-					});
-				},
-				minLength : 2
-			});
-		});
+
+
 
       </script>
    </body>
