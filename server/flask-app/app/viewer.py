@@ -23,6 +23,8 @@ from .helpers import (
     get_utr_annotation_for_list_variants,
     find_intervals_for_utr_consequence,
     get_gnomad_variants_in_utr_regions,
+    get_omim_id,
+    get_clingen_entry
 )
 
 from . import variant_db
@@ -98,6 +100,11 @@ def viewer_page(ensembl_transcript_id):
     constraint = get_constraint_score(ensembl_gene_id)
     start_site = five_prime_utr_stats['start_site_pos']
 
+    # ClinGen
+    clingen_entry = get_clingen_entry(hgnc)
+    # OMIM ID
+    omim_id = get_omim_id(ensembl_gene_id)
+
     possible_variants = get_possible_variants(
         ensembl_transcript_id=ensembl_transcript_id
     )
@@ -135,6 +142,8 @@ def viewer_page(ensembl_transcript_id):
         hgnc=hgnc,
         name=name,
         refseq_match=refseq_match,
+        clingen_entry=clingen_entry,
+        omim_id=omim_id,
         impact_url=impact_url,
         gnomad_data=gnomad_data,
         constraint=constraint,
