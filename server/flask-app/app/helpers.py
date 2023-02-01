@@ -20,6 +20,33 @@ def get_all_te_values():
     return result
 
 
+def get_omim_id(ensg):
+    """
+    Gets the omim value
+    @returns string if found, else None
+    """
+    cursor = features_db.get_db()
+    query = cursor.execute(
+        'SELECT omim_entry FROM omim WHERE ensembl_gene_id=?', [ensg]
+    )
+    result = query.fetchone()
+    if result is not None: 
+        return result['omim_entry']
+    return None
+
+
+def get_clingen_entry(hgnc):
+    """
+    Gets clingen data
+    """
+    cursor = features_db.get_db()
+    query = cursor.execute(
+        'SELECT * FROM clingen WHERE hgnc_symbol=?', [hgnc]
+    )
+    result = query.fetchone()
+    return result['haplo_score'] if result is not None else "Not curated"
+
+
 def parse_five_prime_utr_variant_consequence(conseq_str):
     """
     Parses the consequence str into a keyed dictionary as per
@@ -332,7 +359,6 @@ def get_genome_to_transcript_intervals(ensembl_transcript_id, tpos):
     Retrieves all of the features of the uorfs / uorfs
     for the native architechure of the gene
     """
-    print(tpos)
     db = features_db.get_db()
     cursor = db.execute(
         'SELECT genomic_pos FROM genome_to_transcript_coordinates WHERE ensembl_transcript_id=? AND transcript_pos=?',  # noqa: E501 # pylint: disable=C0301
