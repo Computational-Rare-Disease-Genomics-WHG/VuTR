@@ -192,9 +192,6 @@ def find_intervals_for_utr_consequence(
         intervals['end'] = frame_shift_pos + parse_values(
             conseq_dict['uFrameShift_alt_type_length'], start_site, buffer_length
         )
-        print("SAJIDSODJASIDASJODISAJASOIDJSAIODSHELLLLLLLLOOOOOOOO_____________")
-        print(intervals['start'])
-        print(intervals['end'])
         intervals['viz_type'] = 'New Feature'
         intervals['viz_color'] = 'main'
         intervals['type'] = 'uFrameshift'

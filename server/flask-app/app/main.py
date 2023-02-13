@@ -25,13 +25,20 @@ def gene_search():
     """Search by gene"""
     query = request.form['gene_q'].upper().strip()
 
+    # detect query type using grep
     if re.search(r'\d-\d+-\w-\w', query):
         return redirect(url_for('main.search_variant', variant=query))
 
-    # detect query type using grep
-    ensembl_transcript_id = convert_between_ids(
-        query, 'hgnc_symbol', 'ensembl_transcript_id'
-    )
+    elif query[0:4] == 'ENSG':
+        ensembl_transcript_id = convert_between_ids(
+        query, 'ensembl_gene_id', 'ensembl_transcript_id'
+    )   
+    else: 
+        ensembl_transcript_id = convert_between_ids(
+            query, 'hgnc_symbol', 'ensembl_transcript_id'
+        )
+        
+    
     if ensembl_transcript_id is not None:
         return redirect(
             url_for('viewer.viewer_page', ensembl_transcript_id=ensembl_transcript_id)
