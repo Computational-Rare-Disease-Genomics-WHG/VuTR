@@ -15,7 +15,6 @@ var pathogenicity_colors = {
 };
 
 var detail_mapping = {
-
     // gnomAD mappings
     "alt": "ALT",
     "clinical_significance": "Clinical Significance",
@@ -41,8 +40,8 @@ var detail_mapping = {
     "orf_start_codon": "Transcript pos. Start Codon",
     "orf_seq": "ORF Sequence",
     "orf_stop_codon": "Transcript pos. Stop codon",
-    "orf_start_genome": "Genomic pos. Start Codon",
-    "orf_stop_genome": "Genomic pos. Stop Codon",
+    "orf_start_codon_genome": "Genomic pos. Start Codon",
+    "orf_stop_codon_genome": "Genomic pos. Stop Codon",
     "orf_type": "ORF Type",
     "frame": "ORF Frame w.r.t. CDS",
     "kozak_context": "7bp context",
@@ -85,7 +84,6 @@ var detail_mapping = {
 
     /*
     To be defined when we have frameshift variants with indels
-
     "uFrameshift_ref_type":,
     "uFrameshift_ref_type_length":,
     "uFrameshift_StartDistanceToCDS":,
@@ -229,18 +227,168 @@ var open_modal = function(data, type) {
     }
 
 
-    var custom = `
-		<div class="modal fade" id="feature-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+    var custom;
+    
+    // gnomAD 
+    if (type == 'gnomad'){
+    custom = `
+    <div class="modal fade" 
+    id="feature-modal"
+    tabindex="-1" 
+    role="dialog" 
+    aria-labelledby="exampleModalLongTitle" 
+    aria-hidden="true">
+
+<div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLongTitle">ORF Details</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+
+    <div class="modal-body">
+    <h5>Variant</h5> 
+    <ul>
+      <li><b>REF</b> : ${data['ref']}</li>
+      <li><b>ALT</b> : ${data['alt']} </li>
+      <li><b>Genome Position</b> : ${data['pos']} </li>
+      <li><b>Transcript Position</b> : ${data['tpos']} </li>
+      <li><b>Variant ID</b> : ${data['variant_id']} </li>
+      <li><b>HGVSC</b> : ${data['hgvsc']} </li>
+    </ul>
+
+      <hr>
+
+      <h5>gnomAD Frequency</h5> 
+      <ul>
+        <li><b>Allele Count</b> : ${data['genome.ac']}</li>
+        <li><b>Allele Number</b> : ${data['genome.an']} </li>
+        <li><b>Allele Frequency (all pop)</b> : ${data['genome.af']} </li>
+      </ul>
+      <hr>
+      <b>View variant in gnomAD</b>: <a href='https://gnomad.broadinstitute.org/variant/${data['variant_id']}?dataset=gnomad_r3'>${data['variant_id']}</a>    
+    </div>
+
+  </div>
+</div>
+</div>
+
+    
+    `;
+    }
+
+if (type == 'clinvar'){
+    custom = `
+    <div class="modal fade" 
+    id="feature-modal"
+    tabindex="-1" 
+    role="dialog" 
+    aria-labelledby="exampleModalLongTitle" 
+    aria-hidden="true">
+
+<div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLongTitle">ORF Details</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+
+    <div class="modal-body">
+    <h5>Variant</h5> 
+    <ul>
+      <li><b>REF</b> : ${data['ref']}</li>
+      <li><b>ALT</b> : ${data['alt']} </li>
+      <li><b>Genome Position</b> : ${data['pos']} </li>
+      <li><b>Transcript Position</b> : ${data['tpos']} </li>
+      <li><b>Variant ID</b> : ${data['variant_id']} </li>
+      <li><b>HGVSC</b> : ${data['hgvsc']} </li>
+    </ul>
+
+    <hr>
+
+    <h5>ClinVar variant details</h5> 
+    <ul>
+    <li><b>Clinical Significance</b> : ${data['clinical_significance']}</li>
+    <li><b>Review Status</b> : ${data['review_status']}</li>
+    <li><b>Gold Stars</b> : ${data['gold_stars']} </li>
+    <li><b>ClinVar Variation ID</b> : ${data['clinvar_variation_id']} </li>
+    <li><b>Variant in gnomAD?</b> : ${data['in_gnomad']} </li>
+    </ul>
+  <hr>
+      <b>View variant in ClinVar</b>: <a href='https://www.ncbi.nlm.nih.gov/clinvar/variation/${data['clinvar_variation_id']}'>${data['clinvar_variation_id']}</a>    </div>
+
+  </div>
+</div>
+</div>
+
+    
+    `;
+
+} 
+
+if (type == 'orf'){
+    custom = `
+		<div class="modal fade" 
+            id="feature-modal"
+            tabindex="-1" 
+            role="dialog" 
+            aria-labelledby="exampleModalLongTitle" 
+            aria-hidden="true">
+
 		<div class="modal-dialog modal-lg" role="document">
 		  <div class="modal-content">
 			<div class="modal-header">
-			  <h5 class="modal-title" id="exampleModalLongTitle">Detail</h5>
+			  <h5 class="modal-title" id="exampleModalLongTitle">ORF Details</h5>
 			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 			  </button>
 			</div>
+
+
 			<div class="modal-body">
-			  <ul id="feature-modal-data">
+              <h5>Coordinates</h5>
+              <ul>
+              <li><b>Transcript</b>
+                <ul>
+                <li><b>Start codon</b> : ${data['orf_start_codon']} </li>
+                <li><b>Stop codon</b> : ${data['orf_stop_codon']}</li>
+                </ul>      
+              </li>
+              <li><b>Genome</b>
+              <ul>
+              <li><b>Start codon</b> : ${data['orf_start_codon_genome']}</li>
+              <li><b>Stop codon</b> : ${data['orf_stop_codon_genome']}</li>
+              </ul>      
+
+              </li> 
+              </ul>
+              <hr>
+
+              <h5>ORF details</h5> 
+              <ul>
+                <li><b>ORF Sequence</b> : ${data['orf_seq']}</li>
+                <li><b>ORF Type</b> : ${data['orf_type']} </li>
+                <li><b>ORF Frame</b> : ${data['frame']} </li>
+              </ul>
+              <hr>
+
+
+              <h5>Translation details</h5>
+              <ul>
+                <li><b>Translational Efficiency</b> : ${data['efficiency']} (${data['lower_bound']}-${data['upper_bound']})</li>
+                <li><b>Kozak Consensus Strength</b> : ${data['kozak_consensus_strength']} </li>
+                <li><b>Kozak Consensus Context</b> :  ${data['kozak_context']}</li>
+              </ul>
+              <hr>
+              <h5>Translation Efficiency Distribution</h5>
+              
+              <ul id="feature-modal-data">
 			  </ul>
 			</div>
 
@@ -248,39 +396,32 @@ var open_modal = function(data, type) {
 		</div>
 	  </div>
 		`;
+
+    
+}
     document.getElementById('modal-container')
         .insertAdjacentHTML('beforeend',
             custom);
 
     // Filter data
     var ul = document.getElementById('feature-modal-data');
-    for (const [key, value] of Object.entries(data)) {
+    /*for (const [key, value] of Object.entries(data)) {
         var li = document.createElement('li');
         ul.appendChild(li);
         // Map the VEP consequence terms to formatted strings
         li.innerHTML += `<b>${detail_mapping[key]}</b>: ${value}`;
-    }
-    if (type === 'clinvar') {
-        var li = document.createElement('li');
-        ul.appendChild(li);
-        li.innerHTML +=
-            `<b>View variant in ClinVar</b>: <a href='https://www.ncbi.nlm.nih.gov/clinvar/variation/${data['clinvar_variation_id']}'>${data['clinvar_variation_id']}</a>`;
-    }
+    }*/ 
 
-    if (type === 'gnomad') {
-        var li = document.createElement('li');
-        ul.appendChild(li);
-        li.innerHTML +=
-            `<b>View variant in gnomad</b>: <a href='https://gnomad.broadinstitute.org/variant/${data['variant_id']}?dataset=gnomad_r3'>${data['variant_id']}</a>`;
-    }
+
+
 
     // Add TE
     var dat = data;
     if ('efficiency' in data) {
-        var te_chartdiv = document.createElement('li');
+        var te_chartdiv = document.createElement('div');
         ul.appendChild(te_chartdiv);
         te_chartdiv.innerHTML +=
-            `<b>Translational Efficiency Distribution</b><br/><canvas id = 'te-plot'></canvas`;
+            `<canvas id = 'te-plot'></canvas`;
         const ctx = document.getElementById('te-plot').getContext('2d');
         // Histogram data from R
         const labels = ["10-20", "20-30,", "30-40", "40-50", "50-60",
@@ -426,7 +567,7 @@ var create_transcript_viewer = function(
                         buffer, strand)['start'],
                     y: strand_corrected_interval(start_site + 1,
                         start_site + buffer, start_site,
-                        buffer, strand)['end'],
+                        buffer, strand)['end']+1,
                     color: '#58565F',
                     description: "\t\tCDS",
                     id: 'cds_rect',
@@ -434,7 +575,7 @@ var create_transcript_viewer = function(
                 {
                     x: strand_corrected_interval(1, start_site,
                         start_site, buffer, strand)[
-                        'start'],
+                        'start']+1,
                     y: strand_corrected_interval(1, start_site,
                         start_site, buffer, strand)['end'],
                     color: '#A4AAAC',
