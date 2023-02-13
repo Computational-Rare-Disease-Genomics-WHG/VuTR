@@ -310,16 +310,13 @@ def process_gnomad_data(gnomad_data, ensembl_transcript_id):
     gnomad_data['clinvar_variants'] = [
         clinvar
         for clinvar in gnomad_data['clinvar_variants']
-        if clinvar['major_consequence'] == '5_prime_UTR_variant'
-        and len(clinvar['ref']) == 1
+        if len(clinvar['ref']) == 1
         and len(clinvar['alt']) == 1
     ]
     gnomad_data['variants'] = [
         var
         for var in gnomad_data['variants']
-        if var['transcript_consequence']['major_consequence'] == '5_prime_UTR_variant'
-        and len(var['ref']) == 1
-        and len(var['alt']) == 1
+        if len(var['ref']) == 1 and len(var['alt']) == 1
     ]
 
     # Add the transcript relative positions for both
@@ -475,5 +472,4 @@ def gnomad_api_search_by_region(chrom, start, stop):
             'Content-Type': 'application/json',
         },
     ).json()
-
     return response['data']
