@@ -1,24 +1,22 @@
 """
-Creates a TSV file that creates all possible UTR variants for VEP
+Creates a TSV file that creates 
+all possible UTR variants for VEP
 
-# TODO: Fix boundary cases for deletions
-# TODO: Need to change prebase to fix the problem
-# TODO: Ensure gnomAD variant ID is preserved
+# Fix boundary cases for deletions
+# Need to change prebase to fix the problem
+# Ensure gnomAD variant ID is preserved
 #      - deletion position
-# [x]: Fix integer floating conversion problems
 # Negative strand indels are throwing errors
-# Deletions not working on the forward strand, there seems to be an issue 
-with the reference. 
-
+# Deletions not working on the forward strand,
+# there seems to be an issue with the reference.
 
 # Deletions
 start = pos + 1
-end = start + mut_size 
+end = start + mut_size
 
-# Insertions 
+# Insertions
 start = end + 1
 end = pos
-
 """
 
 
@@ -28,11 +26,12 @@ import argparse
 import pandas as pd
 import numpy as np
 
-pd.set_option('display.max_rows', None)
+pd.set_option("display.max_rows", None)
 
-bases = ['A', 'C', 'G', 'T']
-ASSEMBLY = 'GRCh38'
-complement_bases = {'A': 'T', 'G': 'C', 'C': 'G', 'T': 'A'}
+bases = ["A", "C", "G", "T"]
+ASSEMBLY = "GRCh38"
+complement_bases = {"A": "T", "G": "C", "C": "G", "T": "A"}
+
 
 def generate_nbases(n: int):
     """
@@ -41,10 +40,12 @@ def generate_nbases(n: int):
     @returns possible_vars: list of string
     """
     possible_vars = []
-    for i in range(2, n+1):
+    for i in range(2, n + 1):
         possible_vars = possible_vars + [
-            ''.join(comb) for comb in product(bases, repeat=i)]
+            "".join(comb) for comb in product(bases, repeat=i)
+        ]
     return possible_vars
+
 
 def get_reverse_complement(seq):
     """
@@ -52,9 +53,11 @@ def get_reverse_complement(seq):
     @param seq : str
     @returns reverse_complement : str
     """
-    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
-    reverse_complement = "".join(complement.get(base, base) for base in reversed(seq))
+    reverse_complement = "".join(
+        complement_bases.get(base, base) for base in reversed(seq)
+        )
     return reverse_complement
+
 
 def del_variant_id(x, seq, start):
     """
@@ -64,10 +67,9 @@ def del_variant_id(x, seq, start):
     @param start: the start coordinate
     @returns variant_id: str the variant id as per gnomad
     """
-    prebase = seq[x['pos']-start-1:x['pos']-start]
+    prebase = seq[x["pos"] - start - 1 : x["pos"] - start]
     # TODO: Need to think about gnomAD formatting
-    return f'{x["chrom"]}-{x["pos"]}-{prebase+x["ref"]}-{prebase}' 
-
+    return f'{x["chrom"]}-{x["pos"]}-{prebase+x["ref"]}-{prebase}'
 
 
 def generate_deletions(sequence, chrom, start, end, strand, n):
@@ -81,35 +83,50 @@ def generate_deletions(sequence, chrom, start, end, strand, n):
     @returns var : Dataframe of simulated deletions for the sequence
     """
     variant_df = []
-    for i in range(n+1)[1:]:
-        refs = [sequence[x:x + i] for x in range(len(sequence))][
-            0:(len(sequence) if i==1 else -(i-1))
+    for i in range(n + 1)[1:]:
+        refs = [sequence[x : x + i] for x in range(len(sequence))][
+            0 : (len(sequence) if i == 1 else -(i - 1))
         ]
         # Generate the data frame
-        if strand == '-':
+        if strand == "-":
             # Swap start and end to cope with VEP format
-            var = pd.DataFrame({'chrom' : chrom,
-                                'start': list([int(x-i) for x in list(range(start, end-i+1))]),
-                                'pos': list([int(x-i-1) for x in list(range(start, end-i+1))]),
-                                'end': list(range(start, end-i+1)),
-                                'strand' : strand,
-                                'ref' : refs,
-                                'alt' : '-'
-                                })
-        else : 
-            var = pd.DataFrame({'chrom' : chrom,
-                                'pos': list(range(start, end-i+1)),
-                                'start': list([int(x-i) for x in list(range(start, end-i+1))]),
-                                'end': list(range(start, end-i+1)),
-                                'strand' : strand,
-                                'ref' : refs,
-                                'alt' : '-'
-                                })
-        var['variant_id'] = var.apply(lambda x: del_variant_id(x, sequence, start), axis=1)
+            var = pd.DataFrame(
+                {
+                    "chrom": chrom,
+                    "start": list(
+                        [int(x - i) for x in list(range(start, end - i + 1))]
+                    ),
+                    "pos": list(
+                        [int(x - i - 1) for x in list(range(start, end - i + 1))]
+                    ),
+                    "end": list(range(start, end - i + 1)),
+                    "strand": strand,
+                    "ref": refs,
+                    "alt": "-",
+                }
+            )
+        else:
+            var = pd.DataFrame(
+                {
+                    "chrom": chrom,
+                    "pos": list(range(start, end - i + 1)),
+                    "start": list(
+                        [int(x - i) for x in list(range(start, end - i + 1))]
+                    ),
+                    "end": list(range(start, end - i + 1)),
+                    "strand": strand,
+                    "ref": refs,
+                    "alt": "-",
+                }
+            )
+        var["variant_id"] = var.apply(
+            lambda x: del_variant_id(x, sequence, start), axis=1
+        )
         # Generate the variant ID column
         variant_df.append(var)
     # Concatenate the dataframe
     return pd.concat(variant_df)
+
 
 def vprint(message: str, verbosity: bool = True):
     """
@@ -121,6 +138,7 @@ def vprint(message: str, verbosity: bool = True):
     if verbosity:
         print(message)
 
+
 def main(args):
     """
     Run the main script
@@ -131,45 +149,53 @@ def main(args):
     mane_version = args.mane_version
     transcript_sequences = pd.read_csv(
         script_path
-        / f'../../data/pipeline/MANE/{mane_version}/MANE_transcripts_v{mane_version}.tsv',  # noqa: E501 # pylint: disable=C0301
-        sep='\t',
+        / f"../../data/pipeline/MANE/{mane_version}/MANE_transcripts_v{mane_version}.tsv",  # noqa: E501 # pylint: disable=C0301
+        sep="\t",
     )  # noqa: E501 # pylint: disable=C0301
     features = pd.read_csv(
         script_path
-        / f'../../data/pipeline/MANE/{mane_version}/MANE.GRCh38.v{mane_version}.ensembl_genomic.tsv',  # noqa: E501 # pylint: disable=C0301
-        sep='\t',
+        / f"../../data/pipeline/MANE/{mane_version}/MANE.GRCh38.v{mane_version}.ensembl_genomic.tsv",  # noqa: E501 # pylint: disable=C0301
+        sep="\t",
     )
-    features = features[features['type'] == 'five_prime_UTR']
-    features['width'] = features['end'] - features['start'] + 1
+    features = features[features["type"] == "five_prime_UTR"]
+    features["width"] = features["end"] - features["start"] + 1
 
     # Write output
-    features = features.sort_values(by=['gene_id', 'exon_number'])
-    chroms = list(range(1, 23)) + ['X', 'Y']
+    features = features.sort_values(by=["gene_id", "exon_number"])
+    chroms = list(range(1, 23)) + ["X", "Y"]
 
     if args.only_chr_22:
         # filter utr_file to chr_22
-        chroms = ['22']
+        chroms = ["22"]
 
     insertion_array = []
+
     if args.include_indels:
         insertion_array = generate_nbases(args.indel_size)
-    formated_chroms = ['chr' + str(i) for i in chroms]
+    formated_chroms = ["chr" + str(i) for i in chroms]
 
     for chrom in formated_chroms:
-        vprint(f'Starting generating mutations for {chrom}')
+
+        vprint(f"Starting generating mutations for {chrom}")
         chrom_possible_df = pd.DataFrame()
         long_df_list = []
-        for gene in features[features['seqid'] == chrom]['gene_id'].unique():
-            if gene == "ENSG00000186575.19" :
+        for gene in features[features["seqid"] == chrom]["gene_id"].unique():
+            if gene == "ENSG00000186575.19":
                 # find all of utr features  within that region
-                feats = features[features['gene_id'] == gene].copy().reset_index(drop=True)
-                chrom = feats['seqid'].values[0]
-                strand = feats['strand'].values[0]
-                utr_length = sum(feats['width'])
+                feats = (
+                    features[features["gene_id"] == gene].copy().reset_index(drop=True)
+                )
+                chrom = feats["seqid"].values[0]
+                strand = feats["strand"].values[0]
+                utr_length = sum(feats["width"])
+
+                print(feats)
+                print(strand)
+                print(utr_length)
 
                 # find the sequence
                 seqs = list(
-                    transcript_sequences[transcript_sequences['gene'] == gene]
+                    transcript_sequences[transcript_sequences["gene"] == gene]
                     .seq.values[0][0:utr_length]
                     .upper()
                 )  # pylint: disable=C0301
@@ -178,12 +204,14 @@ def main(args):
                     chain(
                         *list(
                             feats.apply(
-                                lambda x: list(range(x['start'], x['end'] + 1)), axis=1
+                                lambda x: list(range(x["start"], x["end"] + 1)),
+                                axis=1,  # noqa: E501 # pylint: disable=C0301
                             )
                         )
                     )
                 )  # noqa: E501 # pylint: disable=C0301
-                if strand == '-':
+                if strand == "-":
+
                     # sort based on strand
                     pos = sorted(pos, reverse=True)
 
@@ -193,108 +221,124 @@ def main(args):
                 # Simulate a dataframe of all variants
                 long_df = pd.DataFrame(
                     {
-                        'chrom': [chrom[3:]] * (utr_length * 4),
-                        'start': np.repeat(pos, 4),
-                        'end': np.repeat(pos, 4),
-                        'pos': np.repeat(pos, 4),
-                        'ref': np.repeat(seqs, 4),
-                        'alt': bases * utr_length,
-                        'strand': [strand] * (utr_length * 4),
+                        "chrom": [chrom[3:]] * (utr_length * 4),
+                        "start": np.repeat(pos, 4),
+                        "end": np.repeat(pos, 4),
+                        "pos": np.repeat(pos, 4),
+                        "ref": np.repeat(seqs, 4),
+                        "alt": bases * utr_length,
+                        "strand": [strand] * (utr_length * 4),
                     }
                 )
 
                 # Create variant id
-                long_df['variant_id'] = long_df.apply(
-                    lambda x: f'{x["chrom"]}-{x["start"]}-{x["ref"]}-{x["alt"]}',
+                long_df["variant_id"] = long_df.apply(
+                    lambda x:
+                    f'{x["chrom"]}-{x["start"]}-{x["ref"]}-{x["alt"]}', 
                     axis=1
                 )
+
                 # Generate all insertions and add them up
                 # Figure out how exons fit into here.
                 if args.include_indels:
                     # Insertions
+                    print(insertion_array)
                     insertion_df = pd.DataFrame(
-                            {
-                                'chrom' :
-                                    [chrom[3:]] * utr_length * len(insertion_array),
-                                'start' : [x+1 for x in np.repeat(pos, len(insertion_array))],
-                                'end' : np.repeat(pos, len(insertion_array)),
-                                'pos' : np.repeat(pos, len(insertion_array)),
-                                'ref' : np.repeat(seqs, len(insertion_array)),
-                                'alt' : insertion_array * utr_length,
-                                'strand' : [strand] * (utr_length*len(insertion_array))
-                            }
-                        )
-                    insertion_df['variant_id'] = insertion_df.apply(lambda x: f'{x["chrom"]}-{x["start"]}-{x["ref"]}-{x["alt"]}', axis=1)
-                    insertion_df['ref'] = '-'
+                        {
+                            "chrom":
+                            [chrom[3:]] * utr_length * len(insertion_array),
+                            "start": [
+                                x + 1 for x in np.repeat(pos, len(insertion_array))
+                            ],
+                            "end": np.repeat(pos, len(insertion_array)),
+                            "pos": np.repeat(pos, len(insertion_array)),
+                            "ref": np.repeat(seqs, len(insertion_array)),
+                            "alt": insertion_array * utr_length,
+                            "strand":
+                            [strand] * (utr_length * len(insertion_array)),
+                        }
+                    )
+                    insertion_df["variant_id"] = insertion_df.apply(
+                        lambda x:
+                        f'{x["chrom"]}-{x["start"]}-{x["ref"]}-{x["alt"]}',
+                        axis=1,
+                    )
+                    insertion_df["ref"] = "-"
                     long_df = pd.concat([long_df, insertion_df])
-
+                    
+                    
                     # Generate deletion for each exon
-                    for i in range(feats.shape[0]):
-                        start = feats['start'][i]
-                        end = feats['end'][i]
+                    # for i in range(feats.shape[0]):
+                    #     start = feats["start"][i]
+                    #     end = feats["end"][i]
 
-                        # We need to reverse the order back from left-to-right
-                        # for negative strand 
-                        if strand == '-':
-                            pos = sorted(pos)
-                            seq = "".join(seqs[::-1][pos.index(start):pos.index(end)])
-                        else:
-                            seq = "".join(seqs[pos.index(start):pos.index(end)])
-                        long_df = pd.concat([long_df,
-                            generate_deletions(
-                                seq,
-                                chrom[3:],
-                                start,
-                                end,
-                                strand,
-                                n=3)
-                        ])
+                    #     # We need to reverse the order back from left-to-right
+                    #     # for negative strand
+                    #     if strand == "-":
+                    #         print()
+                    #         pos = sorted(pos)
+                    #         seq = "".join(seqs[::-1][pos.index(start): pos.index(end)])
+                    #     else:
+                    #         seq = "".join(seqs[pos.index(start): pos.index(end)])
+                    #     long_df = pd.concat(
+                    #         [
+                    #             long_df,
+                    #             generate_deletions(
+                    #                 seq, chrom[3:], start, end, strand, n=3
+                    #             ),
+                    #         ]
+                    #     )
                 # Remove all rows with ref same as alt
-                long_df = long_df[long_df['ref'] != long_df['alt']]
+                long_df = long_df[long_df["ref"] != long_df["alt"]]
                 # Format to VEP input
-                long_df['allele'] = long_df['ref'] + '/' + long_df['alt']
-                long_df = long_df.loc[:, ['chrom', 'start', 'end', 'allele', 'strand', 'variant_id']]
+                long_df["allele"] = long_df["ref"] + "/" + long_df["alt"]
+                long_df = long_df.loc[
+                    :, ["chrom", "start", "end", "allele", "strand", "variant_id"]
+                ]
                 long_df_list.append(long_df)
                 chrom_possible_df = pd.concat(long_df_list, ignore_index=True)
-                vprint(f'Finish generating mutations for {chrom}')
-                vprint(f'Writing to VEP file', args.verbose)
-                chrom_possible_df = chrom_possible_df.sort_values(by='start').drop_duplicates()
+                vprint(f"Finish generating mutations for {chrom}")
+                vprint(f"Writing to VEP file", args.verbose)
+                chrom_possible_df = chrom_possible_df.sort_values(
+                    by="start"
+                ).drop_duplicates()  # noqa: E501 # pylint: disable=C0301
+
+                chrom_possible_df.to_csv("test.out", sep="\t", header=None, index=False)
                 chrom_possible_df.to_csv(
                     script_path
-                    / f'../../data/pipeline/vep_data/input/UTR_variants_all_possible_{ASSEMBLY}_{mane_version}_{chrom}.txt',  # noqa: E501 # pylint: disable=C0301
-                    sep='\t',
+                    / f"../../data/pipeline/vep_data/input/UTR_variants_all_possible_{ASSEMBLY}_{mane_version}_{chrom}.txt",  # noqa: E501 # pylint: disable=C0301
+                    sep="\t",
                     header=None,
                     index=False,
                 )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Creates a TSV file that creates all possible UTR variants'  # noqa: E501 # pylint: disable=C0301
+        description="Creates a TSV file that creates all possible UTR variants"  # noqa: E501 # pylint: disable=C0301
     )
     parser.add_argument(
-        '--mane_version',
-        default='1.0',
-        help='Which mane_version to use?',
+        "--mane_version",
+        default="1.0",
+        help="Which mane_version to use?",
     )
     parser.add_argument(
-        '--indel_size',
-        default=2,
-        help='How large should the simulated indels be?'
+        "--indel_size", default=2, help="How large should the simulated indels be?"
     )
     parser.add_argument(
-        '--include_indels',
-        action='store_true',
+        "--include_indels",
+        action="store_true",
         default=False,
-        help='Whether to exclude indels of (2bps), defaults to false',
+        help="Whether to exclude indels of (2bps), defaults to false",
     )
     parser.add_argument(
-        '--verbose',
-        action='store_true',
-        help='Verbose outputs',
+        "--verbose",
+        action="store_true",
+        help="Verbose outputs",
     )
     parser.add_argument(
-        '--only_chr_22',
-        action='store_true',
-        help='Verbose outputs',
+        "--only_chr_22",
+        action="store_true",
+        help="Verbose outputs",
     )
     main(args=parser.parse_args())
