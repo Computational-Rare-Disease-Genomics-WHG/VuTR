@@ -20,6 +20,33 @@ def get_all_te_values():
     return result
 
 
+def get_omim_id(ensg):
+    """
+    Gets the omim value
+    @returns string if found, else None
+    """
+    cursor = features_db.get_db()
+    query = cursor.execute(
+        'SELECT omim_entry FROM omim WHERE ensembl_gene_id=?', [ensg]
+    )
+    result = query.fetchone()
+    if result is not None: 
+        return result['omim_entry']
+    return None
+
+
+def get_clingen_entry(hgnc):
+    """
+    Gets clingen data
+    """
+    cursor = features_db.get_db()
+    query = cursor.execute(
+        'SELECT * FROM clingen WHERE hgnc_symbol=?', [hgnc]
+    )
+    result = query.fetchone()
+    return result['haplo_score'] if result is not None else "Not curated"
+
+
 def parse_five_prime_utr_variant_consequence(conseq_str):
     """
     Parses the consequence str into a keyed dictionary as per
@@ -123,7 +150,8 @@ def find_intervals_for_utr_consequence(
     elif conseq_type == 'uAUG_lost':
         # Done
         intervals['start'] = int(conseq_dict['uAUG_lost_CapDistanceToStart'])
-        intervals['end'] = start_site - parse_values(
+
+        intervals['end'] = int(start_site) - parse_values(
             conseq_dict['uAUG_lost_DistanceToCDS'], start_site, buffer_length
         )
         intervals['viz_type'] = 'New Feature'
@@ -154,8 +182,24 @@ def find_intervals_for_utr_consequence(
         intervals['kozak_strength'] = conseq_dict['uSTOP_gained_KozakStrength']
 
     # Once we have indels as well
-    elif conseq_type == 'uFrameshift':
-        pass
+    elif conseq_type == 'uFrameShift':
+        frame_shift_pos = int(start_site) - parse_values(
+            int(conseq_dict['uFrameShift_ref_StartDistanceToCDS']),
+            start_site, buffer_length
+        )
+
+        intervals['start'] = frame_shift_pos
+        intervals['end'] = frame_shift_pos + parse_values(
+            conseq_dict['uFrameShift_alt_type_length'], start_site, buffer_length
+        )
+        print("SAJIDSODJASIDASJODISAJASOIDJSAIODSHELLLLLLLLOOOOOOOO_____________")
+        print(intervals['start'])
+        print(intervals['end'])
+        intervals['viz_type'] = 'New Feature'
+        intervals['viz_color'] = 'main'
+        intervals['type'] = 'uFrameshift'
+        intervals['kozak_strength'] = conseq_dict['uFrameShift_KozakStrength']
+
     intervals.update(conseq_dict)
 
     return intervals
@@ -221,6 +265,7 @@ def get_transcript_position(ensembl_transcript_id, gpos):
     """
     Gets the transcript position for the transcript / gpos combo
     """
+        
     db = features_db.get_db()
     cursor = db.execute(
         'SELECT transcript_pos FROM genome_to_transcript_coordinates WHERE ensembl_transcript_id=? AND genomic_pos=?',  # noqa: E501 # pylint: disable=C0301
@@ -265,23 +310,19 @@ def process_gnomad_data(gnomad_data, ensembl_transcript_id):
     gnomad_data['clinvar_variants'] = [
         clinvar
         for clinvar in gnomad_data['clinvar_variants']
-        if clinvar['major_consequence'] == '5_prime_UTR_variant'
-        and len(clinvar['ref']) == 1
+        if len(clinvar['ref']) == 1
         and len(clinvar['alt']) == 1
     ]
     gnomad_data['variants'] = [
         var
         for var in gnomad_data['variants']
-        if var['transcript_consequence']['major_consequence'] == '5_prime_UTR_variant'
-        and len(var['ref']) == 1
-        and len(var['alt']) == 1
+        if len(var['ref']) == 1 and len(var['alt']) == 1
     ]
 
     # Add the transcript relative positions for both
     for clinvar in gnomad_data['clinvar_variants']:
         clinvar.update(
-            {'tpos': get_transcript_position(ensembl_transcript_id, clinvar['pos'])}
-        )
+            {'tpos': get_transcript_position(ensembl_transcript_id, clinvar['pos'])})
     for var in gnomad_data['variants']:
         var.update({'tpos': get_transcript_position(ensembl_transcript_id, var['pos'])})
 
@@ -337,16 +378,6 @@ def get_all_orfs_features(ensembl_transcript_id):
     )
     rows = cursor.fetchall()
     features_db.close_db()
-
-    # Add genomic coordinates : TODO Optimize this in the
-    # by adding this in the pipeline
-    for u in rows:
-        u['uorf_start_genome'] = get_genome_to_transcript_intervals(
-            u['ensembl_transcript_id'], u['orf_start_codon']
-        )
-        u['uorf_stop_genome'] = get_genome_to_transcript_intervals(
-            u['ensembl_transcript_id'], u['orf_stop_codon']
-        )
 
     return rows
 
@@ -441,5 +472,4 @@ def gnomad_api_search_by_region(chrom, start, stop):
             'Content-Type': 'application/json',
         },
     ).json()
-
     return response['data']

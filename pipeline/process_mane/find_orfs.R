@@ -124,6 +124,7 @@ transcripts <- "../../data/pipeline/MANE_transcripts_v%s.tsv" %>%
     fread(., sep = "\t")
 
 # Apply for each transcript id
+print("Finding orfs...")
 transcripts[, orfs := {
     if (start_site_pos > 1) {
 
@@ -138,7 +139,7 @@ transcripts[, orfs := {
         # find the stop codon
         colnames(orfs) <- c("orf_start_codon")
 
-        if (nrow(orfs) > 1) {
+        if (nrow(orfs) >= 1) {
             # Find the ORF sequence and stop sites
             orfs[, (c(
                 "orf_seq",
@@ -147,7 +148,7 @@ transcripts[, orfs := {
 
             # Characterize which are uORFS and which are oORFs
             orfs[orf_stop_codon > start_site_pos, orf_type := "oORF"]
-            orfs[orf_stop_codon < start_site_pos, orf_type := "uORF"]
+            orfs[orf_stop_codon <= start_site_pos, orf_type := "uORF"]
 
             # find the frame
             orfs[, frame := categorize_frame(
@@ -193,6 +194,7 @@ transcripts[, orfs := {
         }
     }
 }, by = ensembl_transcript_id]
+print("...Completed")
 
 # Combine the data tables together
 orfs <- transcripts[
@@ -202,6 +204,22 @@ orfs <- transcripts[
         ensembl_transcript_id
     ), idcol = "ensembl_transcript_id")
 ]
+print("Finding Genomic Coordinates...")
+
+# Add genomic coordinates
+genome_mapper <- "../../data/pipeline/UTR_Genome_Transcript_Coordinates.tsv" %>% # nolint
+    fread(., sep = "\t")
+setkey(genome_mapper, transcript_id, tpos)
+g <- genome_mapper[, .(transcript_id, gpos, tpos)]
+setkey(g, transcript_id, tpos)
+orfs[, orf_start_codon_genome := g[.(
+    orfs$ensembl_transcript_id,
+    orfs$orf_start_codon), gpos]]
+orfs[, orf_stop_codon_genome := g[.(
+    orfs$ensembl_transcript_id,
+orfs$orf_stop_codon), gpos]]
+
+print("Completed")
 
 # Add translational efficiency
 te <- fread("../../data/pipeline/translational_efficiency.txt")

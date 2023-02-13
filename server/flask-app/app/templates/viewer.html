@@ -12,12 +12,9 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <!--Fonts-->
-      <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
-      <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
       <!-- Font Awesome -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/all.min.css')}}">
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/brands.css')}}">
       <!-- Ionicons -->
       <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
       <!-- Tempusdominus Bootstrap 4 -->
@@ -28,29 +25,15 @@
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jqvmap/jqvmap.min.css')}}">
       <!-- Theme style -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'dist/css/adminlte.min.css')}}">
-      <!-- overlayScrollbars -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css')}}">
-      <!-- Daterange picker -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/daterangepicker/daterangepicker.css')}}">
-      <!-- summernote -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.css')}}">
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid.min.css')}}">
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid-theme.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/select2/css/select2.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
-      <!--Bokeh-->
-      <link href="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh.min.css" rel="stylesheet" type="text/css">
-      <link href="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh-widgets.css" rel="stylesheet" type="text/css">
-      <link href="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh-tables.css" rel="stylesheet" type="text/css">
-
       <!--Preload scripts-->
       <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
-      <script src="https://unpkg.com/d3"></script>
-      <script src="https://unpkg.com/d3fc"></script>
 
 
       <style type="text/css">
-      .select2-container--default .select2-selection--multiple .select2-selection__choice {
+      .select2-container--default .select2-
+      selection--multiple .select2-selection__choice {
          background-color: #007bff;
          border-color: #006fe6;
       }
@@ -209,14 +192,15 @@
                                     <div class="card-body">
                                        <h6><b>5' UTR exon count</b>:{{five_prime_utr_stats["num_five_prime_utr_exons"]}}</h6>
                                        <h6><b>5' UTR length</b>: {{five_prime_utr_stats["five_prime_utr_length"]}}</h6>
-                                       <h6><b>Gene LOEUF <i class="fas fa-exclamation-circle"></i></b>: <span class="badge bg-warning"> {{constraint| safe}}</span></h6>
-                                       <!--h6><b>ClinGen Haploinsufficiency Score</b>: </h6-->
-                                       <!--<h6><b>External Resources</b>: View gene in
-                                          <a href="#">OMIM</a>,
-                                          <a href="#">gnomAD</a>,
-                                          <a href="#">sORFs.org</a>,
-                                          <a href="#">ClinVar</a>
-                                       </h6>-->
+                                       <h6><b>Gene LOEUF 
+                                          <a data-toggle="tooltip" data-placement="top" title="LOUEF uses gnomAD v2 (GRCh37)"><i class="fas fa-exclamation-circle"></i></a></b>: <span class="badge bg-warning"> {{constraint| safe}}</span></h6>
+                                          <h6><b>ClinGen Haploinsufficiency Score</b>: {{clingen_entry}} </h6>
+                                          <h6><b>ClinGen Triplosensitivity Score</b>: {{clingen_entry}} </h6>
+                                          <h6><b>External Resources</b>: View gene in
+                                          <a href="https://www.omim.org/entry/{{omim_id}}">OMIM</a>,
+                                          <a href="https://gnomad.broadinstitute.org/gene/{{ensembl_gene_id}}?dataset=gnomad_r3">gnomAD</a>,
+                                          <a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{hgnc}}%5Bgene%5D&redir=gene">ClinVar</a>
+                                       </h6>
                                     </div>
                                  </div>
                               </div>
@@ -344,15 +328,13 @@
                                  <div class="row">
                                     <div class="col-12">
                                     <h6 class="text-left"><strong>Input variant</strong></h6>
-                                    <select id ="input_variant" class="form-control select2 text-center mx-auto"  multiple="multiple" data-placeholder="Search by variant id e.g. {{all_possible_variants[0]| safe}}">
+                                    <select id ="input_variant" style="width:100% !important" class="form-control select2 text-center mx-auto"  multiple="multiple" data-placeholder="Search by variant id e.g. {{all_possible_variants[0]| safe}}">
                                        {% for var in all_possible_variants %}
                                        <option>{{var}}</option>
                                        {% endfor %}
                                     </select>
 
                                     <div class="input_variant">
-
-
                                     </div>
                                     </div>
                                  </div>
@@ -499,17 +481,8 @@
       <script src="{{url_for('static', filename = 'plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
       <!-- ChartJS -->
       <script src="{{url_for('static', filename = 'plugins/chart.js/Chart.min.js')}}"></script>
-      <!-- Sparkline -->
-      <script src="{{url_for('static', filename = 'plugins/sparklines/sparkline.js')}}"></script>
-      <!-- JQVMap -->
-      <script src="{{url_for('static', filename = 'plugins/jqvmap/jquery.vmap.min.js')}}"></script>
-      <script src="{{url_for('static', filename = 'plugins/jqvmap/maps/jquery.vmap.usa.js')}}"></script>
-      <!-- jQuery Knob Chart -->
-      <script src="{{url_for('static', filename = 'plugins/jquery-knob/jquery.knob.min.js')}}"></script>
-      <!-- daterangepicker -->
-      <script src="{{url_for('static', filename = 'plugins/moment/moment.min.js')}}"></script>
-      <script src="{{url_for('static', filename = 'plugins/daterangepicker/daterangepicker.js')}}"></script>
       <!-- Tempusdominus Bootstrap 4 -->
+      <script src="{{url_for('static', filename = 'plugins/moment/moment.min.js')}}"></script>
       <script src="{{url_for('static', filename = 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
       <!-- Summernote -->
       <script src="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.js')}}"></script>
@@ -520,20 +493,15 @@
       <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
       <script src="{{url_for('static', filename = 'dist/js/pages/dashboard.js')}}"></script>
       <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
-      <script src="{{url_for('static', filename ='plugins/jsgrid/jsgrid.min.js')}}"></script>
-      <!--Bokeh-->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh-widgets.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh-tables.js"></script>
 
       <!--UTR Visualization-->
       <script src="{{url_for('static', filename ='utrviewer.js')}}"></script>
-      <script src="{{url_for('static', filename ='variant_table.js')}}"></script>
 
       <!--Custom Scripts-->
       <script type="text/javascript">
 
       $('#input_variant').select2();
+      $('[data-toggle="tooltip"]').tooltip()
 
 
 

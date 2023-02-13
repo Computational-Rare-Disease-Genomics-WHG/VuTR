@@ -15,7 +15,6 @@ var pathogenicity_colors = {
 };
 
 var detail_mapping = {
-
     // gnomAD mappings
     "alt": "ALT",
     "clinical_significance": "Clinical Significance",
@@ -32,17 +31,17 @@ var detail_mapping = {
     "genome.af": "gnomAD v3 AF",
     "genome.ac": "gnomAD v3 AC",
     "genome.an": "gnomAD v3 AN",
-    "efficiency" : "Translational Efficiency",
-    "lower_bound" : "Translational Efficiency (Lower bound)",
-    "upper_bound" : "Translational Efficiency (Upper bound)",
+    "efficiency": "Translational Efficiency",
+    "lower_bound": "Translational Efficiency (Lower bound)",
+    "upper_bound": "Translational Efficiency (Upper bound)",
 
     /// ORF Details
     "ensembl_transcript_id": "Ensembl Transcript ID",
     "orf_start_codon": "Transcript pos. Start Codon",
     "orf_seq": "ORF Sequence",
     "orf_stop_codon": "Transcript pos. Stop codon",
-    "uorf_start_genome" : "Genomic pos. Start Codon",
-    "uorf_stop_genome" : "Genomic pos. Stop Codon",
+    "orf_start_codon_genome": "Genomic pos. Start Codon",
+    "orf_stop_codon_genome": "Genomic pos. Stop Codon",
     "orf_type": "ORF Type",
     "frame": "ORF Frame w.r.t. CDS",
     "kozak_context": "7bp context",
@@ -85,7 +84,6 @@ var detail_mapping = {
 
     /*
     To be defined when we have frameshift variants with indels
-
     "uFrameshift_ref_type":,
     "uFrameshift_ref_type_length":,
     "uFrameshift_StartDistanceToCDS":,
@@ -117,53 +115,58 @@ var strand_corrected_interval = function(
 }
 
 
-var get_exon_structure = function (genomic_features, buffer, start_site, strand){
+var get_exon_structure = function(genomic_features, buffer, start_site,
+    strand) {
 
     /* Filter to five prime UTR*/
-    var genomic_features =  genomic_features.filter(e => {
+    var genomic_features = genomic_features.filter(e => {
         return (e.type === 'exon');
     });
 
     /* Sort by exon number */
-    genomic_features.sort((a,b) => (a.exon_number > b.exon_number) ? 1: -1);
+    genomic_features.sort((a, b) => (a.exon_number > b.exon_number) ? 1 : -
+        1);
 
     var new_x = 1;
     var output = [];
-    /* Loop over genomic features */    
+    /* Loop over genomic features */
     genomic_features.forEach((element, index) => {
         /* Find the width of the exon*/
 
-        width_exon = element['end']-element['start'];
-        exon_start = strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['start']
-        exon_end  = strand_corrected_interval(new_x, new_x+width_exon, start_site, buffer, strand) ['end']
-        
+        width_exon = element['end'] - element['start'];
+        exon_start = strand_corrected_interval(new_x, new_x +
+            width_exon, start_site, buffer, strand)['start']
+        exon_end = strand_corrected_interval(new_x, new_x +
+            width_exon, start_site, buffer, strand)['end']
+
         /* Exclude exons that start before the CDS */
-        if (exon_end > 0){
+        if (exon_end > 0) {
             /* Trim exon that goes beyond buffer a little bit */
-            if (exon_start < 0){
-            output.push({
-                'x' : 0,
-                'y' : Math.min(exon_end, start_site+buffer),
-                color: '#A4AAAC',
-                description: 'Exon '+ (index+1),
+            if (exon_start < 0) {
+                output.push({
+                    'x': 0,
+                    'y': Math.min(exon_end, start_site +
+                        buffer),
+                    color: '#A4AAAC',
+                    description: 'Exon ' + (index + 1),
 
-            });
+                });
 
+            } else {
+
+                output.push({
+                    'x': exon_start,
+                    'y': Math.min(exon_end, start_site +
+                        buffer),
+                    color: '#A4AAAC',
+                    description: 'Exon ' + (index + 1),
+
+                });
             }
-            else{
-
-            output.push({
-                'x' : exon_start,
-                'y' : Math.min(exon_end, start_site+buffer),
-                color: '#A4AAAC',
-                description: 'Exon '+ (index+1),
-
-            });
-        }
 
         }
         /* Add exon length*/
-        new_x=new_x+width_exon+1;
+        new_x = new_x + width_exon + 1;
 
     });
 
@@ -209,12 +212,12 @@ var open_modal = function(data, type) {
     $("#modal-container").empty();
 
 
-    if (type === 'gnomad'){
-       delete data['transcript_consequence'];
-       data = flattenObj(data);
+    if (type === 'gnomad') {
+        delete data['transcript_consequence'];
+        data = flattenObj(data);
     }
 
-    if (type === 'gnomad' || type === 'clinvar'){
+    if (type === 'gnomad' || type === 'clinvar') {
         delete data['type'];
         delete data['kozak_strength'];
         delete data['start'];
@@ -224,18 +227,168 @@ var open_modal = function(data, type) {
     }
 
 
-    var custom = `
-		<div class="modal fade" id="feature-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-		<div class="modal-dialog " role="document">
+    var custom;
+    
+    // gnomAD 
+    if (type == 'gnomad'){
+    custom = `
+    <div class="modal fade" 
+    id="feature-modal"
+    tabindex="-1" 
+    role="dialog" 
+    aria-labelledby="exampleModalLongTitle" 
+    aria-hidden="true">
+
+<div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLongTitle">ORF Details</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+
+    <div class="modal-body">
+    <h5>Variant</h5> 
+    <ul>
+      <li><b>REF</b> : ${data['ref']}</li>
+      <li><b>ALT</b> : ${data['alt']} </li>
+      <li><b>Genome Position</b> : ${data['pos']} </li>
+      <li><b>Transcript Position</b> : ${data['tpos']} </li>
+      <li><b>Variant ID</b> : ${data['variant_id']} </li>
+      <li><b>HGVSC</b> : ${data['hgvsc']} </li>
+    </ul>
+
+      <hr>
+
+      <h5>gnomAD Frequency</h5> 
+      <ul>
+        <li><b>Allele Count</b> : ${data['genome.ac']}</li>
+        <li><b>Allele Number</b> : ${data['genome.an']} </li>
+        <li><b>Allele Frequency (all pop)</b> : ${data['genome.af']} </li>
+      </ul>
+      <hr>
+      <b>View variant in gnomAD</b>: <a href='https://gnomad.broadinstitute.org/variant/${data['variant_id']}?dataset=gnomad_r3'>${data['variant_id']}</a>    
+    </div>
+
+  </div>
+</div>
+</div>
+
+    
+    `;
+    }
+
+if (type == 'clinvar'){
+    custom = `
+    <div class="modal fade" 
+    id="feature-modal"
+    tabindex="-1" 
+    role="dialog" 
+    aria-labelledby="exampleModalLongTitle" 
+    aria-hidden="true">
+
+<div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLongTitle">ORF Details</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+
+    <div class="modal-body">
+    <h5>Variant</h5> 
+    <ul>
+      <li><b>REF</b> : ${data['ref']}</li>
+      <li><b>ALT</b> : ${data['alt']} </li>
+      <li><b>Genome Position</b> : ${data['pos']} </li>
+      <li><b>Transcript Position</b> : ${data['tpos']} </li>
+      <li><b>Variant ID</b> : ${data['variant_id']} </li>
+      <li><b>HGVSC</b> : ${data['hgvsc']} </li>
+    </ul>
+
+    <hr>
+
+    <h5>ClinVar variant details</h5> 
+    <ul>
+    <li><b>Clinical Significance</b> : ${data['clinical_significance']}</li>
+    <li><b>Review Status</b> : ${data['review_status']}</li>
+    <li><b>Gold Stars</b> : ${data['gold_stars']} </li>
+    <li><b>ClinVar Variation ID</b> : ${data['clinvar_variation_id']} </li>
+    <li><b>Variant in gnomAD?</b> : ${data['in_gnomad']} </li>
+    </ul>
+  <hr>
+      <b>View variant in ClinVar</b>: <a href='https://www.ncbi.nlm.nih.gov/clinvar/variation/${data['clinvar_variation_id']}'>${data['clinvar_variation_id']}</a>    </div>
+
+  </div>
+</div>
+</div>
+
+    
+    `;
+
+} 
+
+if (type == 'orf'){
+    custom = `
+		<div class="modal fade" 
+            id="feature-modal"
+            tabindex="-1" 
+            role="dialog" 
+            aria-labelledby="exampleModalLongTitle" 
+            aria-hidden="true">
+
+		<div class="modal-dialog modal-lg" role="document">
 		  <div class="modal-content">
 			<div class="modal-header">
-			  <h5 class="modal-title" id="exampleModalLongTitle">Detail</h5>
+			  <h5 class="modal-title" id="exampleModalLongTitle">ORF Details</h5>
 			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 			  </button>
 			</div>
+
+
 			<div class="modal-body">
-			  <ul id="feature-modal-data">
+              <h5>Coordinates</h5>
+              <ul>
+              <li><b>Transcript</b>
+                <ul>
+                <li><b>Start codon</b> : ${data['orf_start_codon']} </li>
+                <li><b>Stop codon</b> : ${data['orf_stop_codon']}</li>
+                </ul>      
+              </li>
+              <li><b>Genome</b>
+              <ul>
+              <li><b>Start codon</b> : ${data['orf_start_codon_genome']}</li>
+              <li><b>Stop codon</b> : ${data['orf_stop_codon_genome']}</li>
+              </ul>      
+
+              </li> 
+              </ul>
+              <hr>
+
+              <h5>ORF details</h5> 
+              <ul>
+                <li><b>ORF Sequence</b> : ${data['orf_seq']}</li>
+                <li><b>ORF Type</b> : ${data['orf_type']} </li>
+                <li><b>ORF Frame</b> : ${data['frame']} </li>
+              </ul>
+              <hr>
+
+
+              <h5>Translation details</h5>
+              <ul>
+                <li><b>Translational Efficiency</b> : ${data['efficiency']} (${data['lower_bound']}-${data['upper_bound']})</li>
+                <li><b>Kozak Consensus Strength</b> : ${data['kozak_consensus_strength']} </li>
+                <li><b>Kozak Consensus Context</b> :  ${data['kozak_context']}</li>
+              </ul>
+              <hr>
+              <h5>Translation Efficiency Distribution</h5>
+              
+              <ul id="feature-modal-data">
 			  </ul>
 			</div>
 
@@ -243,76 +396,100 @@ var open_modal = function(data, type) {
 		</div>
 	  </div>
 		`;
+
+    
+}
     document.getElementById('modal-container')
         .insertAdjacentHTML('beforeend',
             custom);
 
     // Filter data
     var ul = document.getElementById('feature-modal-data');
-    for (const [key, value] of Object.entries(data)) {
+    /*for (const [key, value] of Object.entries(data)) {
         var li = document.createElement('li');
         ul.appendChild(li);
         // Map the VEP consequence terms to formatted strings
         li.innerHTML += `<b>${detail_mapping[key]}</b>: ${value}`;
-    }
-    if (type === 'clinvar'){
-        var li = document.createElement('li');
-        ul.appendChild(li);
-        li.innerHTML += `<b>View variant in ClinVar</b>: <a href='https://www.ncbi.nlm.nih.gov/clinvar/variation/${data['clinvar_variation_id']}'>${data['clinvar_variation_id']}</a>`;
-     }
+    }*/ 
 
-     if (type === 'gnomad'){
-        var li = document.createElement('li');
-        ul.appendChild(li);
-        li.innerHTML += `<b>View variant in gnomad</b>: <a href='https://gnomad.broadinstitute.org/variant/${data['variant_id']}?dataset=gnomad_r3'>${data['variant_id']}</a>`;
-     }
 
-     // Add TE
-     if ('efficiency' in data){
-        var te_chartdiv = document.createElement('li');
+
+
+    // Add TE
+    var dat = data;
+    if ('efficiency' in data) {
+        var te_chartdiv = document.createElement('div');
         ul.appendChild(te_chartdiv);
-        te_chartdiv.innerHTML += `<b>Translational Efficiency Distribution</b><br/><canvas id = 'te-plot'></canvas`;
+        te_chartdiv.innerHTML +=
+            `<canvas id = 'te-plot'></canvas`;
         const ctx = document.getElementById('te-plot').getContext('2d');
         // Histogram data from R
-        const labels = ["10-20", "20-30,", "30-40", "40-50", "50-60", "60-70","70-80","80-90","90-100","100-110","110-120","120-130","130-140","140-150"]
-        const counts = [10,  326,  795, 1230, 1628, 2182, 3563, 3510, 2600, 1687,  811,  239,   48,    7]
+        const labels = ["10-20", "20-30,", "30-40", "40-50", "50-60",
+            "60-70", "70-80", "80-90", "90-100", "100-110", "110-120",
+            "120-130", "130-140", "140-150"
+        ]
+        const counts = [10, 326, 795, 1230, 1628, 2182, 3563, 3510, 2600,
+            1687, 811, 239, 48, 7
+        ]
+        var bg_color = 
+        ['#134DF1',
+        '#134DF1',
+        '#134DF1',
+        '#134DF1',
+        '#134DF1',
+        '#134DF1',
+        '#134DF1',
+        '#134DF1',
+        '#134DF1',
+        '#134DF1',
+        '#134DF1',
+        '#134DF1',
+        '#134DF1',
+        '#134DF1',
+        '#134DF1'];
+
+        // Find index where efficiency falls under 
+        for (var i = 0; i < labels.length; ++i) {
+            const r = labels[i].split('-');
+            
+            if (parseInt(r[0]) < dat['efficiency'] &&
+                dat['efficiency'] < parseInt(r[1])) {
+                bg_color[i] = '#E83A5A';
+            }
+        }
+
         const data = {
-        labels: labels,
-        datasets: [{
-            label: 'Translational Efficiency of all uORFs',
-            data: counts,
-            borderWidth: 1,
-            backgroundColor: 'rgb(75, 192, 192)',
-            borderColor: 'rgb(75, 192, 192)',
-        }]
+            labels: labels,
+            datasets: [{
+                label: 'Translational Efficiency of all uORFs',
+                data: counts,
+                borderWidth: 0,
+                backgroundColor: bg_color,
+                //borderColor: 'rgb(75, 192, 192)',
+            }]
         };
         // Create configurationT
         const config = {
             type: 'bar',
             data: data,
             options: {
-              scales: {
-                y: {
-                  beginAtZero: true
-                }
-              },
-              annotation: {
-                annotations: [
-                  {
-                    type: "line",
-                    mode: "vertical",
-                    scaleID: "x-axis-0",
-                    value: data['efficiency'],
-                    borderWidth: 4,
-                    borderColor: "red"
-                  }
-                ]
-              },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    enabled: false // <-- this option disables tooltips
+                  }            
+        
 
             },
-          };
-          new Chart(ctx, config);
-}
+        };
+        new Chart(ctx, config);
+    }
 
 
 
@@ -329,9 +506,9 @@ var search_obj = function(data, id, id_var) {
     })[0])
 }
 
-var handleZoom = function (ft, d){
+var handleZoom = function(ft, d) {
     var start = d.detail.start;
-    var end  = d.detail.end;
+    var end = d.detail.end;
     ft.zoom(start, end);
 
 }
@@ -385,15 +562,22 @@ var create_transcript_viewer = function(
     if (start_site != 0) {
         ft2.addFeature({
             data: [{
-                    x: strand_corrected_interval(start_site + 1, start_site + buffer, start_site, buffer, strand)['start'],
-                    y: strand_corrected_interval(start_site + 1, start_site + buffer, start_site, buffer, strand)['end'],
+                    x: strand_corrected_interval(start_site + 1,
+                        start_site + buffer, start_site,
+                        buffer, strand)['start'],
+                    y: strand_corrected_interval(start_site + 1,
+                        start_site + buffer, start_site,
+                        buffer, strand)['end']+1,
                     color: '#58565F',
                     description: "\t\tCDS",
                     id: 'cds_rect',
                 },
                 {
-                    x: strand_corrected_interval(1, start_site, start_site, buffer, strand)['start'],
-                    y: strand_corrected_interval(1, start_site, start_site, buffer, strand)['end'],
+                    x: strand_corrected_interval(1, start_site,
+                        start_site, buffer, strand)[
+                        'start']+1,
+                    y: strand_corrected_interval(1, start_site,
+                        start_site, buffer, strand)['end'],
                     color: '#A4AAAC',
                     description: "\t\t5' UTR",
                     id: 'utr_rect'
@@ -408,12 +592,13 @@ var create_transcript_viewer = function(
         document.getElementById("fcds_rect").setAttribute("y", "-8");
 
         ft2.addFeature({
-            data: get_exon_structure(genomic_features, buffer, start_site, strand),
-            color:'#2C302E',
-            name : 'Exon Structure',
-            className : 'exon_struct',
+            data: get_exon_structure(genomic_features, buffer,
+                start_site, strand),
+            color: '#2C302E',
+            name: 'Exon Structure',
+            className: 'exon_struct',
             type: 'rect',
-            color : '#000000'
+            color: '#000000'
         });
     }
 
@@ -424,7 +609,9 @@ var create_transcript_viewer = function(
     var orf_groups = [{
             "grouping_name": "uORFs",
             "orf_type": "uORF",
-            "frame": ["Inframe", "Out-of-Frame (2bp)", "Out-of-Frame (1bp)"]
+            "frame": ["Inframe", "Out-of-Frame (2bp)",
+                "Out-of-Frame (1bp)"
+            ]
         },
         {
             "grouping_name": "Inframe (oORF)",
@@ -447,9 +634,15 @@ var create_transcript_viewer = function(
         });
         curr_orf_frame_dat = [];
         curr_orf_type.forEach(e => curr_orf_frame_dat.push({
-            x: strand_corrected_interval(e.orf_start_codon, e.orf_stop_codon, start_site, buffer, strand)['start'],
-            y: strand_corrected_interval(e.orf_start_codon, e.orf_stop_codon, start_site, buffer, strand)['end'],
-            color: kozak_colors[e.kozak_consensus_strength],
+            x: strand_corrected_interval(e
+                .orf_start_codon, e.orf_stop_codon,
+                start_site, buffer, strand)[
+                'start'],
+            y: strand_corrected_interval(e
+                .orf_start_codon, e.orf_stop_codon,
+                start_site, buffer, strand)['end'],
+            color: kozak_colors[e
+                .kozak_consensus_strength],
             id: e.orf_id,
         }))
         if (curr_orf_frame_dat.length > 0) {
@@ -482,26 +675,31 @@ var create_transcript_viewer = function(
             zoomMax: 10
         })
 
-        var pop_variants = gnomad_data['variants']; // gnomAD variants from the API
-        var pop_var_feat_dat = []; // Visualization intervals to pass to feature viewer
-        var pop_var_tpos = []; // tmp for storing the transcript positions of the variants
-        pop_variants.forEach(element => {
-            tpos = element['tpos']
-            // Only append to the track if didn't exist
-            if (!pop_var_tpos.includes(tpos)) {
-                pop_var_tpos.push(tpos);
-                strand_corrected_tpos = strand_corrected_interval(element['tpos'], element['tpos'], start_site, buffer, strand)
-                pop_var_feat_dat.push({
-                    x: strand_corrected_tpos['start'],
-                    y: strand_corrected_tpos['end'],
-                    id : element['variant_id'],
-                    className: 'no_impact_gnomad'
-                });
-            }
+    var pop_variants = gnomad_data[
+        'variants']; // gnomAD variants from the API
+    var
+        pop_var_feat_dat = []; // Visualization intervals to pass to feature viewer
+    var
+        pop_var_tpos = []; // tmp for storing the transcript positions of the variants
+    pop_variants.forEach(element => {
+        tpos = element['tpos']
+        // Only append to the track if didn't exist
+        if (!pop_var_tpos.includes(tpos)) {
+            pop_var_tpos.push(tpos);
+            strand_corrected_tpos = strand_corrected_interval(
+                element['tpos'], element['tpos'], start_site,
+                buffer, strand)
+            pop_var_feat_dat.push({
+                x: strand_corrected_tpos['start'],
+                y: strand_corrected_tpos['end'],
+                id: element['variant_id'],
+                className: 'no_impact_gnomad'
+            });
+        }
 
 
-        });
-    if (pop_var_feat_dat.length > 0){
+    });
+    if (pop_var_feat_dat.length > 0) {
         gnomad_variant_ft.addFeature({
             data: pop_var_feat_dat,
             type: "rect",
@@ -516,13 +714,17 @@ var create_transcript_viewer = function(
         element => {
             gnomad_variant_ft.addFeature({
                 data: [{
-                    x: strand_corrected_interval(element['start'],
-                            element['end'],
-                            start_site,
-                            buffer,
-                            strand)['start'],
-                    y: strand_corrected_interval(element['start'], element['end'], start_site, buffer, strand)['end'],
-                    id : element["variant_id"]
+                    x: strand_corrected_interval(
+                        element['start'],
+                        element['end'],
+                        start_site,
+                        buffer,
+                        strand)['start'],
+                    y: strand_corrected_interval(
+                        element['start'], element[
+                            'end'], start_site,
+                        buffer, strand)['end'],
+                    id: element["variant_id"]
                 }],
                 type: "rect",
                 className: "gnomAD_high_impact_variant",
@@ -532,8 +734,11 @@ var create_transcript_viewer = function(
         }
     )
     gnomad_variant_ft.onFeatureSelected(function(m) {
-        gnomad_utr_conseq = search_obj(gnomad_utr_impact, m.detail.id, 'variant_id')
-        open_modal(Object.assign(search_obj(pop_variants, m.detail.id, 'variant_id'), gnomad_utr_conseq), 'gnomad');
+        gnomad_utr_conseq = search_obj(gnomad_utr_impact, m.detail
+            .id, 'variant_id')
+        open_modal(Object.assign(search_obj(pop_variants, m.detail
+                .id, 'variant_id'), gnomad_utr_conseq),
+            'gnomad');
 
 
 
@@ -551,10 +756,15 @@ var create_transcript_viewer = function(
     var clinvar_var_feat_dat = [];
     clinvar_variants.forEach(element => {
         clinvar_var_feat_dat.push({
-            x: strand_corrected_interval(element['tpos'], element['tpos'], start_site, buffer, strand)['start'],
-            y: strand_corrected_interval(element['tpos'], element['tpos'], start_site, buffer, strand)['end'],
-            color: pathogenicity_colors[element.clinical_significance],
-            id : element['variant_id'],
+            x: strand_corrected_interval(element['tpos'],
+                element['tpos'], start_site, buffer,
+                strand)['start'],
+            y: strand_corrected_interval(element['tpos'],
+                element['tpos'], start_site, buffer,
+                strand)['end'],
+            color: pathogenicity_colors[element
+                .clinical_significance],
+            id: element['variant_id'],
             className: 'no_impact_clinvar'
 
         });
@@ -574,8 +784,14 @@ var create_transcript_viewer = function(
         element => {
             clinvar_variant_ft.addFeature({
                 data: [{
-                    x: strand_corrected_interval(element['start'], element['end'], start_site, buffer, strand)['start'],
-                    y: strand_corrected_interval(element['start'], element['end'], start_site, buffer, strand)['end'],
+                    x: strand_corrected_interval(
+                        element['start'], element[
+                            'end'], start_site,
+                        buffer, strand)['start'],
+                    y: strand_corrected_interval(
+                        element['start'], element[
+                            'end'], start_site,
+                        buffer, strand)['end'],
                     id: element.variant_id
                 }],
                 type: "rect",
@@ -588,17 +804,19 @@ var create_transcript_viewer = function(
 
     /*Event handler to view the Clinvar variant detail page*/
     clinvar_variant_ft.onFeatureSelected(function(d) {
-        clinvar_utr_conseq = search_obj(clinvar_utr_impact, d.detail.id, 'variant_id')
+        clinvar_utr_conseq = search_obj(clinvar_utr_impact, d.detail
+            .id, 'variant_id')
         open_modal(Object.assign(
-                search_obj(clinvar_variants, d.detail.id, 'variant_id'),
+                search_obj(clinvar_variants, d.detail.id,
+                    'variant_id'),
                 clinvar_utr_conseq),
             'clinvar');
     });
 
     var viewers = {
-        'clinvar_ft' : clinvar_variant_ft,
-        'gnomad_ft' : gnomad_variant_ft,
-        'arch_ft' : ft2
+        'clinvar_ft': clinvar_variant_ft,
+        'gnomad_ft': gnomad_variant_ft,
+        'arch_ft': ft2
     };
 
     return viewers;
@@ -607,11 +825,12 @@ var create_transcript_viewer = function(
 
 
 var initialize_user_viewer = function(div,
-     seq,
-     start_site,
-     strand,
-     buffer) {
-    var sequence = strand == "+" ? seq.substring(0, start_site + buffer) : reverse(seq.substring(0, start_site + buffer));
+    seq,
+    start_site,
+    strand,
+    buffer) {
+    var sequence = strand == "+" ? seq.substring(0, start_site + buffer) :
+        reverse(seq.substring(0, start_site + buffer));
     user_viewer = new FeatureViewer.createFeature(sequence, div, {
         showAxis: false,
         showSequence: false,
@@ -628,8 +847,10 @@ var add_user_supplied_feature = function(
     start_site, buffer, strand) {
     dat = payload["data"]["intervals"]
     intervals = [{
-        x: strand_corrected_interval(dat['start'], dat['end'], start_site, buffer, strand)['start'],
-        y: strand_corrected_interval(dat['start'], dat['end'], start_site, buffer, strand)['end'],
+        x: strand_corrected_interval(dat['start'], dat['end'],
+            start_site, buffer, strand)['start'],
+        y: strand_corrected_interval(dat['start'], dat['end'],
+            start_site, buffer, strand)['end'],
         id: dat['variant_id']
     }]
 

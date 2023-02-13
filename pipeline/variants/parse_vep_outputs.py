@@ -43,6 +43,7 @@ def wide_to_long(df):
             binding_df['five_prime_UTR_variant_annotation'] = annotation_split
         long_df = pd.concat([long_df, binding_df], axis=0, ignore_index=True)
 
+
     return long_df
 
 

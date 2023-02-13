@@ -122,6 +122,8 @@ tbl_models = {
             'efficiency': 'efficiency',
             'lower_bound': 'lower_bound',
             'upper_bound': 'upper_bound',
+            'orf_start_codon_genome': 'orf_start_codon_genome',
+            'orf_stop_codon_genome': 'orf_stop_codon_genome',
             'context': 'context',
         },
         'remove_ensembl_id_version_numbers': True,
@@ -139,6 +141,8 @@ tbl_models = {
             'efficiency': Integer(),
             'lower_bound': Integer(),
             'upper_bound': Integer(),
+            'orf_start_codon_genome': Integer(),
+            'orf_stop_codon_genome': Integer(),
             'context': VARCHAR(length=30),
         },
     },
@@ -242,6 +246,23 @@ tbl_models = {
         'ensembl_ids': ['ensembl_transcript_id', 'orf_id'],
         'dtype': None,
     },
+
+    'omim' : {
+        'location' : 'processed_omim.txt',
+        'separator' : '\t',
+        'col_mappings' : {
+            'omim_entry' : 'omim_entry',
+            'type' : 'type',
+            'entrez' : 'entrez',
+            'hgnc' : 'hgnc_id',
+            'ensembl_gene_id' : 'ensembl_gene_id'
+        },
+        'remove_ensembl_id_version_numbers' : False,
+        'ensembl_ids' : None,
+        'dtype' : None,
+    },
+
+
     'clingen': {
         'location': f'CLINGEN/ClinGen_gene_curation_list_{ASSEMBLY}.tsv',
         'separator': '\t',
@@ -266,7 +287,7 @@ tbl_models = {
             'Triplosensitivity PMID4': 'triplo_pmid4',
             'Triplosensitivity PMID5': 'triplo_pmid5',
             'Triplosensitivity PMID6': 'triplo_pmid6',
-            'Date Last Evaluated': 'date_last_evaluated'        },
+            'Date Last Evaluated': 'date_last_evaluated'},
         'remove_ensembl_id_version_numbers': False,
         'ensembl_ids': None,
         'dtype': None,  # To be finalized once we have things sorted out

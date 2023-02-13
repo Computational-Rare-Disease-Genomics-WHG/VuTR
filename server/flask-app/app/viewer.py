@@ -23,6 +23,8 @@ from .helpers import (
     get_utr_annotation_for_list_variants,
     find_intervals_for_utr_consequence,
     get_gnomad_variants_in_utr_regions,
+    get_omim_id,
+    get_clingen_entry
 )
 
 from . import variant_db
@@ -50,7 +52,6 @@ def get_utr_impacts():
     rows = cursor.fetchall()
     variant = [json.loads(row[0]) for row in rows][0]
     annotation = [json.loads(row[1]) for row in rows][0]
-    print(variant)
     intervals = find_intervals_for_utr_consequence(
         var_id=variant_id,
         conseq_type=variant['five_prime_UTR_variant_consequence'],
@@ -59,7 +60,6 @@ def get_utr_impacts():
         start_site=start_site,
         buffer_length=buffer,
     )
-    print(intervals)
     response_object = {
         'status': 'Success',
         'message': 'Ok',
@@ -68,14 +68,7 @@ def get_utr_impacts():
             'intervals': intervals,
         },
     }
-    print(response_object)
     return response_object, 200
-    # except Exception as e:  # pylint: disable=W0703
-    #    response_object = {
-    #        'status': 'Failure',
-    #        'message': f'Unable to fetch utr consequence error {str(e)}',
-    #    }
-    #    return response_object, 400
 
 
 @viewer.route('/viewer/<ensembl_transcript_id>')
@@ -107,6 +100,11 @@ def viewer_page(ensembl_transcript_id):
     constraint = get_constraint_score(ensembl_gene_id)
     start_site = five_prime_utr_stats['start_site_pos']
 
+    # ClinGen
+    clingen_entry = get_clingen_entry(hgnc)
+    # OMIM ID
+    omim_id = get_omim_id(ensembl_gene_id)
+
     possible_variants = get_possible_variants(
         ensembl_transcript_id=ensembl_transcript_id
     )
@@ -122,6 +120,7 @@ def viewer_page(ensembl_transcript_id):
         ensembl_transcript_id,
     )
 
+    print(gnomad_data)
     # Get the annotations for these values.
     gnomad_utr_impact = get_utr_annotation_for_list_variants(
         gnomad_variants_list, possible_variants, start_site, buffer
@@ -129,6 +128,8 @@ def viewer_page(ensembl_transcript_id):
     clinvar_utr_impact = get_utr_annotation_for_list_variants(
         clinvar_variants_list, possible_variants, start_site, buffer
     )
+
+
 
     #
     all_possible_variants = find_all_high_impact_utr_variants(
@@ -144,6 +145,8 @@ def viewer_page(ensembl_transcript_id):
         hgnc=hgnc,
         name=name,
         refseq_match=refseq_match,
+        clingen_entry=clingen_entry,
+        omim_id=omim_id,
         impact_url=impact_url,
         gnomad_data=gnomad_data,
         constraint=constraint,
