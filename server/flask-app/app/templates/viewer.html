@@ -541,6 +541,8 @@
       var user_variant_data = [];
 
 
+      /* Zoom hacks to brush to zoom and double click to return*/
+
       // Add event handler
       user_viewer.onFeatureSelected(function (d){
 		   open_modal(search_obj(user_variant_data, d.detail.id,'variant_id'));
@@ -556,6 +558,25 @@
          handleZoom(user_viewer, d);
       });
 
+      // Remove original featureviewer event handler
+
+      $('#transcript_viewer svg')[0].addEventListener('contextmenu', function(event) {
+         event.stopImmediatePropagation();
+      }, true);
+
+      $('#gnomad_tracks svg')[0].addEventListener('contextmenu', function(event) {
+         event.stopImmediatePropagation();
+      }, true);
+
+      $('#clinvar_tracks svg')[0].addEventListener('contextmenu', function(event) {
+         event.stopImmediatePropagation();
+      }, true);
+
+      $('#user_variants svg')[0].addEventListener('contextmenu', function(event) {
+         event.stopImmediatePropagation();
+      }, true);
+
+
       // Use double click to reset zoom.
       $('#transcript_viewer').dblclick(
          function(d){
@@ -563,9 +584,9 @@
             gnomad_ft.resetZoom();
             clinvar_ft.resetZoom();
             user_viewer.resetZoom();
-
          }
       )
+
 
 
       var impact_url = "{{impact_url|safe}}"
