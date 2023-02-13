@@ -356,7 +356,7 @@
       <!-- /.content-wrapper -->
       <footer class="main-footer mx-auto">
          <div class="row mx-auto">
-            <strong class="mx-auto">Copyright &copy; 2022 <a href="https://rarediseasegenomics.com.au">Computational Rare Disease Genomics</a></strong>.
+            <strong class="mx-auto">Copyright &copy; <script>document.write(new Date().getFullYear());</script> <a href="https://rarediseasegenomics.com.au">Computational Rare Disease Genomics</a></strong>.
          </div>
          <div class="float-right d-none d-sm-inline-block">
             <b>UTR Visualisation App</b> version 0.8
@@ -553,8 +553,20 @@
       arch_ft.onZoom(function (d){
          handleZoom(gnomad_ft, d);
          handleZoom(clinvar_ft, d);
-         handleZoom(user_viewer, d)
+         handleZoom(user_viewer, d);
       });
+
+      // Use double click to reset zoom.
+      $('#transcript_viewer').dblclick(
+         function(d){
+            arch_ft.resetZoom();
+            gnomad_ft.resetZoom();
+            clinvar_ft.resetZoom();
+            user_viewer.resetZoom();
+
+         }
+      )
+
 
       var impact_url = "{{impact_url|safe}}"
 
