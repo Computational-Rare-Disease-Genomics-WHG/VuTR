@@ -29,10 +29,10 @@ def gene_search():
     if re.search(r'\d-\d+-\w-\w', query):
         return redirect(url_for('main.search_variant', variant=query))
 
-    elif query[0:3] is 'ENSG':
+    elif query[0:4] == 'ENSG':
         ensembl_transcript_id = convert_between_ids(
         query, 'ensembl_gene_id', 'ensembl_transcript_id'
-    )
+    )   
     else: 
         ensembl_transcript_id = convert_between_ids(
             query, 'hgnc_symbol', 'ensembl_transcript_id'
