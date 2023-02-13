@@ -36,6 +36,7 @@ def main(args):
 
     for opt in options:
         print(f'Creating table {opt} in database {args.db_name}')
+        print(tbl_models[opt])
         c.execute(tbl_models[opt])
         conn.commit()
     print(f'Completed creating tables')
