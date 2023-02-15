@@ -372,7 +372,7 @@ if (type == 'orf'){
 
               <h5>ORF details</h5> 
               <ul>
-                <li><b>ORF Sequence</b> : ${data['orf_seq']}</li>
+                <li><b>ORF Sequence</b> : <p style='word-wrap: break-word'>${data['orf_seq']}</p></li>
                 <li><b>ORF Type</b> : ${data['orf_type']} </li>
                 <li><b>ORF Frame</b> : ${data['frame']} </li>
               </ul>
@@ -390,6 +390,49 @@ if (type == 'orf'){
               
               <ul id="feature-modal-data">
 			  </ul>
+			</div>
+
+		  </div>
+		</div>
+	  </div>
+		`;
+
+    
+}
+
+if (type == 'smorf'){
+    custom = `
+		<div class="modal fade" 
+            id="feature-modal"
+            tabindex="-1" 
+            role="dialog" 
+            aria-labelledby="exampleModalLongTitle" 
+            aria-hidden="true">
+
+		<div class="modal-dialog modal-lg" role="document">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title" id="exampleModalLongTitle">smORF with evidence</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+
+
+			<div class="modal-body">
+                <ul>
+                <li><b>iORF ID</b> : ${data['smorf_iorf_id']} </li>
+                <li><b>iORF Peptide ID</b> : ${data['smorf_iORF_pept']} </li>
+                <li><b>iORF Type</b> : ${data['smorf_iorf_type']} </li>
+                <li><b>Source</b> : ${data['source']} </li>
+                <li><b>Reads Used</b> : ${data['reads_used']} </li>
+                <li><b>% Reads in-frame</b> : ${data['pct_reads_inframe']} % </li>
+                <li><b>% Codons in-frame</b> : ${data['pct_codons_inframe']} %</li>
+                <li><b>Length</b> : ${data['len']} bps</li>
+                <li><b>Dropoff Score</b> : ${data['dropoff_score']} </li>
+                <li><b>Start Codon</b> : ${data['starts']} </li>
+                <li><b>Number of tools</b> : ${data['num_tools']} </li>
+                <li><b>Peptide sequence</b> : ${data['peptide_seq']}</li>
 			</div>
 
 		  </div>
@@ -536,6 +579,7 @@ var create_transcript_viewer = function(
     strand,
     buffer,
     seq,
+    smorf,
     gnomad_utr_impact,
     clinvar_utr_impact,
     genomic_features
@@ -591,6 +635,7 @@ var create_transcript_viewer = function(
         document.getElementById("fcds_rect").setAttribute("height", "30");
         document.getElementById("fcds_rect").setAttribute("y", "-8");
 
+
         ft2.addFeature({
             data: get_exon_structure(genomic_features, buffer,
                 start_site, strand),
@@ -600,7 +645,32 @@ var create_transcript_viewer = function(
             type: 'rect',
             color: '#000000'
         });
+
+        if (smorf.length > 0){
+        smorf_data = [];
+        smorf.forEach(e => smorf_data.push({
+            x : strand_corrected_interval(
+                e.transcript_start, e.transcript_end,
+                start_site, buffer, strand
+            )['start'], 
+            y : strand_corrected_interval(
+                e.transcript_start, e.transcript_end,
+                start_site, buffer, strand
+            )['end'], 
+            id : e.smorf_iorf_id
+        }));
+
+        ft2.addFeature(
+        {
+            data: smorf_data,
+            type: "rect",
+            className: "uorf_rect",
+            name: "ORFs w. evidence",
+            color: '#474A48'
+        }
+    )
     }
+}
 
 
     //********** ORFS *********/
@@ -658,7 +728,12 @@ var create_transcript_viewer = function(
     });
 
     ft2.onFeatureSelected(function(d) {
-        open_modal(search_obj(uorfs, d.detail.id, 'orf_id'), 'orf');
+        if (search_obj(smorf, d.detail.id, 'smorf_iorf_id')){
+            open_modal(search_obj(smorf, d.detail.id, 'smorf_iorf_id'), 'smorf');
+        }
+        else{
+            open_modal(search_obj(uorfs, d.detail.id, 'orf_id'), 'orf');
+        }
     });
     //********** ClinVar *********/
 
