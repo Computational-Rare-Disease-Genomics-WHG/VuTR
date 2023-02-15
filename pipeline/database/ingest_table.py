@@ -11,6 +11,10 @@ CREATE INDEX idx_genome_to_transcript_coordinates ON
 CREATE INDEX idx_orf ON orf_features(ensembl_transcript_id);
 CREATE INDEX idx_mane_transcript_features ON
     mane_transcript_features(ensembl_transcript_id);
+CREATE INDEX idx_smorf_locs ON smorf_locations(ensembl_transcript_id);
+CREATE INDEX idx_smorf_feat_iorf ON smorf_features(smorf_iorf_id);
+
+
 
 NOTE : Dtype specification issue doesn't work
     either through sqlcol or by manual specification in model.py
@@ -26,33 +30,6 @@ from model import tbl_models  # pylint: disable=E0401
 import pandas as pd
 
 SCRIPT_PATH = Path(__file__).parent
-
-
-def sqlcol(dfparam):
-    """
-    Create a dictionary for native SQL alchemy types
-    from a dataframe column for use in dtype paramater
-    in pandas DataFrame.to_sql
-
-    Note : Doesn't work for string for some reason
-    hence not used in main()
-    """
-
-    dtypedict = {}
-    for i, j in zip(dfparam.columns, dfparam.dtypes):
-        if "object" in str(j):
-            dtypedict.update({i: sqlalchemy.types.NVARCHAR()})
-
-        if "datetime" in str(j):
-            dtypedict.update({i: sqlalchemy.types.DateTime()})
-
-        if "float" in str(j):
-            dtypedict.update({i: sqlalchemy.types.Float(precision=3, asdecimal=True)})
-
-        if "int" in str(j):
-            dtypedict.update({i: sqlalchemy.types.INT()})
-
-    return dtypedict
 
 
 def strip_version_identifiers(df, id_names):

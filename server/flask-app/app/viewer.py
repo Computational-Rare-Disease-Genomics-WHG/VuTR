@@ -18,6 +18,7 @@ from .helpers import (
     get_genomic_features,
     get_transcript_features,
     convert_between_ids,
+    get_smorfs,
     get_constraint_score,
     get_all_orfs_features,
     get_utr_annotation_for_list_variants,
@@ -105,6 +106,9 @@ def viewer_page(ensembl_transcript_id):
     # OMIM ID
     omim_id = get_omim_id(ensembl_gene_id)
 
+    # Get smORF data
+    smorfs = get_smorfs(ensembl_transcript_id)
+
     possible_variants = get_possible_variants(
         ensembl_transcript_id=ensembl_transcript_id
     )
@@ -120,7 +124,6 @@ def viewer_page(ensembl_transcript_id):
         ensembl_transcript_id,
     )
 
-    print(gnomad_data)
     # Get the annotations for these values.
     gnomad_utr_impact = get_utr_annotation_for_list_variants(
         gnomad_variants_list, possible_variants, start_site, buffer
@@ -128,15 +131,11 @@ def viewer_page(ensembl_transcript_id):
     clinvar_utr_impact = get_utr_annotation_for_list_variants(
         clinvar_variants_list, possible_variants, start_site, buffer
     )
-
-
-
-    #
+    # Find all possible variants
     all_possible_variants = find_all_high_impact_utr_variants(
         ensembl_transcript_id=ensembl_transcript_id
     )
     impact_url = current_app.config['IMPACT_URL']
-    # Render template
 
     return render_template(
         'viewer.html',
@@ -145,6 +144,7 @@ def viewer_page(ensembl_transcript_id):
         hgnc=hgnc,
         name=name,
         refseq_match=refseq_match,
+        smorfs=smorfs,
         clingen_entry=clingen_entry,
         omim_id=omim_id,
         impact_url=impact_url,

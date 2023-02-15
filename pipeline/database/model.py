@@ -61,18 +61,7 @@ tbl_models = {
             'ensembl_gene_id',
             'ensembl_protein_id',
         ],
-        'dtype': {
-            'ensembl_transcript_id': VARCHAR(length=30),
-            'ensembl_gene_id': VARCHAR(length=30),
-            'ensembl_protein_id': VARCHAR(length=30),
-            'ncbi_gene_id': VARCHAR(length=30),
-            'refseq_transcript_id': VARCHAR(length=30),
-            'refseq_protein_id': VARCHAR(length=30),
-            'mane_status': VARCHAR(length=30),
-            'name': VARCHAR(length=30),
-            'hgnc_symbol': VARCHAR(length=30),
-            'hgnc_id': VARCHAR(length=30),
-        },
+        'dtype': None
     },
     'mane_transcript_features': {
         'location': f'MANE/{MANE_VERSION}/MANE_transcripts_v{MANE_VERSION}.tsv',  # pylint: disable=C0301 # noqa: E501
@@ -93,18 +82,7 @@ tbl_models = {
         },
         'remove_ensembl_id_version_numbers': True,
         'ensembl_ids': ['ensembl_transcript_id'],
-        'dtype': {
-            'ensembl_transcript_id': VARCHAR(length=30),
-            'five_prime_utr_length': Integer(),
-            'three_prime_utr_length': Integer(),
-            'num_five_prime_utr_exons': Integer(),
-            'strand': VARCHAR(length=30),
-            'seq': VARCHAR(length=100000),
-            'start_site_pos': Integer(),
-            'cds_start': Integer(),
-            'cds_end': Integer(),
-            'cds_length': Integer(),
-        },
+        'dtype': None
     },
     'orf_features': {
         'location': f'ORFS_Features_{MANE_VERSION}.tsv',  # pylint: disable=C0301  # noqa: E501
@@ -128,23 +106,7 @@ tbl_models = {
         },
         'remove_ensembl_id_version_numbers': True,
         'ensembl_ids': ['ensembl_transcript_id', 'orf_id'],
-        'dtype': {
-            'ensembl_transcript_id': VARCHAR(length=30),
-            'orf_start_codon': Integer(),
-            'orf_stop_codon': Integer(),
-            'orf_seq': VARCHAR(length=10000),
-            'orf_type': VARCHAR(length=30),
-            'frame': VARCHAR(length=30),
-            'kozak_context': VARCHAR(length=30),
-            'kozak_consensus_strength': VARCHAR(length=30),
-            'orf_id': VARCHAR(length=30),
-            'efficiency': Integer(),
-            'lower_bound': Integer(),
-            'upper_bound': Integer(),
-            'orf_start_codon_genome': Integer(),
-            'orf_stop_codon_genome': Integer(),
-            'context': VARCHAR(length=30),
-        },
+        'dtype': None
     },
     'translational_efficiencies': {
         'location': f'translational_efficiency.txt',
@@ -157,12 +119,7 @@ tbl_models = {
         },
         'remove_ensembl_id_version_numbers': False,
         'ensembl_ids': None,
-        'dtype': {
-            'context': VARCHAR(length=30),
-            'efficiency': Integer(),
-            'lower_bound': Integer(),
-            'upper_bound': Integer(),
-        },
+        'dtype': None
     },
     'loeuf_constraint': {
         'location': f'GNOMAD/gnomad.v{GNOMAD_VERSION}.lof_metrics.by_transcript.txt',  # pylint: disable=C0301  # noqa: E501
@@ -175,12 +132,7 @@ tbl_models = {
         },
         'remove_ensembl_id_version_numbers': False,
         'ensembl_ids': None,
-        'dtype': {
-            'hgnc_symbol': VARCHAR(length=30),
-            'ensembl_gene_id': VARCHAR(length=30),
-            'ensembl_transcript_id': VARCHAR(length=30),
-            'loeuf': Float(),
-        },
+        'dtype': None
     },
     'mane_genomic_features': {
         'location': f'MANE/{MANE_VERSION}/MANE.{ASSEMBLY}.v{MANE_VERSION}.ensembl_genomic.tsv',  # pylint: disable=C0301  # noqa: E501
@@ -215,7 +167,7 @@ tbl_models = {
             'ensembl_protein_id',
             'exon_id',
         ],  # pylint: disable=C0301  # noqa: E501
-        'dtype': None,  # To be finalized once we have things sorted out
+        'dtype': None,  
     },
     'genome_to_transcript_coordinates': {
         'location': f'UTR_Genome_Transcript_Coordinates.tsv',  # pylint: disable=C0301  # noqa: E501
@@ -230,8 +182,55 @@ tbl_models = {
         },
         'remove_ensembl_id_version_numbers': False,
         'ensembl_ids': None,
-        'dtype': None,  # To be finalized once we have things sorted out
+        'dtype': None,  
     },
+    'smorf_locations': {
+        'location': f'SMORFS/smorfs_locations.tsv',  # pylint: disable=C0301  # noqa: E501
+        'separator': '\t',
+        'col_mappings': {
+            'source': 'source',
+            'orf_type': 'smorf_orf_type',
+            'iORF_id': 'smorf_iorf_id',
+            'genome_start': 'genome_start',
+            'genome_end': 'genome_end',
+            'transcript_id': 'ensembl_transcript_id',
+            'transcript_start': 'transcript_start',
+            'transcript_end': 'transcript_end',
+        },
+        'remove_ensembl_id_version_numbers': True,
+        'ensembl_ids': ['ensembl_transcript_id'],
+        'dtype': None, 
+    },
+
+    'smorf_features': {
+        'location': f'SMORFS/final_orfs_filt_v5.txt',  # pylint: disable=C0301  # noqa: E501
+        'separator': '\t',
+        'col_mappings': {
+            'ORF_id': 'smorf_orf_id',
+            'iORF_id': 'smorf_iorf_id',
+            'iORF_type': 'smorf_iorf_type',
+            'gene_id': 'ensembl_gene_id',
+            'iORF_pept': 'smorf_iORF_pept',
+            'gene_name': 'gene_name',
+            'gene_biotype': 'gene_biotype',
+            'source': 'source',
+
+            'reads_used': 'reads_used',
+            'pct_reads_inframe': 'pct_reads_inframe',
+            'pct_codons_inframe': 'pct_codons_inframe',
+            'len': 'len',
+            'strand': 'strand',
+            'dropoff_score': 'dropoff_score',
+            'starts': 'starts',
+            'No._of_tools': 'num_tools',
+            'Peptide_seq': 'peptide_seq',
+        },
+        'remove_ensembl_id_version_numbers': False,
+        'ensembl_ids': None,
+        'dtype': None
+    },
+
+
     'orf_locations': {
         'location': f'UORFS_Genomic_Positions.tsv',
         'separator': '\t',
@@ -290,6 +289,6 @@ tbl_models = {
             'Date Last Evaluated': 'date_last_evaluated'},
         'remove_ensembl_id_version_numbers': False,
         'ensembl_ids': None,
-        'dtype': None,  # To be finalized once we have things sorted out
-    },
+        'dtype': None, 
+    }
 }
