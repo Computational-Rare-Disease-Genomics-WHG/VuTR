@@ -11,6 +11,10 @@ CREATE INDEX idx_genome_to_transcript_coordinates ON
 CREATE INDEX idx_orf ON orf_features(ensembl_transcript_id);
 CREATE INDEX idx_mane_transcript_features ON
     mane_transcript_features(ensembl_transcript_id);
+CREATE INDEX idx_smorf_locs ON smorf_locations(ensembl_transcript_id);
+CREATE INDEX idx_smorf_feat_iorf ON smorf_features(smorf_iorf_id);
+
+
 
 NOTE : Dtype specification issue doesn't work
     either through sqlcol or by manual specification in model.py
