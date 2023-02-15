@@ -20,6 +20,26 @@ def get_all_te_values():
     return result
 
 
+def get_smorfs(enst):
+    """
+    Gets the smorfs using the ensembl_transcript_id
+    """
+
+    cursor = features_db.get_db()
+    query = cursor.execute('''
+    SELECT *
+    FROM smorf_locations sloc
+    INNER JOIN smorf_features sfeat ON sloc.smorf_iorf_id=sfeat.smorf_iorf_id
+    WHERE sloc.ensembl_transcript_id='?';
+    ''', [enst]
+    )
+    result = query.fetchall()
+
+    if result is not None:
+        return result
+    return None
+
+
 def get_omim_id(ensg):
     """
     Gets the omim value
