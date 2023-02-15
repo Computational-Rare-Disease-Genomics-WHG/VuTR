@@ -2,7 +2,7 @@
 # VuTR : Visualising the impact of 5' UTR Variants 
 
 
-![CI Build](https://github.com/Computational-Rare-Disease-Genomics-WHG/VuTR/actions/workflows/test.yaml/badge.svg)
+![CI Build](https://github.com/Computational-Rare-Disease-Genomics-WHG/VuTR/actions/workflows/pylint.yml/badge.svg)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/Computational-Rare-Disease-Genomics-WHG/VuTR/issues)
 
 
