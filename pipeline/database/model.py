@@ -232,6 +232,57 @@ tbl_models = {
         'ensembl_ids': None,
         'dtype': None,  # To be finalized once we have things sorted out
     },
+    'smorf_locations': {
+        'location': f'SMORFS/smorfs_locations.tsv',  # pylint: disable=C0301  # noqa: E501
+        'separator': ',',
+        'col_mappings': {
+            'source': 'source',
+            'orf_type': 'smorf_orf_type',
+            'iORF_id': 'smorf_iorf_id',
+            'genome_start': 'genome_start',
+            'genome_end': 'genome_end',
+            'transcript_id': 'ensembl_transcript_id',
+            'transcript_start': 'transcript_start',
+            'transcript_end': 'transcript_end',
+        },
+        'remove_ensembl_id_version_numbers': True,
+        'ensembl_ids': ['ensembl_transcript_id'],
+        'dtype': None,  # To be finalized once we have things sorted out
+    },
+
+    'smorf_features': {
+        'location': f'SMORFS/smorfs_locations.tsv',  # pylint: disable=C0301  # noqa: E501
+        'separator': ',',
+        'col_mappings': {
+            'ORF_id': 'smorf_orf_id',
+            'iORF_id': 'smorf_iorf_id',
+            'iORF_type': 'smorf_iorf_type',
+            'gene_id': 'ensembl_gene_id',
+            'iORF_pept': 'smorf_iORF_pept',
+            'gene_name': 'gene_name',
+            'gene_biotype': 'gene_biotype',
+            'source': 'source',
+
+            'reads_used': 'reads_used',
+            'pct_reads_inframe': 'pct_reads_inframe',
+            'pct_codons_inframe': 'pct_codons_inframe',
+            'len': 'len',
+            'strand': 'strand',
+            'dropoff_score': 'dropoff_score',
+            'starts': 'starts',
+            'No._of_tools': 'num_tools',
+            'Peptide_seq': 'peptide_seq',
+        },
+        'remove_ensembl_id_version_numbers': False,
+        'ensembl_ids': None,
+        'dtype': None,  # To be finalized once we have things sorted out
+    },
+
+
+
+
+
+
     'orf_locations': {
         'location': f'UORFS_Genomic_Positions.tsv',
         'separator': '\t',
