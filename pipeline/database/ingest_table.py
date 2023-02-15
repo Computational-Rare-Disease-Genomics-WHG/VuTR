@@ -28,33 +28,6 @@ import pandas as pd
 SCRIPT_PATH = Path(__file__).parent
 
 
-def sqlcol(dfparam):
-    """
-    Create a dictionary for native SQL alchemy types
-    from a dataframe column for use in dtype paramater
-    in pandas DataFrame.to_sql
-
-    Note : Doesn't work for string for some reason
-    hence not used in main()
-    """
-
-    dtypedict = {}
-    for i, j in zip(dfparam.columns, dfparam.dtypes):
-        if "object" in str(j):
-            dtypedict.update({i: sqlalchemy.types.NVARCHAR()})
-
-        if "datetime" in str(j):
-            dtypedict.update({i: sqlalchemy.types.DateTime()})
-
-        if "float" in str(j):
-            dtypedict.update({i: sqlalchemy.types.Float(precision=3, asdecimal=True)})
-
-        if "int" in str(j):
-            dtypedict.update({i: sqlalchemy.types.INT()})
-
-    return dtypedict
-
-
 def strip_version_identifiers(df, id_names):
     """
     Use grep to remove trailing ENSTXXX[.3] - >  ENSTXXX
