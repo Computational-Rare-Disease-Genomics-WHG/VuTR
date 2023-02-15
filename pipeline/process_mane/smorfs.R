@@ -6,6 +6,11 @@ library("stringr")
 library("optparse")
 
 
+# TODO THIS FILE NEEDS FIXING
+
+
+setwd("../../data/pipeline")
+
 smorfs <- fread("SMORFS/all_final_orfCDS.txt")
 names(smorfs) <- c('chr', 'source', 'orf_type', 
     'start', 'end', 'V6','strand', 'V8', 'iORF_id') # nolint
@@ -35,7 +40,7 @@ output <- smorfs[, {
 
 setkey(output, id)
 
-annotated_output <- smorfs[, .(source, orf_type, iORF_id,
+annotated_output <- smorfs[, .(source, orf_type, iORF_id, strand,
     genome_start = start, genome_end = end, id)][output]
 
 
@@ -55,7 +60,15 @@ annotated_output[,transcript_end :=
     tmap[.(transcript_id=annotated_output$transcript_id, 
         gpos=annotated_output$genome_end), .(tpos)]]
 
+# Swap for reverse strand
+annotated_output[
+    strand=='-', `:=` (
+        transcript_start=transcript_end,
+        transcript_end = transcript_start
+    )
+]
 
 fwrite(annotated_output,
     "SMORFS/smorfs_locations.tsv",
-    sep="\t")
+    sep="\t"
+)
