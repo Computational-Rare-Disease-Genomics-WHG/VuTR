@@ -522,15 +522,18 @@
       var clinvar_utr_impact = {{clinvar_utr_impact|safe}};
       var all_possible_variants={{all_possible_variants|safe}};
       var seq = "{{five_prime_utr_stats["seq"]|safe}}";
-
-      var viewers = create_transcript_viewer(transcript_features,
+      var smorfs = {{smorfs | safe}}
+      var viewers = create_transcript_viewer(
+         transcript_features,
          transcript_div,
          start_site,
          strand,
          buffer,
          seq,
+         smorfs,
          gnomad_utr_impact,
-         clinvar_utr_impact,genomic_features);
+         clinvar_utr_impact,
+         genomic_features);
 
     // Initialize user suplied visualization
     var user_viewer = initialize_user_viewer('#user_variants',
