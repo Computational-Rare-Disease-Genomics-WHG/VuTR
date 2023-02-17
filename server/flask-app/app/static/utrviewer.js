@@ -147,31 +147,54 @@ var get_exon_structure = function(genomic_features, buffer, start_site,
         exon_start = strand_corrected_interval(new_x, new_x +
             width_exon, start_site, buffer, strand)['start']
         exon_end = strand_corrected_interval(new_x, new_x +
-            width_exon, start_site, buffer, strand)['end']
+            width_exon, start_site, buffer, strand)['end'];
+
+        console.log(exon_start)
 
         /* Exclude exons that start before the CDS */
         if (exon_end > 0) {
             /* Trim exon that goes beyond buffer a little bit */
             if (exon_start < 0) {
+                if (strand == '-'){
+                    output.push({
+                        'x': Math.max(buffer+0.0001, exon_start),
+                        'y': Math.min(exon_end+1, start_site +
+                            buffer),
+                        color: '#A4AAAC',
+                        description: 'Exon ' + (index + 1),
+                    });
+                }
+
+                else{
+                    
                 output.push({
-                    'x': 0,
+                    'x': Math.max(0, exon_start),
                     'y': Math.min(exon_end, start_site +
                         buffer),
                     color: '#A4AAAC',
-                    description: 'Exon ' + (index + 1),
-
-                });
+                    description: 'Exon ' + (index + 1)});
+                }
 
             } else {
-
-                output.push({
-                    'x': exon_start,
-                    'y': Math.min(exon_end, start_site +
-                        buffer),
-                    color: '#A4AAAC',
-                    description: 'Exon ' + (index + 1),
-
-                });
+                if (strand == '-') {
+                    output.push({
+                        'x': Math.max(buffer+0.001, exon_start),
+                        'y': Math.min(exon_end, start_site +
+                            buffer),
+                        color: '#A4AAAC',
+                        description: 'Exon ' + (index + 1),
+    
+                    });
+                }
+                else{
+                    output.push({
+                        'x': Math.max(0, exon_start),
+                        'y': Math.min(exon_end, start_site+0.999),
+                        color: '#A4AAAC',
+                        description: 'Exon ' + (index + 1),
+    
+                    });
+                }
             }
 
         }
@@ -616,57 +639,41 @@ var create_transcript_viewer = function(
     //********** Gene Structure *********/
     // Plot where the coding sequence and 5' utrs
     if (start_site != 0) {
+
+
+
         ft2.addFeature({
-            data: [{
-                    x: strand_corrected_interval(start_site+1,
-                        start_site + buffer+2, start_site,
-                        buffer, strand)['start'],
-                    y: strand_corrected_interval(start_site+1,
-                        start_site + buffer+2, start_site,
-                        buffer, strand)['end'],
-                    color: '#58565F',
-                    description: "CDS",
-                    id: 'cds_rect',
-                },
-                {
-                    x: strand_corrected_interval(1, start_site+1.99,
-                        start_site, buffer, strand)[
-                        'start'],
-                    y: strand_corrected_interval(1, start_site+1.99,
-                        start_site, buffer, strand)['end'],
-                    color: '#A4AAAC',
-                    description: "\t\t5' UTR",
-                    id: 'utr_rect'
-                }
-            ],
-            name: "Gene Structure",
-            className: "gene_struct",
-            type: "rect",
-            color: "#A4AAAC"
+            data:[{
+                x: strand_corrected_interval(start_site+1,
+                    start_site + buffer+2, start_site,
+                    buffer, strand)['start'],
+                y: strand_corrected_interval(start_site+1,
+                    start_site + buffer+2, start_site,
+                    buffer, strand)['end'],
+                color: '#58565F',
+                description: "CDS",
+                id: 'cds_rect',
+            }, ...get_exon_structure(genomic_features, buffer,
+                start_site, strand)],
+            color: '#2C302E',
+            name: 'Gene Structure',
+            className: 'exon_struct',
+            type: 'rect',
+            color: '#000000'
         });
         document.getElementById("fcds_rect").setAttribute("height", "30");
         document.getElementById("fcds_rect").setAttribute("y", "-8");
 
 
-        ft2.addFeature({
-            data: get_exon_structure(genomic_features, buffer,
-                start_site, strand),
-            color: '#2C302E',
-            name: 'Exon Structure',
-            className: 'exon_struct',
-            type: 'rect',
-            color: '#000000'
-        });
-
         if (smorf.length > 0){
         smorf_data = [];
         smorf.forEach(e => smorf_data.push({
             x : strand_corrected_interval(
-                e.transcript_start, e.transcript_end,
+                e.transcript_start, e.transcript_end+1,
                 start_site, buffer, strand
             )['start'], 
             y : strand_corrected_interval(
-                e.transcript_start, e.transcript_end,
+                e.transcript_start, e.transcript_end+1,
                 start_site, buffer, strand
             )['end'], 
             id : e.smorf_iorf_id
