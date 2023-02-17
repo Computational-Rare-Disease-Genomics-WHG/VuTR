@@ -1,18 +1,18 @@
-var kozak_colors = {
+const kozak_colors = {
     Strong: "#E69F00",
     Moderate: "#56B4E9",
     Weak: "#009E73",
     None: "#009E73"
 };
 
-var smorf_sources = {
+const smorf_sources = {
     'sorfDB' : 'sorfDB | Olexiouk, Volodimir, et al. "sORFs.org: a repository of small ORFs identified by ribosome profiling." Nucleic acids research 44.D1 (2016): D324-D329.', 
     'ribotaper' : 'Ribotaper | Calviello, Lorenzo, et al. "Detecting actively translated open reading frames in ribosome profiling data." Nature methods 13.2 (2016): 165-170.', 
     'ribotish' : 'Ribo-TISH | Zhang, Peng, et al. "Genome-wide identification and differential analysis of translational initiation." Nature communications 8.1 (2017): 1749.',
     'PRICE' : 'PRICE | Erhard, Florian, et al. "Improved Ribo-seq enables identification of cryptic translation events." Nature methods 15.5 (2018): 363-366.'
 }
 
-var pathogenicity_colors = {
+const pathogenicity_colors = {
     "Pathogenic": "#D55E00",
     "Likely pathogenic": "#D55E00",
     "Benign": "#0072B2",
@@ -21,7 +21,7 @@ var pathogenicity_colors = {
     "Uncertain significance": "#CC79A7",
 };
 
-var detail_mapping = {
+const detail_mapping = {
     // gnomAD mappings
     "alt": "ALT",
     "clinical_significance": "Clinical Significance",
@@ -60,6 +60,8 @@ var detail_mapping = {
 
     // uAUG gained mappings
     "variant_id": "Variant ID",
+
+
     "uAUG_gained_CapDistanceToStart": "uAUG-gained Distance from Cap to start",
     "uAUG_gained_DistanceToCDS": "uAUG-gained Distance to CDS",
     "uAUG_gained_DistanceToStop": "uAUG-gained Distance to Stop codon",
@@ -91,8 +93,8 @@ var detail_mapping = {
 
     /*
     To be defined when we have frameshift variants with indels
-    "uFrameshift_ref_type":,
-    "uFrameshift_ref_type_length":,
+    "uFrameshift_ref_type": "uFrameshift Ref Type",
+    "uFrameshift_ref_type_length": "uFrameshift Ref Type Length",
     "uFrameshift_StartDistanceToCDS":,
     "uFrameshift_alt_type":,
     "uFrameshift_alt_type_length":,
@@ -100,6 +102,7 @@ var detail_mapping = {
     "uFrameshift_KozakStrength": "Kozak Strength", */
 };
 
+const possible_utr_annotations = Object.keys(detail_mapping).filter(e=> e[0]=="u" && e != "upper_bound")
 
 var strand_corrected_interval = function(
     start,
@@ -144,31 +147,54 @@ var get_exon_structure = function(genomic_features, buffer, start_site,
         exon_start = strand_corrected_interval(new_x, new_x +
             width_exon, start_site, buffer, strand)['start']
         exon_end = strand_corrected_interval(new_x, new_x +
-            width_exon, start_site, buffer, strand)['end']
+            width_exon, start_site, buffer, strand)['end'];
+
+        console.log(exon_start)
 
         /* Exclude exons that start before the CDS */
         if (exon_end > 0) {
             /* Trim exon that goes beyond buffer a little bit */
             if (exon_start < 0) {
+                if (strand == '-'){
+                    output.push({
+                        'x': Math.max(buffer+0.0001, exon_start),
+                        'y': Math.min(exon_end+1, start_site +
+                            buffer),
+                        color: '#A4AAAC',
+                        description: 'Exon ' + (index + 1),
+                    });
+                }
+
+                else{
+                    
                 output.push({
-                    'x': 0,
+                    'x': Math.max(0, exon_start),
                     'y': Math.min(exon_end, start_site +
                         buffer),
                     color: '#A4AAAC',
-                    description: 'Exon ' + (index + 1),
-
-                });
+                    description: 'Exon ' + (index + 1)});
+                }
 
             } else {
-
-                output.push({
-                    'x': exon_start,
-                    'y': Math.min(exon_end, start_site +
-                        buffer),
-                    color: '#A4AAAC',
-                    description: 'Exon ' + (index + 1),
-
-                });
+                if (strand == '-') {
+                    output.push({
+                        'x': Math.max(buffer+0.001, exon_start),
+                        'y': Math.min(exon_end, start_site +
+                            buffer),
+                        color: '#A4AAAC',
+                        description: 'Exon ' + (index + 1),
+    
+                    });
+                }
+                else{
+                    output.push({
+                        'x': Math.max(0, exon_start),
+                        'y': Math.min(exon_end, start_site+0.999),
+                        color: '#A4AAAC',
+                        description: 'Exon ' + (index + 1),
+    
+                    });
+                }
             }
 
         }
@@ -208,6 +234,23 @@ var flattenObj = (ob) => {
     return result;
 };
 
+
+var create_utr_annotation_list =  function (data){
+
+    var ann_obj = Object.entries(data).filter(([key,value]) => possible_utr_annotations.includes(key));
+
+    var annotation = '';
+    if (ann_obj.length>0){
+        var annotation = `<h5>5'UTR Annotation></h5><ul>`;
+        // Filter data to only the UTR annotations and then make them into <li> element
+        for (const [key, value] of ann_obj) {
+            // Map the VEP consequence terms to formatted strings
+            annotation = annotation.concat(`<li><b>${detail_mapping[key]}</b>: ${value}</li>`);
+        }
+        annotation = annotation.concat('</ul><hr>');
+    }
+    return annotation;
+}
 
 
 /* On click event handlers*/
@@ -266,9 +309,8 @@ var open_modal = function(data, type) {
       <li><b>Variant ID</b> : ${data['variant_id']} </li>
       <li><b>HGVSC</b> : ${data['hgvsc']} </li>
     </ul>
-
-      <hr>
-
+    <hr>
+    ${create_utr_annotation_list(data)}
       <h5>gnomAD Frequency</h5> 
       <ul>
         <li><b>Allele Count</b> : ${data['genome.ac']}</li>
@@ -328,7 +370,8 @@ if (type == 'clinvar'){
     <li><b>Variant in gnomAD?</b> : ${data['in_gnomad']} </li>
     </ul>
   <hr>
-      <b>View variant in ClinVar</b>: <a href='https://www.ncbi.nlm.nih.gov/clinvar/variation/${data['clinvar_variation_id']}'>${data['clinvar_variation_id']}</a>    </div>
+    ${create_utr_annotation_list(data)}
+    <b>View variant in ClinVar</b>: <a href='https://www.ncbi.nlm.nih.gov/clinvar/variation/${data['clinvar_variation_id']}'>${data['clinvar_variation_id']}</a>    </div>
 
   </div>
 </div>
@@ -446,12 +489,6 @@ if (type == 'smorf'){
 
     // Filter data
     var ul = document.getElementById('feature-modal-data');
-    /*for (const [key, value] of Object.entries(data)) {
-        var li = document.createElement('li');
-        ul.appendChild(li);
-        // Map the VEP consequence terms to formatted strings
-        li.innerHTML += `<b>${detail_mapping[key]}</b>: ${value}`;
-    }*/ 
 
 
 
@@ -602,57 +639,41 @@ var create_transcript_viewer = function(
     //********** Gene Structure *********/
     // Plot where the coding sequence and 5' utrs
     if (start_site != 0) {
+
+
+
         ft2.addFeature({
-            data: [{
-                    x: strand_corrected_interval(start_site+1,
-                        start_site + buffer+2, start_site,
-                        buffer, strand)['start'],
-                    y: strand_corrected_interval(start_site+1,
-                        start_site + buffer+2, start_site,
-                        buffer, strand)['end'],
-                    color: '#58565F',
-                    description: "CDS",
-                    id: 'cds_rect',
-                },
-                {
-                    x: strand_corrected_interval(1, start_site+1.99,
-                        start_site, buffer, strand)[
-                        'start'],
-                    y: strand_corrected_interval(1, start_site+1.99,
-                        start_site, buffer, strand)['end'],
-                    color: '#A4AAAC',
-                    description: "\t\t5' UTR",
-                    id: 'utr_rect'
-                }
-            ],
-            name: "Gene Structure",
-            className: "gene_struct",
-            type: "rect",
-            color: "#A4AAAC"
+            data:[{
+                x: strand_corrected_interval(start_site+1,
+                    start_site + buffer+2, start_site,
+                    buffer, strand)['start'],
+                y: strand_corrected_interval(start_site+1,
+                    start_site + buffer+2, start_site,
+                    buffer, strand)['end'],
+                color: '#58565F',
+                description: "CDS",
+                id: 'cds_rect',
+            }, ...get_exon_structure(genomic_features, buffer,
+                start_site, strand)],
+            color: '#2C302E',
+            name: 'Gene Structure',
+            className: 'exon_struct',
+            type: 'rect',
+            color: '#000000'
         });
         document.getElementById("fcds_rect").setAttribute("height", "30");
         document.getElementById("fcds_rect").setAttribute("y", "-8");
 
 
-        ft2.addFeature({
-            data: get_exon_structure(genomic_features, buffer,
-                start_site, strand),
-            color: '#2C302E',
-            name: 'Exon Structure',
-            className: 'exon_struct',
-            type: 'rect',
-            color: '#000000'
-        });
-
         if (smorf.length > 0){
         smorf_data = [];
         smorf.forEach(e => smorf_data.push({
             x : strand_corrected_interval(
-                e.transcript_start, e.transcript_end,
+                e.transcript_start, e.transcript_end+1,
                 start_site, buffer, strand
             )['start'], 
             y : strand_corrected_interval(
-                e.transcript_start, e.transcript_end,
+                e.transcript_start, e.transcript_end+1,
                 start_site, buffer, strand
             )['end'], 
             id : e.smorf_iorf_id
@@ -750,17 +771,15 @@ var create_transcript_viewer = function(
 
     var pop_variants = gnomad_data[
         'variants']; // gnomAD variants from the API
-    var
-        pop_var_feat_dat = []; // Visualization intervals to pass to feature viewer
-    var
-        pop_var_tpos = []; // tmp for storing the transcript positions of the variants
+    var pop_var_feat_dat = []; // Visualization intervals to pass to feature viewer
+    var pop_var_tpos = []; // tmp for storing the transcript positions of the variants
     pop_variants.forEach(element => {
         tpos = element['tpos']
         // Only append to the track if didn't exist
         if (!pop_var_tpos.includes(tpos)) {
             pop_var_tpos.push(tpos);
             strand_corrected_tpos = strand_corrected_interval(
-                element['tpos'], element['tpos'], start_site,
+                element['tpos'], element['tpos']+1, start_site,
                 buffer, strand)
             pop_var_feat_dat.push({
                 x: strand_corrected_tpos['start'],
