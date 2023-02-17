@@ -5,6 +5,13 @@ var kozak_colors = {
     None: "#009E73"
 };
 
+var smorf_sources = {
+    'sorfDB' : 'sorfDB | Olexiouk, Volodimir, et al. "sORFs.org: a repository of small ORFs identified by ribosome profiling." Nucleic acids research 44.D1 (2016): D324-D329.', 
+    'ribotaper' : 'Ribotaper | Calviello, Lorenzo, et al. "Detecting actively translated open reading frames in ribosome profiling data." Nature methods 13.2 (2016): 165-170.', 
+    'ribotish' : 'Ribo-TISH | Zhang, Peng, et al. "Genome-wide identification and differential analysis of translational initiation." Nature communications 8.1 (2017): 1749.',
+    'PRICE' : 'PRICE | Erhard, Florian, et al. "Improved Ribo-seq enables identification of cryptic translation events." Nature methods 15.5 (2018): 363-366.'
+}
+
 var pathogenicity_colors = {
     "Pathogenic": "#D55E00",
     "Likely pathogenic": "#D55E00",
@@ -104,12 +111,12 @@ var strand_corrected_interval = function(
     if (strand == '+') {
         return ({
             'start': start,
-            'end': end
+            'end': end-1
         })
     } else {
         return ({
-            "start": (start_site + buffer) - end,
-            "end": (start_site + buffer) - start,
+            "start": (start_site + buffer+2) - end,
+            "end": (start_site + buffer+1) - start,
         })
     }
 }
@@ -422,19 +429,10 @@ if (type == 'smorf'){
 			<div class="modal-body">
                 <ul>
                 <li><b>iORF ID</b> : ${data['smorf_iorf_id']} </li>
-                <li><b>iORF Peptide ID</b> : ${data['smorf_iORF_pept']} </li>
-                <li><b>iORF Type</b> : ${data['smorf_iorf_type']} </li>
-                <li><b>Source</b> : ${data['source']} </li>
-                <li><b>Reads Used</b> : ${data['reads_used']} </li>
-                <li><b>% Reads in-frame</b> : ${data['pct_reads_inframe']} % </li>
-                <li><b>% Codons in-frame</b> : ${data['pct_codons_inframe']} %</li>
+                <li><b>Source</b> : ${smorf_sources[data['source']]} </li>
                 <li><b>Length</b> : ${data['len']} bps</li>
-                <li><b>Dropoff Score</b> : ${data['dropoff_score']} </li>
                 <li><b>Start Codon</b> : ${data['starts']} </li>
-                <li><b>Number of tools</b> : ${data['num_tools']} </li>
-                <li><b>Peptide sequence</b> : ${data['peptide_seq']}</li>
 			</div>
-
 		  </div>
 		</div>
 	  </div>
@@ -606,21 +604,21 @@ var create_transcript_viewer = function(
     if (start_site != 0) {
         ft2.addFeature({
             data: [{
-                    x: strand_corrected_interval(start_site + 1,
-                        start_site + buffer, start_site,
+                    x: strand_corrected_interval(start_site+1,
+                        start_site + buffer+2, start_site,
                         buffer, strand)['start'],
-                    y: strand_corrected_interval(start_site + 1,
-                        start_site + buffer, start_site,
-                        buffer, strand)['end']+1,
+                    y: strand_corrected_interval(start_site+1,
+                        start_site + buffer+2, start_site,
+                        buffer, strand)['end'],
                     color: '#58565F',
-                    description: "\t\tCDS",
+                    description: "CDS",
                     id: 'cds_rect',
                 },
                 {
-                    x: strand_corrected_interval(1, start_site,
+                    x: strand_corrected_interval(1, start_site+1.99,
                         start_site, buffer, strand)[
-                        'start']+1,
-                    y: strand_corrected_interval(1, start_site,
+                        'start'],
+                    y: strand_corrected_interval(1, start_site+1.99,
                         start_site, buffer, strand)['end'],
                     color: '#A4AAAC',
                     description: "\t\t5' UTR",
