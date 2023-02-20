@@ -191,7 +191,7 @@ var createUtrAnnotationList = function(data) {
         possible_utr_annotations.includes(key));
     var annotation = '';
     if (ann_obj.length > 0) {
-        var annotation = `<h5>5'UTR Annotation></h5><ul>`;
+        var annotation = `<h5>5'UTR Annotation</h5><ul>`;
         // Filter data to only the UTR annotations and then make them into <li> element
         for (const [key, value] of ann_obj) {
             // Map the VEP consequence terms to formatted strings
