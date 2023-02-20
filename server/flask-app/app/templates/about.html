@@ -18,28 +18,8 @@
       <!-- Font Awesome -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/all.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/brands.css')}}">
-      <!-- Ionicons -->
-      <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-      <!-- Tempusdominus Bootstrap 4 -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}">
-      <!-- iCheck -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/icheck-bootstrap/icheck-bootstrap.min.css')}}">
-      <!-- JQVMap -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jqvmap/jqvmap.min.css')}}">
       <!-- Theme style -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'dist/css/adminlte.min.css')}}">
-      <!-- overlayScrollbars -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css')}}">
-      <!-- Daterange picker -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/daterangepicker/daterangepicker.css')}}">
-      <!-- summernote -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.css')}}">
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid.min.css')}}">
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jsgrid/jsgrid-theme.min.css')}}">
-      <!--Preload scripts-->
-      <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
-      <script src="https://unpkg.com/d3"></script>
-      <script src="https://unpkg.com/d3fc"></script>
       <style type="text/css">
          .select2-container--default .select2-selection--multiple .select2-selection__choice {
          background-color: #007bff;
@@ -134,14 +114,14 @@
                         <p class="">
                            VuTR was developed by the Computational Rare Disease Genomics Lab (CRDG). CRDG specialises in identifying the role of non-protein-coding variants in rare genetic diseases through the use of bioinformatics on large exome and genome sequencing datasets.
                            Learn more about other tools and resources that we have developed <a href="">here</a>.
-                           We are based out of the Wellcome Centre for Human Genetics at the University of Oxford.
-                            You can learn more about our lab at our <a href="https://rarediseasegenomics.org/"></a>
+                           We are based out of the Big Data Institute at the University of Oxford.
+                            You can learn more about our lab at our <a href="https://rarediseasegenomics.org/">website</a>
 
                         </p>
                         <h4 class="">Tools used</h4>
                         <p class="">
-                            VuTR was built using Python 3.7, R and served using Flask and Docker on nginx and reside in Ubuntu servers. To identify the consequences of variants Ensembl's VEP (Version 103) was used alongside with the <a href="https://github.com/ImperialCardioGenetics/UTRannotator">UTR annotator plugin</a>
-                            Our code is easily available and reproducible through our <a href="https://github.com/Computational-Rare-Disease-Genomics-WHG/VuTR">Github repository where a list of our dependencies are available.</a>.
+                            VuTR was built using Python 3.7, R and served using Flask and Docker on nginx and reside in Ubuntu servers. To identify the consequences of variants Ensembl's VEP (Version 103) was used alongside with the <a href="https://github.com/ImperialCardioGenetics/UTRannotator">UTR annotator plugin</a>.
+                            Our code is easily available and reproducible through our <a href="https://github.com/Computational-Rare-Disease-Genomics-WHG/VuTR">Github repository where a list of our dependencies are available.</a>
                             If you face any issues or wish to report a bug whilst using VuTR please get in touch with us <a href="mailto:nwhiffin@well.ox.ac.uk">here</a> or by open up an issue in our repository's <a href="https://github.com/Computational-Rare-Disease-Genomics-WHG/UTR-Visualisation-App/issues">Github issues page</a>.
                         </p>
 
@@ -167,17 +147,24 @@
                         <h4 class="">Acknowledgements</h4>
                         <p class="">
                            This work was funded through Wellcome Trust and the Royal Society (Sir Henry Dale Fellowship to Nicola Whiffin; 220134/Z/20/Z) and the Rosetrees Trust (H5R01320).
-                           We acknowledge the input from the <a href="https://www.garvan.org.au/research/population-genomics">Centre For Population Genomics</a> in the development of the application.                            <a href="https://github.com/ColorlibHQ/AdminLTE">AdminLTE Theme</a> was used for generating the template for the Visualization Application.
+                           We acknowledge the input from the <a href="https://www.garvan.org.au/research/population-genomics">Centre For Population Genomics</a> in the development of the application.
+                           
+                           <a href="https://github.com/ColorlibHQ/AdminLTE">AdminLTE Theme</a> was used for generating the template for the Visualization Application.
                             Our DNA Logo icon created by  <a href="https://www.flaticon.com/free-icons/dna" title="dna icons"> Freepik - Flaticon</a>.
                             All rights reserved for their respective owners.
                         </p>
 
                         <div class="row">
-                            <div class="col-6 mx-auto text-center p-3">
+                            <div class="col-4 mx-auto text-center p-3">
                                 <img class="img-fluid rounded float-none text-center mx-auto" style="height:200px;width:auto;"src="{{url_for('static', filename='wchg.png')}}">
                             </div>
 
-                            <div class="col-6 mx-auto text-center p-3">
+                            <div class="col-4 mx-auto text-center p-3">
+                              <img class="img-fluid rounded float-none text-center mx-auto" style="height:200px;width:auto;"src="{{url_for('static', filename='bdi.png')}}">
+                          </div>
+
+
+                            <div class="col-4 mx-auto text-center p-3">
                                 <img class="img-fluid rounded float-none text-center mx-auto" style="height:200px;width:auto;"src="{{url_for('static', filename='oxford.png')}}">
                             </div>
                          </div>
@@ -222,23 +209,6 @@
       <!-- Bootstrap 4 -->
       <script src="{{url_for('static', filename = 'plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
       <!-- ChartJS -->
-      <script src="{{url_for('static', filename = 'plugins/chart.js/Chart.min.js')}}"></script>
-      <!-- Sparkline -->
-      <script src="{{url_for('static', filename = 'plugins/sparklines/sparkline.js')}}"></script>
-      <!-- JQVMap -->
-      <script src="{{url_for('static', filename = 'plugins/jqvmap/jquery.vmap.min.js')}}"></script>
-      <script src="{{url_for('static', filename = 'plugins/jqvmap/maps/jquery.vmap.usa.js')}}"></script>
-      <!-- jQuery Knob Chart -->
-      <script src="{{url_for('static', filename = 'plugins/jquery-knob/jquery.knob.min.js')}}"></script>
-      <!-- daterangepicker -->
-      <script src="{{url_for('static', filename = 'plugins/moment/moment.min.js')}}"></script>
-      <script src="{{url_for('static', filename = 'plugins/daterangepicker/daterangepicker.js')}}"></script>
-      <!-- Tempusdominus Bootstrap 4 -->
-      <script src="{{url_for('static', filename = 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
-      <!-- Summernote -->
-      <script src="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.js')}}"></script>
-      <!-- overlayScrollbars -->
-      <script src="{{url_for('static', filename = 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js')}}"></script>
       <!-- AdminLTE App -->
       <script src="{{url_for('static', filename = 'dist/js/adminlte.js')}}"></script>
       <!-- AdminLTE dashboard demo (This is only for demo purposes) -->

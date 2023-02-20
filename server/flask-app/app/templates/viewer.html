@@ -17,12 +17,6 @@
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/fontawesome-free/css/all.min.css')}}">
       <!-- Ionicons -->
       <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-      <!-- Tempusdominus Bootstrap 4 -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}">
-      <!-- iCheck -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/icheck-bootstrap/icheck-bootstrap.min.css')}}">
-      <!-- JQVMap -->
-      <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/jqvmap/jqvmap.min.css')}}">
       <!-- Theme style -->
       <link rel="stylesheet" href="{{url_for('static', filename = 'dist/css/adminlte.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/select2/css/select2.min.css')}}">
@@ -197,7 +191,8 @@
                                           <h6><b>External Resources</b>: View gene in
                                           <a href="https://www.omim.org/entry/{{omim_id}}">OMIM</a>,
                                           <a href="https://gnomad.broadinstitute.org/gene/{{ensembl_gene_id}}?dataset=gnomad_r3">gnomAD</a>,
-                                          <a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{hgnc}}%5Bgene%5D&redir=gene">ClinVar</a>
+                                          <a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{hgnc}}%5Bgene%5D&redir=gene">ClinVar</a>,
+                                          <a href="https://www.deciphergenomics.org/gene/{{hgnc}}/overview/">DECIPHER</a>
                                        </h6>
                                     </div>
                                  </div>
@@ -479,13 +474,6 @@
       <script src="{{url_for('static', filename = 'plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
       <!-- ChartJS -->
       <script src="{{url_for('static', filename = 'plugins/chart.js/Chart.min.js')}}"></script>
-      <!-- Tempusdominus Bootstrap 4 -->
-      <script src="{{url_for('static', filename = 'plugins/moment/moment.min.js')}}"></script>
-      <script src="{{url_for('static', filename = 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
-      <!-- Summernote -->
-      <script src="{{url_for('static', filename = 'plugins/summernote/summernote-bs4.min.js')}}"></script>
-      <!-- overlayScrollbars -->
-      <script src="{{url_for('static', filename = 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js')}}"></script>
       <!-- AdminLTE App -->
       <script src="{{url_for('static', filename = 'dist/js/adminlte.js')}}"></script>
       <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
@@ -493,15 +481,14 @@
       <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
 
       <!--UTR Visualization-->
-      <script src="{{url_for('static', filename ='utrviewer.js')}}"></script>
+      <script src="{{url_for('static', filename ='dist/js/constants.js')}}"></script>
+      <script src="{{url_for('static', filename ='dist/js/utrviewer.js')}}"></script>
 
       <!--Custom Scripts-->
       <script type="text/javascript">
 
       $('#input_variant').select2();
       $('[data-toggle="tooltip"]').tooltip()
-
-
 
 
       var gnomad_data = {{gnomad_data|tojson}};
@@ -511,8 +498,6 @@
       var buffer = 40;
       var strand = "{{gene_features[0]["strand"]|safe}}";
       var genomic_features = {{gene_features | safe}};
-      // Filter to features within the UTR.
-
       var start_site =  {{five_prime_utr_stats["five_prime_utr_length"] | safe}};
       var transcript_features = {{transcript_features | safe}};
       var transcript_div = "#transcript_viewer";
@@ -521,7 +506,7 @@
       var all_possible_variants={{all_possible_variants|safe}};
       var seq = "{{five_prime_utr_stats["seq"]|safe}}";
       var smorfs = {{smorfs | safe}}
-      var viewers = create_transcript_viewer(
+      var viewers = createTranscriptViewer(
          transcript_features,
          transcript_div,
          start_site,
@@ -534,7 +519,7 @@
          genomic_features);
 
     // Initialize user suplied visualization
-    var user_viewer = initialize_user_viewer('#user_variants',
+    var user_viewer = initialiseUserViewer('#user_variants',
          seq,
          start_site,
          strand,
@@ -546,7 +531,7 @@
 
       // Add event handler
       user_viewer.onFeatureSelected(function (d){
-		   open_modal(search_obj(user_variant_data, d.detail.id,'variant_id'));
+		   openModal(search_obj(user_variant_data, d.detail.id,'variant_id'));
 	   });
 
       var arch_ft = viewers['arch_ft']
@@ -607,7 +592,7 @@
             success: function(res){
 
                // Create visualization
-               add_user_supplied_feature(user_viewer,
+               addUserSuppliedFeature(user_viewer,
                res,
                e.params.data.text,
                start_site,
