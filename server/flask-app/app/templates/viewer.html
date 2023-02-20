@@ -366,8 +366,8 @@
 
       <div id="modal-container">
 
-         <div class="modal fade" id="archmodal" tabindex="-1" role="dialog" aria-labelledby="helpRole" aria-hidden="true">
-            <div class="modal-dialog " role="document">
+         <div class="modal fade " id="archmodal" tabindex="-1" role="dialog" aria-labelledby="helpRole" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                <div class="modal-header">
                  <h5 class="modal-title" id="exampleModalLongTitle">Help</h5>
@@ -376,21 +376,36 @@
                  </button>
                </div>
                <div class="modal-body">
+
+                  <h6 class=""><strong>Navigating the viewer</strong></h6>
+
+                  <p>Select using the brush tool to select a region. Double click to zoom out.</p>
+
+                  <img width="100%" src="{{url_for('static', filename='using_viewer.gif')}}"/>
+
+                  <p></p>
+
                   <h6 class=""><strong>5' UTR Architechure</strong></h6>
 
                   <p class="">
-                     The UTR Visualisation app is able to visualize the various different uORFs and oORFs within a 5' UTR. This is done by scanning through from 5' to 3' end of the UTR and identifying all ATGs with an in-frame stop codon.
+                     VuTR is able to visualise the various different uORFs and oORFs within a 5' UTR. This is done by scanning through from 5' to 3' end of the UTR and identifying all ATGs with an in-frame stop codon.
                      These are then characterized whether they are (a) uORF (b) in-frame oORFs causing a N-terminal extension or (c) an out-of-frame oORF. These ORFs are separately viewed on different tracks on the viewer.
                      They are color coded with their match to Kozak Consensus Sequence (5'-(gcc)gccRcc<u>AUG</u>G-3') and categorized as either (a) Strong, (b) Moderate or (c) Weak.
+                     Where RiboSeq data is available, VuTR is able to plot smORF data from Chothani, Sonia P., et al. "A high-resolution map of human RNA translation." Molecular Cell 82.15 (2022): 2885-2899.
                   </p>
                   <p>Users are able to view additional contextual detail such as the sequence, frame, context and transcript positions by clicking on the ORF of their choice.
                   </p>
+               
+                  <img width="100%" src="{{url_for('static', filename='orf_clicking.gif')}}"/>
+
+                  <p></p>
+
+
                   <h6 class=""><strong>ClinVar and gnomAD variants</strong></h6>
                   <p class="">
-                     We use gnomAD's GraphQL API to access variants within 5' UTR exons. ClinVar variants are placed in separate tracks, one for each variant with a 5' UTR consequence.
-                     gnomAD (version 3.1.2) was used for a population reference variation.
+                     VuTR uses gnomAD (version 3.1.2) to access population variants within 5' UTR exons. ClinVar variants are placed in separate tracks, one for each variant with a 5' UTR consequence.
                   </p>
-                  <h6 class=""><strong>Finding the impact your favourite variant</strong></h6>
+                  <h6 class=""><strong>Finding the impact your variant</strong></h6>
                   <p class="">
                      Users are available to input their favorite variant in the box user-supplied variant section in the following format CHROM-POS-REF-ALT (e.g. 5-88823796-G-A).
                      Only variants with a 5' UTR impact are searchable all other SNV variants in 5' UTR regions are assumed to have no 5' UTR consequence.
@@ -426,8 +441,9 @@
                             <li><b>RefSeq Match:</b> The RefSeq transcript identifier according to MANE Select 1.0</li>
                             <li><b>5' UTR exon count:</b>The number of exons in the 5' UTR</li>
                             <li><b>5' UTR length:</b> The length of the 5' UTR (in bps)</li>
+                            <li><b>ClinGen Scores:</b>Both Haploinsufficiency and Triplosensitivity scores from ClinGen</li>
                             <li><b>Gene LOEUF: </b>Constraint scores according to gnomAD v.2.1.1</li>
-                            <li><b>External Resources</b> See this gene in other resources such as gnomAD, ClinVar, sORFs, and ClinGen.</li>
+                            <li><b>External Resources</b> See this gene in other resources such as gnomAD, ClinVar, OMIM, and DECIPHER.</li>
                     </ul>
                     <br></br>
 
@@ -511,7 +527,7 @@
 
       // Add event handler
       user_viewer.onFeatureSelected(function (d){
-		   openModal(search_obj(user_variant_data, d.detail.id,'variant_id'));
+		   openModal(searchObj(user_variant_data, d.detail.id,'variant_id'), 'user-supplied');
 	   });
 
       var arch_ft = viewers['arch_ft']
