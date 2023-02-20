@@ -280,10 +280,38 @@ var openModal = function(data, type) {
 
   </div>
 </div>
-</div>
+</div>`;
+    }
 
+    if (type=='user-supplied'){
+        custom = `
+        <div class="modal fade" 
+        id="feature-modal"
+        tabindex="-1" 
+        role="dialog" 
+        aria-labelledby="exampleModalLongTitle" 
+        aria-hidden="true">
     
-    `;
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Variant ${data['variant_id']} </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+    
+    
+        <div class="modal-body">
+
+        ${createUtrAnnotationList(data)}
+        </div>
+    
+      </div>
+    </div>
+    </div>`;
+        
+
     }
 
     if (type == 'clinvar') {
