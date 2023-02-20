@@ -149,8 +149,6 @@ var get_exon_structure = function(genomic_features, buffer, start_site,
         exon_end = strand_corrected_interval(new_x, new_x +
             width_exon, start_site, buffer, strand)['end'];
 
-        console.log(exon_start)
-
         /* Exclude exons that start before the CDS */
         if (exon_end > 0) {
             /* Trim exon that goes beyond buffer a little bit */
@@ -849,10 +847,10 @@ var create_transcript_viewer = function(
     clinvar_variants.forEach(element => {
         clinvar_var_feat_dat.push({
             x: strand_corrected_interval(element['tpos'],
-                element['tpos'], start_site, buffer,
+                element['tpos']+1, start_site, buffer,
                 strand)['start'],
             y: strand_corrected_interval(element['tpos'],
-                element['tpos'], start_site, buffer,
+                element['tpos']+1, start_site, buffer,
                 strand)['end'],
             color: pathogenicity_colors[element
                 .clinical_significance],
