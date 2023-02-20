@@ -1,110 +1,32 @@
-const kozak_colors = {
-    Strong: "#E69F00",
-    Moderate: "#56B4E9",
-    Weak: "#009E73",
-    None: "#009E73"
-};
+/** 
+utrviewer.js 
 
-const smorf_sources = {
-    'sorfDB' : 'sorfDB | Olexiouk, Volodimir, et al. "sORFs.org: a repository of small ORFs identified by ribosome profiling." Nucleic acids research 44.D1 (2016): D324-D329.', 
-    'ribotaper' : 'Ribotaper | Calviello, Lorenzo, et al. "Detecting actively translated open reading frames in ribosome profiling data." Nature methods 13.2 (2016): 165-170.', 
-    'ribotish' : 'Ribo-TISH | Zhang, Peng, et al. "Genome-wide identification and differential analysis of translational initiation." Nature communications 8.1 (2017): 1749.',
-    'PRICE' : 'PRICE | Erhard, Florian, et al. "Improved Ribo-seq enables identification of cryptic translation events." Nature methods 15.5 (2018): 363-366.'
-}
+The following functions allow for the creation of the transcript viewer 
+in the vutr.rarediseasegenomics.org/viewer/<ENST> page.
 
-const pathogenicity_colors = {
-    "Pathogenic": "#D55E00",
-    "Likely pathogenic": "#D55E00",
-    "Benign": "#0072B2",
-    "Likely benign": "#0072B2",
-    "Conflicting interpretations": "#CC79A7",
-    "Uncertain significance": "#CC79A7",
-};
+Namely, utilising the features from CalipoSIB's Feature Viewer.
+See their Github page for more details.
 
-const detail_mapping = {
-    // gnomAD mappings
-    "alt": "ALT",
-    "clinical_significance": "Clinical Significance",
-    "clinvar_variation_id": "ClinVar Variation ID",
-    "gold_stars": "Gold Stars",
-    "hgvsc": "HGVSC",
-    "in_gnomad": "Is variant in gnomAD?",
-    "major_consequence": "Major Consequence (VEP)",
-    "pos": "Position",
-    "ref": "REF",
-    "review_status": "Review Status",
-    "tpos": "Transcript Position",
-    "transcript_id": "Ensembl Transcript ID",
-    "genome.af": "gnomAD v3 AF",
-    "genome.ac": "gnomAD v3 AC",
-    "genome.an": "gnomAD v3 AN",
-    "efficiency": "Translational Efficiency",
-    "lower_bound": "Translational Efficiency (Lower bound)",
-    "upper_bound": "Translational Efficiency (Upper bound)",
-
-    /// ORF Details
-    "ensembl_transcript_id": "Ensembl Transcript ID",
-    "orf_start_codon": "Transcript pos. Start Codon",
-    "orf_seq": "ORF Sequence",
-    "orf_stop_codon": "Transcript pos. Stop codon",
-    "orf_start_codon_genome": "Genomic pos. Start Codon",
-    "orf_stop_codon_genome": "Genomic pos. Stop Codon",
-    "orf_type": "ORF Type",
-    "frame": "ORF Frame w.r.t. CDS",
-    "kozak_context": "7bp context",
-    "context": "11 bp context",
-    "kozak_consensus_strength": "Kozak Consensus Strength",
-    "orf_id": "ORF ID",
-
-    /// UTR Annotator details
-
-    // uAUG gained mappings
-    "variant_id": "Variant ID",
+Following functions add additional functional such as a modal detail upon 
+clicking one of the elements, and correcting for the fact that 
+FeatureViewer isn't strand aware, whereas VuTR requires separate 
+views for reverse strand genes
+*/
 
 
-    "uAUG_gained_CapDistanceToStart": "uAUG-gained Distance from Cap to start",
-    "uAUG_gained_DistanceToCDS": "uAUG-gained Distance to CDS",
-    "uAUG_gained_DistanceToStop": "uAUG-gained Distance to Stop codon",
-    "uAUG_gained_KozakContext": "uAUG-gained Kozak Context",
-    "uAUG_gained_KozakStrength": "uAUG-gained Kozak Strength",
-    "uAUG_gained_type": "uAUG-gained Type",
 
-    // uAUG Lost
-    "uAUG_lost_type": "uAUG-Lost Type",
-    "uAUG_lost_KozakContext": "uAUG-Lost Kozak Context",
-    "uAUG_lost_KozakStrength": "uAUG-Lost Kozak Strength",
-    "uAUG_lost_CapDistanceToStart": "uAUG-Lost Distance from Cap to start",
-    "uAUG_lost_DistanceToCDS": "uAUG-Lost Distance to CDS",
-    "uAUG_lost_DistanceToSTOP": "uAUG-Lost Distance to Stop",
+/**
+This function converts a transcript [start, end] to an appropriate coordinate 
+for Feature viewer depending on which strand the gene is located on
 
-    // uStop Lost mapping
-    "uSTOP_lost_AltStop": "uSTOP-Lost ALT Stop",
-    "uSTOP_lost_AltStopDistanceToCDS": "uSTOP-Lost ALT Stop Distance to CDS",
-    "uSTOP_lost_KozakContext": "uSTOP-Lost Kozak Context",
-    "uSTOP_lost_KozakStrength": "uSTOP-Lost Kozak Strength",
-    "uSTOP_lost_FrameWithCDS": "uSTOP-Lost Frame w.r.t. CDS",
-
-    // uSTOP gained mappings
-    "uSTOP_gained_ref_StartDistanceToCDS": "uSTOP-gained Distance to CDS",
-    "uSTOP_gained_ref_type": "uSTOP-gained REF Type",
-    "uSTOP_gained_KozakContext": "uSTOP-gained Kozak Context",
-    "uSTOP_gained_KozakStrength": "uSTOP-gained Kozak Strength",
-    "uSTOP_gained_newSTOPDistanceToCDS": "uSTOP-gained Distance from Stop to CDS"
-
-    /*
-    To be defined when we have frameshift variants with indels
-    "uFrameshift_ref_type": "uFrameshift Ref Type",
-    "uFrameshift_ref_type_length": "uFrameshift Ref Type Length",
-    "uFrameshift_StartDistanceToCDS":,
-    "uFrameshift_alt_type":,
-    "uFrameshift_alt_type_length":,
-    "uFrameshift_KozakContext":,
-    "uFrameshift_KozakStrength": "Kozak Strength", */
-};
-
-const possible_utr_annotations = Object.keys(detail_mapping).filter(e=> e[0]=="u" && e != "upper_bound")
-
-var strand_corrected_interval = function(
+@param {number} start - The transcript start of the feature
+@param {number} end - The transcript end of the feature
+@param {number} start_site - The start site of the CDS
+@param {number} buffer - The amount of bps of buffer from the CDS to the end of the viz.
+@param {string} strand - Which strand is this gene on? "-" or "+"
+@returns {Obj} {start : The strand aware start, end: The strand aware end}
+*/
+var scInterval = function(
     start,
     end,
     start_site,
@@ -114,18 +36,31 @@ var strand_corrected_interval = function(
     if (strand == '+') {
         return ({
             'start': start,
-            'end': end-1
+            'end': end - 1
         })
     } else {
         return ({
-            "start": (start_site + buffer+2) - end,
-            "end": (start_site + buffer+1) - start,
+            "start": (start_site + buffer + 2) - end,
+            "end": (start_site + buffer + 1) - start,
         })
     }
 }
 
 
-var get_exon_structure = function(genomic_features, buffer, start_site,
+/*
+Determines the exon structure, essential a list of start, and ends (aware of strand)
+depending on which is 
+
+@param {[Objs...]} genomic_features - A list of Objs with each obj an exon from the MANE gff 
+@param {number} start_site - The start site of the CDS
+@param {number} buffer - The amount of bps of buffer from the CDS to the end of the viz.
+@param {string} strand - Which strand is this gene on? "-" or "+"
+@returns {Obj} [{start : The strand aware start, end: The strand aware end}] for the exons
+*/
+var getExonStructure = function(
+    genomic_features,
+    buffer,
+    start_site,
     strand) {
 
     /* Filter to five prime UTR*/
@@ -144,53 +79,55 @@ var get_exon_structure = function(genomic_features, buffer, start_site,
         /* Find the width of the exon*/
 
         width_exon = element['end'] - element['start'];
-        exon_start = strand_corrected_interval(new_x, new_x +
+        exon_start = scInterval(new_x, new_x +
             width_exon, start_site, buffer, strand)['start']
-        exon_end = strand_corrected_interval(new_x, new_x +
+        exon_end = scInterval(new_x, new_x +
             width_exon, start_site, buffer, strand)['end'];
 
         /* Exclude exons that start before the CDS */
         if (exon_end > 0) {
             /* Trim exon that goes beyond buffer a little bit */
             if (exon_start < 0) {
-                if (strand == '-'){
+                if (strand == '-') {
                     output.push({
-                        'x': Math.max(buffer+0.0001, exon_start),
-                        'y': Math.min(exon_end+1, start_site +
+                        'x': Math.max(buffer + 0.0001,
+                            exon_start),
+                        'y': Math.min(exon_end + 1,
+                            start_site +
                             buffer),
                         color: '#A4AAAC',
                         description: 'Exon ' + (index + 1),
                     });
-                }
+                } else {
 
-                else{
-                    
-                output.push({
-                    'x': Math.max(0, exon_start),
-                    'y': Math.min(exon_end, start_site +
-                        buffer),
-                    color: '#A4AAAC',
-                    description: 'Exon ' + (index + 1)});
+                    output.push({
+                        'x': Math.max(0, exon_start),
+                        'y': Math.min(exon_end, start_site +
+                            buffer),
+                        color: '#A4AAAC',
+                        description: 'Exon ' + (index + 1)
+                    });
                 }
 
             } else {
                 if (strand == '-') {
                     output.push({
-                        'x': Math.max(buffer+0.001, exon_start),
+                        'x': Math.max(buffer + 0.001,
+                            exon_start),
                         'y': Math.min(exon_end, start_site +
                             buffer),
                         color: '#A4AAAC',
                         description: 'Exon ' + (index + 1),
-    
+
                     });
-                }
-                else{
+                } else {
                     output.push({
                         'x': Math.max(0, exon_start),
-                        'y': Math.min(exon_end, start_site+0.999),
+                        'y': Math.min(exon_end, start_site +
+                            0.999),
                         color: '#A4AAAC',
                         description: 'Exon ' + (index + 1),
-    
+
                     });
                 }
             }
@@ -203,6 +140,15 @@ var get_exon_structure = function(genomic_features, buffer, start_site,
 
     return (output);
 }
+
+
+
+/*
+Flattens nested objects
+@param {Obj} obj - Where there might be nesting.
+@returns {Obj} - Returns an object that is exactly 1 level deep
+*/
+
 var flattenObj = (ob) => {
 
     // The object which contains the
@@ -233,17 +179,24 @@ var flattenObj = (ob) => {
 };
 
 
-var create_utr_annotation_list =  function (data){
+/** 
+Creates the <li> elements for the UTR annotation
+@param {Obj} data - The obj with output from UTR annotator
+@returns {string} - HTML string to be used in the modal
+*/
 
-    var ann_obj = Object.entries(data).filter(([key,value]) => possible_utr_annotations.includes(key));
+var createUtrAnnotationList = function(data) {
 
+    var ann_obj = Object.entries(data).filter(([key, value]) =>
+        possible_utr_annotations.includes(key));
     var annotation = '';
-    if (ann_obj.length>0){
+    if (ann_obj.length > 0) {
         var annotation = `<h5>5'UTR Annotation></h5><ul>`;
         // Filter data to only the UTR annotations and then make them into <li> element
         for (const [key, value] of ann_obj) {
             // Map the VEP consequence terms to formatted strings
-            annotation = annotation.concat(`<li><b>${detail_mapping[key]}</b>: ${value}</li>`);
+            annotation = annotation.concat(
+                `<li><b>${detail_mapping[key]}</b>: ${value}</li>`);
         }
         annotation = annotation.concat('</ul><hr>');
     }
@@ -251,8 +204,14 @@ var create_utr_annotation_list =  function (data){
 }
 
 
-/* On click event handlers*/
-var open_modal = function(data, type) {
+/* 
+On click event handlers to open the modal details
+@param {obj} data - The obj with data to be displayed
+@param {string} type - The type either 'gnomad', 'clinvar', 'uorf'
+@returns None
+
+*/
+var openModal = function(data, type) {
 
     /// Type is the data_type of the detail presented
 
@@ -276,10 +235,10 @@ var open_modal = function(data, type) {
 
 
     var custom;
-    
+
     // gnomAD 
-    if (type == 'gnomad'){
-    custom = `
+    if (type == 'gnomad') {
+        custom = `
     <div class="modal fade" 
     id="feature-modal"
     tabindex="-1" 
@@ -308,7 +267,7 @@ var open_modal = function(data, type) {
       <li><b>HGVSC</b> : ${data['hgvsc']} </li>
     </ul>
     <hr>
-    ${create_utr_annotation_list(data)}
+    ${createUtrAnnotationList(data)}
       <h5>gnomAD Frequency</h5> 
       <ul>
         <li><b>Allele Count</b> : ${data['genome.ac']}</li>
@@ -327,8 +286,8 @@ var open_modal = function(data, type) {
     `;
     }
 
-if (type == 'clinvar'){
-    custom = `
+    if (type == 'clinvar') {
+        custom = `
     <div class="modal fade" 
     id="feature-modal"
     tabindex="-1" 
@@ -368,7 +327,7 @@ if (type == 'clinvar'){
     <li><b>Variant in gnomAD?</b> : ${data['in_gnomad']} </li>
     </ul>
   <hr>
-    ${create_utr_annotation_list(data)}
+    ${createUtrAnnotationList(data)}
     <b>View variant in ClinVar</b>: <a href='https://www.ncbi.nlm.nih.gov/clinvar/variation/${data['clinvar_variation_id']}'>${data['clinvar_variation_id']}</a>    </div>
 
   </div>
@@ -378,10 +337,10 @@ if (type == 'clinvar'){
     
     `;
 
-} 
+    }
 
-if (type == 'orf'){
-    custom = `
+    if (type == 'orf') {
+        custom = `
 		<div class="modal fade" 
             id="feature-modal"
             tabindex="-1" 
@@ -445,11 +404,11 @@ if (type == 'orf'){
 	  </div>
 		`;
 
-    
-}
 
-if (type == 'smorf'){
-    custom = `
+    }
+
+    if (type == 'smorf') {
+        custom = `
 		<div class="modal fade" 
             id="feature-modal"
             tabindex="-1" 
@@ -479,8 +438,8 @@ if (type == 'smorf'){
 	  </div>
 		`;
 
-    
-}
+
+    }
     document.getElementById('modal-container')
         .insertAdjacentHTML('beforeend',
             custom);
@@ -507,27 +466,27 @@ if (type == 'smorf'){
         const counts = [10, 326, 795, 1230, 1628, 2182, 3563, 3510, 2600,
             1687, 811, 239, 48, 7
         ]
-        var bg_color = 
-        ['#134DF1',
-        '#134DF1',
-        '#134DF1',
-        '#134DF1',
-        '#134DF1',
-        '#134DF1',
-        '#134DF1',
-        '#134DF1',
-        '#134DF1',
-        '#134DF1',
-        '#134DF1',
-        '#134DF1',
-        '#134DF1',
-        '#134DF1',
-        '#134DF1'];
+        var bg_color = ['#134DF1',
+            '#134DF1',
+            '#134DF1',
+            '#134DF1',
+            '#134DF1',
+            '#134DF1',
+            '#134DF1',
+            '#134DF1',
+            '#134DF1',
+            '#134DF1',
+            '#134DF1',
+            '#134DF1',
+            '#134DF1',
+            '#134DF1',
+            '#134DF1'
+        ];
 
         // Find index where efficiency falls under 
         for (var i = 0; i < labels.length; ++i) {
             const r = labels[i].split('-');
-            
+
             if (parseInt(r[0]) < dat['efficiency'] &&
                 dat['efficiency'] < parseInt(r[1])) {
                 bg_color[i] = '#E83A5A';
@@ -559,38 +518,53 @@ if (type == 'smorf'){
                 },
                 tooltip: {
                     enabled: false // <-- this option disables tooltips
-                  }            
-        
+                }
+
 
             },
         };
         new Chart(ctx, config);
     }
 
-
-
     $('#feature-modal').modal();
 }
 
-var search_obj = function(data, id, id_var) {
-    /**
-     * Quick wrapper to function to search through an
-     * array of objects
-     */
-    return (data.filter(e => {
+
+/**
+ * Quick wrapper to function to search through an
+ * array of objects for a certain object 
+ * @param {[Obj]} data - The list of objects
+ * @param {string} id - The identifier to search
+ * @param {string} id_var - The key to search for
+ * @returns {Obj or [Obj]}  The object (s) found
+ */
+var searchObj = function(data, id, id_var) {
+    found = data.filter(e => {
         return (e[id_var] == id)
-    })[0])
+    })
+    return (found[0])
 }
 
+/**
+ * This handles the zooming from the featureViewer object
+ * @param {FeatureViewer} ft - The feature viewer to be manipulated
+ * @param {FeatureViewer.ClickEvent} - the event with the [start, end] of the zoom.
+ * @returns {None}
+ */
 var handleZoom = function(ft, d) {
     var start = d.detail.start;
     var end = d.detail.end;
     ft.zoom(start, end);
-
 }
 
+/**
+ * Quick wrapper to function to reverse complement a string
+ * @param {string} x - a string to reverse
+ * @returns {string} x - reverse complemented
+ */
 var reverse = function(x) {
     const length = x.length;
+    // Reverse the string 
     for (let i = 0; i < Math.floor(length / 2); i++) {
         const temp = x[i]
         x = x.substring(0, i) +
@@ -599,13 +573,37 @@ var reverse = function(x) {
             temp +
             x.substring(length - i)
     }
-    return x
+    // Complement String 
+    var mapObj = {
+        a: "t",
+        t: "a",
+        c: "g",
+        g: "c"
+    };
+    var re = new RegExp(Object.keys(mapObj).join("|"), "gi");
+    x_complement = x.replace(re, function(matched) {
+        return mapObj[matched];
+    });
+    return x_complement;
 };
 
 
-
-
-var create_transcript_viewer = function(
+/**
+ * Creates the main transcript viewer consists of 
+ * uORFS, gnomAD and clinvar using Feature Viewer.
+ * @param {[Obj]} tr_obj - The uORFs 
+ * @param {str} div - id of the <div> to add
+ * @param {number} start_site - The start site of the CDS
+ * @param {string} strand - Which strand is this gene on? "-" or "+"
+ * @param {number} buffer - The amount of bps of buffer from the CDS to the end of the viz.
+ * @param {str} seq - The sequence of the cDNA 
+ * @param {[Obj]} smorf - The smORF with evidence dataset
+ * @param {[Obj]} gnomad_utr_impact - gnomAD dataset for v3.1.2 variants
+ * @param {[Obj]} clinvar_utr_impact - The object from gnomAD API
+ * @param {[Obj]} genomic_features - The genomic features (exons) from MANE gff
+ * @returns {FeatureViewer}
+ */
+var createTranscriptViewer = function(
     tr_obj,
     div,
     start_site,
@@ -620,8 +618,8 @@ var create_transcript_viewer = function(
 
     // Subset to the first 100 bases following the CDS
     var sequence = strand == "+" ? seq
-        .substring(0, start_site + buffer) :
-        reverse(seq.substring(0, start_site + buffer));
+        .substring(0, start_site + buffer).toUpperCase() :
+        reverse(seq.substring(0, start_site + buffer)).toUpperCase();
 
 
     // Create the feature viewer
@@ -637,21 +635,18 @@ var create_transcript_viewer = function(
     //********** Gene Structure *********/
     // Plot where the coding sequence and 5' utrs
     if (start_site != 0) {
-
-
-
         ft2.addFeature({
-            data:[{
-                x: strand_corrected_interval(start_site+1,
-                    start_site + buffer+2, start_site,
+            data: [{
+                x: scInterval(start_site + 1,
+                    start_site + buffer + 2, start_site,
                     buffer, strand)['start'],
-                y: strand_corrected_interval(start_site+1,
-                    start_site + buffer+2, start_site,
+                y: scInterval(start_site + 1,
+                    start_site + buffer + 2, start_site,
                     buffer, strand)['end'],
                 color: '#58565F',
                 description: "CDS",
                 id: 'cds_rect',
-            }, ...get_exon_structure(genomic_features, buffer,
+            }, ...getExonStructure(genomic_features, buffer,
                 start_site, strand)],
             color: '#2C302E',
             name: 'Gene Structure',
@@ -662,36 +657,34 @@ var create_transcript_viewer = function(
         document.getElementById("fcds_rect").setAttribute("height", "30");
         document.getElementById("fcds_rect").setAttribute("y", "-8");
 
+        if (smorf.length > 0) {
+            smorf_data = [];
+            smorf.forEach(e => smorf_data.push({
+                x: scInterval(
+                    e.transcript_start, e.transcript_end +
+                    1,
+                    start_site, buffer, strand
+                )['start'],
+                y: scInterval(
+                    e.transcript_start, e.transcript_end +
+                    1,
+                    start_site, buffer, strand
+                )['end'],
+                id: e.smorf_iorf_id
+            }));
 
-        if (smorf.length > 0){
-        smorf_data = [];
-        smorf.forEach(e => smorf_data.push({
-            x : strand_corrected_interval(
-                e.transcript_start, e.transcript_end+1,
-                start_site, buffer, strand
-            )['start'], 
-            y : strand_corrected_interval(
-                e.transcript_start, e.transcript_end+1,
-                start_site, buffer, strand
-            )['end'], 
-            id : e.smorf_iorf_id
-        }));
-
-        ft2.addFeature(
-        {
-            data: smorf_data,
-            type: "rect",
-            className: "uorf_rect",
-            name: "ORFs w. evidence",
-            color: '#474A48'
+            ft2.addFeature({
+                data: smorf_data,
+                type: "rect",
+                className: "uorf_rect",
+                name: "ORFs w. evidence",
+                color: '#474A48'
+            })
         }
-    )
     }
-}
 
 
-    //********** ORFS *********/
-
+    /* ORFS Variant Track */
     // Plot each separate ORF on a separate track based on frame
     var orf_groups = [{
             "grouping_name": "uORFs",
@@ -712,6 +705,8 @@ var create_transcript_viewer = function(
         }
     ]
     var uorfs = tr_obj;
+
+    // Add ORFs to feature viewer
     orf_groups.forEach(group => {
         // Filter each ofs based on the grouping criteria
         // defined above
@@ -721,11 +716,11 @@ var create_transcript_viewer = function(
         });
         curr_orf_frame_dat = [];
         curr_orf_type.forEach(e => curr_orf_frame_dat.push({
-            x: strand_corrected_interval(e
+            x: scInterval(e
                 .orf_start_codon, e.orf_stop_codon,
                 start_site, buffer, strand)[
                 'start'],
-            y: strand_corrected_interval(e
+            y: scInterval(e
                 .orf_start_codon, e.orf_stop_codon,
                 start_site, buffer, strand)['end'],
             color: kozak_colors[e
@@ -744,19 +739,21 @@ var create_transcript_viewer = function(
 
     });
 
+    // Add event handlers
     ft2.onFeatureSelected(function(d) {
-        if (search_obj(smorf, d.detail.id, 'smorf_iorf_id')){
-            open_modal(search_obj(smorf, d.detail.id, 'smorf_iorf_id'), 'smorf');
-        }
-        else{
-            open_modal(search_obj(uorfs, d.detail.id, 'orf_id'), 'orf');
+        if (searchObj(smorf, d.detail.id, 'smorf_iorf_id')) {
+            openModal(searchObj(smorf, d.detail.id,
+                'smorf_iorf_id'), 'smorf');
+        } else {
+            openModal(searchObj(uorfs, d.detail.id, 'orf_id'),
+                'orf');
         }
     });
-    //********** ClinVar *********/
 
 
 
     /* gnomAD Variant Track */
+
     var gnomad_variant_ft = new FeatureViewer.createFeature(sequence,
         '#gnomad_tracks', {
             showAxis: false,
@@ -769,15 +766,18 @@ var create_transcript_viewer = function(
 
     var pop_variants = gnomad_data[
         'variants']; // gnomAD variants from the API
-    var pop_var_feat_dat = []; // Visualization intervals to pass to feature viewer
-    var pop_var_tpos = []; // tmp for storing the transcript positions of the variants
+    var
+pop_var_feat_dat = []; // Visualization intervals to pass to feature viewer
+    var
+pop_var_tpos = []; // tmp for storing the transcript positions of the variants
     pop_variants.forEach(element => {
         tpos = element['tpos']
         // Only append to the track if didn't exist
         if (!pop_var_tpos.includes(tpos)) {
             pop_var_tpos.push(tpos);
-            strand_corrected_tpos = strand_corrected_interval(
-                element['tpos'], element['tpos']+1, start_site,
+            strand_corrected_tpos = scInterval(
+                element['tpos'], element['tpos'] + 1,
+                start_site,
                 buffer, strand)
             pop_var_feat_dat.push({
                 x: strand_corrected_tpos['start'],
@@ -804,13 +804,13 @@ var create_transcript_viewer = function(
         element => {
             gnomad_variant_ft.addFeature({
                 data: [{
-                    x: strand_corrected_interval(
+                    x: scInterval(
                         element['start'],
                         element['end'],
                         start_site,
                         buffer,
                         strand)['start'],
-                    y: strand_corrected_interval(
+                    y: scInterval(
                         element['start'], element[
                             'end'], start_site,
                         buffer, strand)['end'],
@@ -824,9 +824,9 @@ var create_transcript_viewer = function(
         }
     )
     gnomad_variant_ft.onFeatureSelected(function(m) {
-        gnomad_utr_conseq = search_obj(gnomad_utr_impact, m.detail
+        gnomad_utr_conseq = searchObj(gnomad_utr_impact, m.detail
             .id, 'variant_id')
-        open_modal(Object.assign(search_obj(pop_variants, m.detail
+        openModal(Object.assign(searchObj(pop_variants, m.detail
                 .id, 'variant_id'), gnomad_utr_conseq),
             'gnomad');
 
@@ -846,11 +846,11 @@ var create_transcript_viewer = function(
     var clinvar_var_feat_dat = [];
     clinvar_variants.forEach(element => {
         clinvar_var_feat_dat.push({
-            x: strand_corrected_interval(element['tpos'],
-                element['tpos']+1, start_site, buffer,
+            x: scInterval(element['tpos'],
+                element['tpos'] + 1, start_site, buffer,
                 strand)['start'],
-            y: strand_corrected_interval(element['tpos'],
-                element['tpos']+1, start_site, buffer,
+            y: scInterval(element['tpos'],
+                element['tpos'] + 1, start_site, buffer,
                 strand)['end'],
             color: pathogenicity_colors[element
                 .clinical_significance],
@@ -874,11 +874,11 @@ var create_transcript_viewer = function(
         element => {
             clinvar_variant_ft.addFeature({
                 data: [{
-                    x: strand_corrected_interval(
+                    x: scInterval(
                         element['start'], element[
                             'end'], start_site,
                         buffer, strand)['start'],
-                    y: strand_corrected_interval(
+                    y: scInterval(
                         element['start'], element[
                             'end'], start_site,
                         buffer, strand)['end'],
@@ -894,10 +894,11 @@ var create_transcript_viewer = function(
 
     /*Event handler to view the Clinvar variant detail page*/
     clinvar_variant_ft.onFeatureSelected(function(d) {
-        clinvar_utr_conseq = search_obj(clinvar_utr_impact, d.detail
-            .id, 'variant_id')
-        open_modal(Object.assign(
-                search_obj(clinvar_variants, d.detail.id,
+        clinvar_utr_conseq = searchObj(clinvar_utr_impact,
+            d.detail.id, 'variant_id')
+
+        openModal(Object.assign(
+                searchObj(clinvar_variants, d.detail.id,
                     'variant_id'),
                 clinvar_utr_conseq),
             'clinvar');
@@ -913,8 +914,18 @@ var create_transcript_viewer = function(
 
 }
 
+/** 
+ * Creates the viewer for user supplied variants
+ * @param {str} div - id of the <div> to add
+ * @param {str} seq - The sequence of the cDNA (Used for the purposes of length rather than actually plotting)
+ * @param {number} start_site - The start site of the CDS
+ * @param {number} buffer - The amount of bps of buffer from the CDS to the end of the viz.
+ * @param {string} strand - Which strand is this gene on? "-" or "+"
+ * @returns {FeatureViewer} The feature viewer object
+ */
 
-var initialize_user_viewer = function(div,
+var initialiseUserViewer = function(
+    div,
     seq,
     start_site,
     strand,
@@ -932,18 +943,34 @@ var initialize_user_viewer = function(div,
     return user_viewer
 }
 
-var add_user_supplied_feature = function(
-    user_viewer, payload, var_name,
-    start_site, buffer, strand) {
+
+/** 
+ *  Adds a track for each user supplied variant 
+ * @param {FeatureViewer} user_viewer - The object to add to
+ * @param {Obj} payload - The object from the API with the start, end
+ * @param {string} var_name - The name of the variant (variant_id)
+ * @param {number} start_site - The start site of the CDS
+ * @param {number} buffer - The amount of bps of buffer from the CDS to the end of the viz.
+ * @param {string} strand - Which strand is this gene on? "-" or "+"
+ * @returns {None}
+ */
+
+var addUserSuppliedFeature = function(
+    user_viewer,
+    payload,
+    var_name,
+    start_site,
+    buffer,
+    strand
+) {
     dat = payload["data"]["intervals"]
     intervals = [{
-        x: strand_corrected_interval(dat['start'], dat['end'],
+        x: scInterval(dat['start'], dat['end'],
             start_site, buffer, strand)['start'],
-        y: strand_corrected_interval(dat['start'], dat['end'],
+        y: scInterval(dat['start'], dat['end'],
             start_site, buffer, strand)['end'],
         id: dat['variant_id']
     }]
-
     user_viewer.addFeature({
         data: intervals,
         type: "rect",
