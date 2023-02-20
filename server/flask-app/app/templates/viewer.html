@@ -493,6 +493,7 @@
       <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
 
       <!--UTR Visualization-->
+      <script src="{{url_for('static', filename ='constants.js')}}"></script>
       <script src="{{url_for('static', filename ='utrviewer.js')}}"></script>
 
       <!--Custom Scripts-->
@@ -521,7 +522,7 @@
       var all_possible_variants={{all_possible_variants|safe}};
       var seq = "{{five_prime_utr_stats["seq"]|safe}}";
       var smorfs = {{smorfs | safe}}
-      var viewers = create_transcript_viewer(
+      var viewers = createTranscriptViewer(
          transcript_features,
          transcript_div,
          start_site,
@@ -534,7 +535,7 @@
          genomic_features);
 
     // Initialize user suplied visualization
-    var user_viewer = initialize_user_viewer('#user_variants',
+    var user_viewer = initialiseUserViewer('#user_variants',
          seq,
          start_site,
          strand,
@@ -546,7 +547,7 @@
 
       // Add event handler
       user_viewer.onFeatureSelected(function (d){
-		   open_modal(search_obj(user_variant_data, d.detail.id,'variant_id'));
+		   openModal(search_obj(user_variant_data, d.detail.id,'variant_id'));
 	   });
 
       var arch_ft = viewers['arch_ft']
@@ -607,7 +608,7 @@
             success: function(res){
 
                // Create visualization
-               add_user_supplied_feature(user_viewer,
+               addUserSuppliedFeature(user_viewer,
                res,
                e.params.data.text,
                start_site,
