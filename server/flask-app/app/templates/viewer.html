@@ -491,8 +491,6 @@
       $('[data-toggle="tooltip"]').tooltip()
 
 
-
-
       var gnomad_data = {{gnomad_data|tojson}};
       var nan = null;
       var None = null;
@@ -500,8 +498,6 @@
       var buffer = 40;
       var strand = "{{gene_features[0]["strand"]|safe}}";
       var genomic_features = {{gene_features | safe}};
-      // Filter to features within the UTR.
-
       var start_site =  {{five_prime_utr_stats["five_prime_utr_length"] | safe}};
       var transcript_features = {{transcript_features | safe}};
       var transcript_div = "#transcript_viewer";
