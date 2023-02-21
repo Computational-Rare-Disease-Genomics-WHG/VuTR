@@ -17,7 +17,9 @@ views for reverse strand genes
 
 /**
 This function converts a transcript [start, end] to an appropriate coordinate 
-for Feature viewer depending on which strand the gene is located on
+for Feature viewer depending on which strand the gene is located on. 
+
+Also ensure that the interval doesn't go out of bounds for Feature Viewer
 
 @param {number} start - The transcript start of the feature
 @param {number} end - The transcript end of the feature
@@ -37,12 +39,12 @@ var scInterval = function(
         return ({
             'start': start,
             'end': Math.min(end - 1, start_site+buffer+1)
-        })
+        });
     } else {
         return ({
             "start": Math.max((start_site + buffer + 2) - end, 1),
             "end": (start_site + buffer + 1) - start,
-        })
+        });
     }
 }
 
