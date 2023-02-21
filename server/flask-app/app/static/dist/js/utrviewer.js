@@ -36,11 +36,11 @@ var scInterval = function(
     if (strand == '+') {
         return ({
             'start': start,
-            'end': end - 1
+            'end': Math.min(end - 1, start_site+buffer+1)
         })
     } else {
         return ({
-            "start": (start_site + buffer + 2) - end,
+            "start": Math.max((start_site + buffer + 2) - end, 1),
             "end": (start_site + buffer + 1) - start,
         })
     }
@@ -804,7 +804,8 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
         if (!pop_var_tpos.includes(tpos)) {
             pop_var_tpos.push(tpos);
             strand_corrected_tpos = scInterval(
-                element['tpos'], element['tpos'] + 1,
+                element['tpos']-1.25, 
+                element['tpos']+1,
                 start_site,
                 buffer, strand)
             pop_var_feat_dat.push({
@@ -874,11 +875,11 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
     var clinvar_var_feat_dat = [];
     clinvar_variants.forEach(element => {
         clinvar_var_feat_dat.push({
-            x: scInterval(element['tpos'],
-                element['tpos'] + 1, start_site, buffer,
+            x: scInterval(element['tpos']-1.25,
+                element['tpos'] + 1.1, start_site, buffer,
                 strand)['start'],
-            y: scInterval(element['tpos'],
-                element['tpos'] + 1, start_site, buffer,
+            y: scInterval(element['tpos']-1.25,
+                element['tpos'] + 1.1, start_site, buffer,
                 strand)['end'],
             color: pathogenicity_colors[element
                 .clinical_significance],
@@ -903,12 +904,12 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
             clinvar_variant_ft.addFeature({
                 data: [{
                     x: scInterval(
-                        element['start'], element[
-                            'end'], start_site,
+                        element['start']-1.25, element[
+                            'end']+1.1, start_site,
                         buffer, strand)['start'],
                     y: scInterval(
-                        element['start'], element[
-                            'end'], start_site,
+                        element['start']-1.25, element[
+                            'end']+1.1, start_site,
                         buffer, strand)['end'],
                     id: element.variant_id
                 }],
