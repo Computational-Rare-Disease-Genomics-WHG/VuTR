@@ -60,9 +60,9 @@ def get_utr_impacts():
         cdna_pos=variant['cDNA_position'],
         start_site=start_site,
         buffer_length=buffer,
+        annotation_id=variant_id
     )
     response_object = {
-        'status': 'Success',
         'message': 'Ok',
         'data': {
             'variant': {**{'variant_id': variant_id}, **annotation},
