@@ -457,7 +457,7 @@ var openModal = function(data, type) {
 			<div class="modal-body">
                 <ul>
                 <li><b>iORF ID</b> : ${data['smorf_iorf_id']} </li>
-                <li><b>Source</b> : ${smorf_sources[data['source']]} </li>
+                <li><b>Source</b> : Chothani, Sonia P., et al. <a href="https://doi.org/10.1016/j.molcel.2022.06.023" > A high-resolution map of human RNA translation.</a> Molecular Cell 82.15 (2022): 2885-2899. </li>
                 <li><b>Length</b> : ${data['len']} bps</li>
                 <li><b>Start Codon</b> : ${data['starts']} </li>
 			</div>
