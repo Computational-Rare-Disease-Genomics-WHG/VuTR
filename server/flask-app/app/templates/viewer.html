@@ -163,7 +163,7 @@
                                  </b>
                               </h3>
                               <div class="card-tools">
-                                 <button onclick="$('#detailmodal').modal()" type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
+                                 <button type="button" id="gene-details-help" class="btn btn-block btn-light">
                                  <i class="fas fa-question-circle"></i>
                                  </button>
                               </div>
@@ -366,11 +366,11 @@
 
       <div id="modal-container">
 
-         <div class="modal fade " id="archmodal" tabindex="-1" role="dialog" aria-labelledby="helpRole" aria-hidden="true">
+         <div class="modal fade " id="archmodal" tabindex="-1" role="dialog" aria-labelledby="modaltitle" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                <div class="modal-header">
-                 <h5 class="modal-title" id="exampleModalLongTitle">Help</h5>
+                 <h5 class="modal-title" id="modaltitle">Help</h5>
                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                  </button>
@@ -418,11 +418,19 @@
             </div>
            </div>
 
-           <div class="modal fade" id="detailmodal" tabindex="-1" role="dialog" aria-labelledby="helpArch" aria-hidden="true">
+           <div 
+            class="modal fade" 
+            id="detailmodal" 
+            tabindex="1" 
+            role="dialog" 
+            aria-labelledby="helpArch" 
+            aria-hidden="true">
+
+
             <div class="modal-dialog " role="document">
               <div class="modal-content">
                <div class="modal-header">
-                 <h5 class="modal-title" id="exampleModalLongTitle">Gene detail card</h5>
+                 <h5 class="modal-title" id="helpArch">Gene detail card</h5>
                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                  </button>
@@ -485,6 +493,10 @@
 
       $('#input_variant').select2();
       $('[data-toggle="tooltip"]').tooltip()
+
+      $('#gene-details-help').click(function (){
+         $('#detailmodal').modal()
+      });
 
 
       var gnomad_data = {{gnomad_data|tojson}};
@@ -601,6 +613,8 @@
             dataType: 'json'
          });
       });
+
+
 
 
       </script>

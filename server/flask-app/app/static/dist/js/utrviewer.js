@@ -998,7 +998,7 @@ var addUserSuppliedFeature = function(
     intervals = [{
         x: scInterval(dat['start']-1.25, dat['end']+1.1,
             start_site, buffer, strand)['start'],
-        y: scInterval(dat['start']-1.25, dat['end']+1.1,
+        y: scInterval(dat['start']+1.25, dat['end']+1.1,
             start_site, buffer, strand)['end'],
         id: dat['variant_id']
     }]
