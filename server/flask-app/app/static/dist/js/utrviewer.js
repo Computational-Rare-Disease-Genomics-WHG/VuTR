@@ -845,7 +845,7 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
                         element['start'], element[
                             'end'], start_site,
                         buffer, strand)['end'],
-                    id: element["variant_id"]
+                    id: element["annotation_id"]
                 }],
                 type: "rect",
                 className: "gnomAD_high_impact_variant",
@@ -855,12 +855,17 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
         }
     )
     gnomad_variant_ft.onFeatureSelected(function(m) {
-        gnomad_utr_conseq = searchObj(gnomad_utr_impact, m.detail
-            .id, 'variant_id')
-        openModal(Object.assign(searchObj(pop_variants, m.detail
-                .id, 'variant_id'), gnomad_utr_conseq),
+        let id_sel = m.detail.id;
+        if (id_sel.startsWith('annotation')){
+            gnomad_utr_conseq = searchObj(gnomad_utr_impact, id_sel, 'annotation_id');
+            openModal(Object.assign(searchObj(pop_variants, gnomad_utr_conseq['variant_id'], 'variant_id'), gnomad_utr_conseq),
+                'gnomad');
+        }
+        else{
+        gnomad_utr_conseq = searchObj(gnomad_utr_impact, id_sel, 'variant_id')
+        openModal(Object.assign(searchObj(pop_variants, id_sel, 'variant_id'), gnomad_utr_conseq),
             'gnomad');
-
+        }
 
 
     });
@@ -913,7 +918,7 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
                         element['start']-1.25, element[
                             'end']+1.1, start_site,
                         buffer, strand)['end'],
-                    id: element.variant_id
+                    id: element.annotation_id
                 }],
                 type: "rect",
                 className: "clinvar_high_impact_variant",
@@ -925,14 +930,26 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
 
     /*Event handler to view the Clinvar variant detail page*/
     clinvar_variant_ft.onFeatureSelected(function(d) {
-        clinvar_utr_conseq = searchObj(clinvar_utr_impact,
-            d.detail.id, 'variant_id')
+        let id_sel = d.detail.id;
+        if (id_sel.startsWith('annotation')){
+            clinvar_utr_conseq = searchObj(clinvar_utr_impact,
+                id_sel, 'annotation_id')    
+            openModal(Object.assign(
+                    searchObj(clinvar_variants, clinvar_utr_conseq['variant_id'],
+                        'variant_id'),
+                    clinvar_utr_conseq),
+                'clinvar');
+        }
+        else{
+            clinvar_utr_conseq = searchObj(clinvar_utr_impact,
+                id_sel, 'variant_id')
+            openModal(Object.assign(
+                    searchObj(clinvar_variants, id_sel,
+                        'variant_id'),
+                    clinvar_utr_conseq),
+                'clinvar');
+        }
 
-        openModal(Object.assign(
-                searchObj(clinvar_variants, d.detail.id,
-                    'variant_id'),
-                clinvar_utr_conseq),
-            'clinvar');
     });
 
     var viewers = {
