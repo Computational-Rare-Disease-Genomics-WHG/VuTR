@@ -996,9 +996,9 @@ var addUserSuppliedFeature = function(
 ) {
     dat = payload["data"]["intervals"]
     intervals = [{
-        x: scInterval(dat['start'], dat['end'],
+        x: scInterval(dat['start']-1.25, dat['end']+1.1,
             start_site, buffer, strand)['start'],
-        y: scInterval(dat['start'], dat['end'],
+        y: scInterval(dat['start']-1.25, dat['end']+1.1,
             start_site, buffer, strand)['end'],
         id: dat['variant_id']
     }]
