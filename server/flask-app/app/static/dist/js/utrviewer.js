@@ -17,7 +17,9 @@ views for reverse strand genes
 
 /**
 This function converts a transcript [start, end] to an appropriate coordinate 
-for Feature viewer depending on which strand the gene is located on
+for Feature viewer depending on which strand the gene is located on. 
+
+Also ensure that the interval doesn't go out of bounds for Feature Viewer
 
 @param {number} start - The transcript start of the feature
 @param {number} end - The transcript end of the feature
@@ -36,13 +38,13 @@ var scInterval = function(
     if (strand == '+') {
         return ({
             'start': start,
-            'end': end - 1
-        })
+            'end': Math.min(end - 1, start_site+buffer+1)
+        });
     } else {
         return ({
-            "start": (start_site + buffer + 2) - end,
+            "start": Math.max((start_site + buffer + 2) - end, 1),
             "end": (start_site + buffer + 1) - start,
-        })
+        });
     }
 }
 
@@ -457,7 +459,7 @@ var openModal = function(data, type) {
 			<div class="modal-body">
                 <ul>
                 <li><b>iORF ID</b> : ${data['smorf_iorf_id']} </li>
-                <li><b>Source</b> : ${smorf_sources[data['source']]} </li>
+                <li><b>Source</b> : Chothani, Sonia P., et al. <a href="https://doi.org/10.1016/j.molcel.2022.06.023" > A high-resolution map of human RNA translation.</a> Molecular Cell 82.15 (2022): 2885-2899. </li>
                 <li><b>Length</b> : ${data['len']} bps</li>
                 <li><b>Start Codon</b> : ${data['starts']} </li>
 			</div>
@@ -804,7 +806,8 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
         if (!pop_var_tpos.includes(tpos)) {
             pop_var_tpos.push(tpos);
             strand_corrected_tpos = scInterval(
-                element['tpos'], element['tpos'] + 1,
+                element['tpos']-1.25, 
+                element['tpos']+1,
                 start_site,
                 buffer, strand)
             pop_var_feat_dat.push({
@@ -842,7 +845,7 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
                         element['start'], element[
                             'end'], start_site,
                         buffer, strand)['end'],
-                    id: element["variant_id"]
+                    id: element["annotation_id"]
                 }],
                 type: "rect",
                 className: "gnomAD_high_impact_variant",
@@ -852,12 +855,17 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
         }
     )
     gnomad_variant_ft.onFeatureSelected(function(m) {
-        gnomad_utr_conseq = searchObj(gnomad_utr_impact, m.detail
-            .id, 'variant_id')
-        openModal(Object.assign(searchObj(pop_variants, m.detail
-                .id, 'variant_id'), gnomad_utr_conseq),
+        let id_sel = m.detail.id;
+        if (id_sel.startsWith('annotation')){
+            gnomad_utr_conseq = searchObj(gnomad_utr_impact, id_sel, 'annotation_id');
+            openModal(Object.assign(searchObj(pop_variants, gnomad_utr_conseq['variant_id'], 'variant_id'), gnomad_utr_conseq),
+                'gnomad');
+        }
+        else{
+        gnomad_utr_conseq = searchObj(gnomad_utr_impact, id_sel, 'variant_id')
+        openModal(Object.assign(searchObj(pop_variants, id_sel, 'variant_id'), gnomad_utr_conseq),
             'gnomad');
-
+        }
 
 
     });
@@ -874,11 +882,11 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
     var clinvar_var_feat_dat = [];
     clinvar_variants.forEach(element => {
         clinvar_var_feat_dat.push({
-            x: scInterval(element['tpos'],
-                element['tpos'] + 1, start_site, buffer,
+            x: scInterval(element['tpos']-1.25,
+                element['tpos'] + 1.1, start_site, buffer,
                 strand)['start'],
-            y: scInterval(element['tpos'],
-                element['tpos'] + 1, start_site, buffer,
+            y: scInterval(element['tpos']-1.25,
+                element['tpos'] + 1.1, start_site, buffer,
                 strand)['end'],
             color: pathogenicity_colors[element
                 .clinical_significance],
@@ -903,14 +911,14 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
             clinvar_variant_ft.addFeature({
                 data: [{
                     x: scInterval(
-                        element['start'], element[
-                            'end'], start_site,
+                        element['start']-1.25, element[
+                            'end']+1.1, start_site,
                         buffer, strand)['start'],
                     y: scInterval(
-                        element['start'], element[
-                            'end'], start_site,
+                        element['start']-1.25, element[
+                            'end']+1.1, start_site,
                         buffer, strand)['end'],
-                    id: element.variant_id
+                    id: element.annotation_id
                 }],
                 type: "rect",
                 className: "clinvar_high_impact_variant",
@@ -922,14 +930,26 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
 
     /*Event handler to view the Clinvar variant detail page*/
     clinvar_variant_ft.onFeatureSelected(function(d) {
-        clinvar_utr_conseq = searchObj(clinvar_utr_impact,
-            d.detail.id, 'variant_id')
+        let id_sel = d.detail.id;
+        if (id_sel.startsWith('annotation')){
+            clinvar_utr_conseq = searchObj(clinvar_utr_impact,
+                id_sel, 'annotation_id')    
+            openModal(Object.assign(
+                    searchObj(clinvar_variants, clinvar_utr_conseq['variant_id'],
+                        'variant_id'),
+                    clinvar_utr_conseq),
+                'clinvar');
+        }
+        else{
+            clinvar_utr_conseq = searchObj(clinvar_utr_impact,
+                id_sel, 'variant_id')
+            openModal(Object.assign(
+                    searchObj(clinvar_variants, id_sel,
+                        'variant_id'),
+                    clinvar_utr_conseq),
+                'clinvar');
+        }
 
-        openModal(Object.assign(
-                searchObj(clinvar_variants, d.detail.id,
-                    'variant_id'),
-                clinvar_utr_conseq),
-            'clinvar');
     });
 
     var viewers = {
@@ -993,9 +1013,9 @@ var addUserSuppliedFeature = function(
 ) {
     dat = payload["data"]["intervals"]
     intervals = [{
-        x: scInterval(dat['start'], dat['end'],
+        x: scInterval(dat['start']-1.25, dat['end']+1.1,
             start_site, buffer, strand)['start'],
-        y: scInterval(dat['start'], dat['end'],
+        y: scInterval(dat['start']+1.25, dat['end']+1.1,
             start_site, buffer, strand)['end'],
         id: dat['variant_id']
     }]

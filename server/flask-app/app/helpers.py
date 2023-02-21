@@ -126,7 +126,8 @@ def get_utr_annotation_for_list_variants(
     )
 
     if len(high_impact_utr_variants) > 0:
-        return [
+
+        intervals = [
             find_intervals_for_utr_consequence(
                 var_id=v['variant_id'],
                 conseq_type=v['five_prime_UTR_variant_consequence'],
@@ -134,15 +135,17 @@ def get_utr_annotation_for_list_variants(
                 cdna_pos=v['cDNA_position'],
                 start_site=start_site,
                 buffer_length=buffer_length,
+                annotation_id=v['annotation_id']
             )
             for v in possible_variants_dict
             if v['variant_id'] in high_impact_utr_variants
         ]
+        return intervals
     return []
 
 
 def find_intervals_for_utr_consequence(
-    var_id, conseq_type, conseq_dict, cdna_pos, start_site, buffer_length
+    var_id, conseq_type, conseq_dict, cdna_pos, start_site, buffer_length, annotation_id
 ):
     """
     Parses the output of UTR annotator to a dictionary of
@@ -150,6 +153,7 @@ def find_intervals_for_utr_consequence(
     """
     intervals = {}
     intervals['variant_id'] = var_id
+    intervals['annotation_id'] = annotation_id
     conseq_dict = parse_five_prime_utr_variant_consequence(conseq_dict)
     if conseq_type == 'uAUG_gained':
         # Done
@@ -301,12 +305,16 @@ def get_possible_variants(ensembl_transcript_id):
     variants = [json.loads(row[0]) for row in rows]
     variant_db.close_db()
 
-    for v in variants:
-        v.update(
+    # There might be multiple annotations for a given variant
+    range_vars = range(len(variants))
+    for idx, var in enumerate(variants):
+        var.update(
             {
                 'variant_id': convert_uploaded_variation_to_variant_id(
-                    v['#Uploaded_variation']
-                )
+                    var['#Uploaded_variation']
+                ),
+                'annotation_id':
+                f'annotation-{var["#Uploaded_variation"]}-{range_vars[idx]}'
             }
         )
 
@@ -322,13 +330,13 @@ def process_gnomad_data(gnomad_data, ensembl_transcript_id):
     gnomad_data['clinvar_variants'] = [
         clinvar
         for clinvar in gnomad_data['clinvar_variants']
-        if len(clinvar['ref']) == 1
-        and len(clinvar['alt']) == 1
+        # if len(clinvar['ref']) == 1
+        # and len(clinvar['alt']) == 1
     ]
     gnomad_data['variants'] = [
         var
         for var in gnomad_data['variants']
-        if len(var['ref']) == 1 and len(var['alt']) == 1
+        # if len(var['ref']) == 1 and len(var['alt']) == 1
     ]
 
     # Add the transcript relative positions for both
@@ -339,12 +347,13 @@ def process_gnomad_data(gnomad_data, ensembl_transcript_id):
         var.update({'tpos': get_transcript_position(ensembl_transcript_id, var['pos'])})
 
     # Get the variant ids
-    gnomad_variants_list = [var['variant_id'] for var in gnomad_data['variants']]
+    gnomad_variants_list = list(set([var['variant_id'] 
+                                     for var in gnomad_data['variants']]))
 
     # Get the list of clinvar variants
-    clinvar_variants_list = [
+    clinvar_variants_list = list(set([
         var['variant_id'] for var in gnomad_data['clinvar_variants']
-    ]
+    ]))
 
     return gnomad_data, gnomad_variants_list, clinvar_variants_list
 
