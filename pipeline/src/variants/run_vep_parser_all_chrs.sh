@@ -9,9 +9,9 @@
 # to be replaced by worflow management
 
 
-INPATH='../../data/pipeline/vep_data/output'
-OUTPATH='../../data/pipeline/vep_data/output'
-PIPLINE_OUTPATH='../../data/pipeline'
+INPATH='../../../data/pipeline/vep_data/output'
+OUTPATH='../../../data/pipeline/vep_data/output'
+PIPLINE_OUTPATH='../../../data/pipeline'
 VEP_CACHE='/well/whiffin/projects/vep'
 ASSEMBLY='GRCh38'
 MANE_VERSION='1.0'

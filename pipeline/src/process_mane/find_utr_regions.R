@@ -12,7 +12,7 @@ library("magrittr")
 library("stringr")
 library("stringi")
 library("optparse")
-setwd("../..")
+setwd("../../../")
 option_list <- list(
     make_option(c("-m", "--mane_version"),
         type = "character", default = "1.0",

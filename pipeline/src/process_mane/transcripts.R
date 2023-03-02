@@ -23,7 +23,7 @@ mane_version <- opt$mane_version
 
 
 # Read through MANE
-ensembl_rna <- "../../data/pipeline/MANE/%s/MANE.GRCh38.v%s.ensembl_rna.fna.gz" %>% # nolint
+ensembl_rna <- "../../../data/pipeline/MANE/%s/MANE.GRCh38.v%s.ensembl_rna.fna.gz" %>% # nolint
     sprintf(., mane_version, mane_version) %>%
     read.fasta(.,
         as.string = T)
@@ -98,7 +98,7 @@ mane_rna_dt[, (c(
 mane_rna_dt[, chromosome := NULL]
 
 # Read the features file
-feature_file <- fread(sprintf("../../data/pipeline/MANE/%s/MANE.GRCh38.v%s.ensembl_genomic.tsv", mane_version, mane_version), sep = "\t") # nolint
+feature_file <- fread(sprintf("../../../data/pipeline/MANE/%s/MANE.GRCh38.v%s.ensembl_genomic.tsv", mane_version, mane_version), sep = "\t") # nolint
 
 # Calculate width and the transcript features
 feature_file[, width := end - start + 1]
@@ -125,14 +125,14 @@ mane_rna_dt <- transcript_feats[mane_rna_dt]
 # Save transcript sequences data table in file
 fwrite(mane_rna_dt,
     sprintf(
-        "../../data/pipeline/MANE/%s/MANE_transcripts_v%s.tsv",
+        "../../../data/pipeline/MANE/%s/MANE_transcripts_v%s.tsv",
         mane_version,  mane_version
     ),
     sep = "\t"
 )
 fwrite(mane_rna_dt,
     sprintf(
-        "../../data/pipeline/MANE_transcripts_v%s.tsv",
+        "../../../data/pipeline/MANE_transcripts_v%s.tsv",
         mane_version
     ),
     sep = "\t"
@@ -140,7 +140,7 @@ fwrite(mane_rna_dt,
 
 fwrite(transcript_feats,
     sprintf(
-        "../../data/pipeline/MANE/%s/MANE_transcript_features_v%s.tsv",
+        "../../../data/pipeline/MANE/%s/MANE_transcript_features_v%s.tsv",
         mane_version, mane_version
     ),
     sep = "\t"

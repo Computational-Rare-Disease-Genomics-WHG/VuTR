@@ -9,7 +9,7 @@ library("optparse")
 # TODO THIS FILE NEEDS FIXING
 
 
-setwd("../../data/pipeline")
+setwd("../../../data/pipeline")
 
 smorfs <- fread("SMORFS/all_final_orfCDS.txt")
 names(smorfs) <- c('chr', 'source', 'orf_type', 

@@ -19,7 +19,7 @@ opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 mane_version <- opt$mane_version
 
-setwd("../..")
+setwd("../../../")
 mane <- "data/pipeline/MANE/%s/MANE.GRCh38.v%s.ensembl_genomic.gff.gz" %>% # nolint
     sprintf(., mane_version, mane_version) %>%
     readGFF() %>%

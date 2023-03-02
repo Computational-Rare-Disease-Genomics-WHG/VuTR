@@ -8,7 +8,7 @@ library("data.table")
 library("magrittr")
 library("optparse")
 
-setwd("../../")
+setwd("../../../")
 
 option_list <- list(
     make_option(c("-m", "--mane_version"),
