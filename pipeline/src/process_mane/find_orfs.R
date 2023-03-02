@@ -119,7 +119,7 @@ option_list <- list(
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 mane_version <- opt$mane_version
-transcripts <- "../../data/pipeline/MANE_transcripts_v%s.tsv" %>%
+transcripts <- "../../../data/pipeline/MANE_transcripts_v%s.tsv" %>%
     sprintf(., mane_version) %>%
     fread(., sep = "\t")
 
@@ -207,7 +207,7 @@ orfs <- transcripts[
 print("Finding Genomic Coordinates...")
 
 # Add genomic coordinates
-genome_mapper <- "../../data/pipeline/UTR_Genome_Transcript_Coordinates.tsv" %>% # nolint
+genome_mapper <- "../../../data/pipeline/UTR_Genome_Transcript_Coordinates.tsv" %>% # nolint
     fread(., sep = "\t")
 setkey(genome_mapper, transcript_id, tpos)
 g <- genome_mapper[, .(transcript_id, gpos, tpos)]
@@ -222,7 +222,7 @@ orfs$orf_stop_codon), gpos]]
 print("Completed")
 
 # Add translational efficiency
-te <- fread("../../data/pipeline/translational_efficiency.txt")
+te <- fread("../../../data/pipeline/translational_efficiency.txt")
 setkey(te, context)
 setkey(orfs, context)
 orfs <- te[orfs]
@@ -230,6 +230,6 @@ orfs <- te[orfs]
 setkey(orfs, orf_id)
 # Write to file
 fwrite(orfs,
-    sprintf("../../data/pipeline/ORFS_Features_%s.tsv", mane_version),
+    sprintf("../../../data/pipeline/ORFS_Features_%s.tsv", mane_version),
     sep = "\t"
 )

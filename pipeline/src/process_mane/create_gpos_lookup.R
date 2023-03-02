@@ -10,7 +10,7 @@ library("magrittr")
 library("rtracklayer")
 library("optparse")
 
-setwd("../../")
+setwd("../../../")
 option_list <- list(
     make_option(c("-m", "--mane_version"),
         type = "character", default = "1.0",

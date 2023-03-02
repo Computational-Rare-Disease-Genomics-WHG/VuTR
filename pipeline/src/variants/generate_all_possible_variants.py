@@ -149,12 +149,12 @@ def main(args):
     mane_version = args.mane_version
     transcript_sequences = pd.read_csv(
         script_path
-        / f"../../data/pipeline/MANE/{mane_version}/MANE_transcripts_v{mane_version}.tsv",  # noqa: E501 # pylint: disable=C0301
+        / f"../../../data/pipeline/MANE/{mane_version}/MANE_transcripts_v{mane_version}.tsv",  # noqa: E501 # pylint: disable=C0301
         sep="\t",
     )  # noqa: E501 # pylint: disable=C0301
     features = pd.read_csv(
         script_path
-        / f"../../data/pipeline/MANE/{mane_version}/MANE.GRCh38.v{mane_version}.ensembl_genomic.tsv",  # noqa: E501 # pylint: disable=C0301
+        / f"../../../data/pipeline/MANE/{mane_version}/MANE.GRCh38.v{mane_version}.ensembl_genomic.tsv",  # noqa: E501 # pylint: disable=C0301
         sep="\t",
     )
     features = features[features["type"] == "five_prime_UTR"]
