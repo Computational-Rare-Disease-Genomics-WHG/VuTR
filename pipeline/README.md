@@ -1,6 +1,7 @@
 ## UTR Visualization App Pipeline 
 
 This directory  contains the code to query and process the data as a pre-requisite to the pipline
+
 Outputs 
 
 First, is the `downloads` folders that queries all the tools used in the UTR-Visualization Application
@@ -31,8 +32,6 @@ Go to the root directory and install the requirements from the conda environment
 conda env create -f pipeline-env.yml
 conda activate utr-app-pipeline
 ```
-
-
 
 ## Running the pipline 
 
