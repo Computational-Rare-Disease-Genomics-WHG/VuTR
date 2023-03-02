@@ -59,7 +59,7 @@ bash ./downloads/refseq.sh
 bash ./downloads/te.sh
 
 
-echo "Download completed. See ../../data/pipeline/* for the output"
+echo "Download completed. See ../data/pipeline/* for the output"
 
 
 
