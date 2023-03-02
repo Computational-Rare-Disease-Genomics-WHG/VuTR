@@ -1,6 +1,6 @@
 # Don't add data to git
 data/
-pipeline/database/*.db
+pipeline/src/database/*.db
 
 .idea/
 .Rhistory
