@@ -8,23 +8,37 @@ library("data.table")
 library("magrittr")
 library("optparse")
 
-setwd("../../../")
 
 option_list <- list(
-    make_option(c("-m", "--mane_version"),
-        type = "character", default = "1.0",
-        help = "dataset file name", metavar = "character"
+    make_option(c("-f", "--orf-features"),
+        dest = "orf_features",
+        type = "character",
+        help = "Orf features file (produced by find_orfs.R)",
+        metavar = "character"
+    ),
+    make_option(c("-m", "--mane-file"),
+        dest = "mane_file",
+        type = "character",
+        help = "Mane file produced by convert_mane_features_to_tsv.R",
+        metavar = "character"
+    ),
+    make_option(c("-o", "--output-file"),
+        dest = "output_file",
+        type = "character",
+        help = "Output file name",
+        metavar = "character"
     )
 )
+
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
-mane_version <- opt$mane_version
+orf_features_file_path <- opt$orf_features
+mane_file_path <- opt$mane_file
+output_file_path <- opt$output_file
 
 
-uorfs <- fread(sprintf("data/pipeline/ORFS_Features_%s.tsv", mane_version))
-mane_gff <- "data/pipeline/MANE/%s/MANE.GRCh38.v%s.ensembl_genomic.tsv" %>% # nolint
-    sprintf(., mane_version, mane_version) %>%
-    fread() # nolint
+uorfs <- fread(orf_features_file_path)
+mane_gff <- fread(mane_file_path) # nolint
 
 # Filter to exons only
 mane_gff %<>% .[type == "exon"]
@@ -122,7 +136,4 @@ for (i in seq(nrow(uorfs))) {
     )
 }
 
-fwrite(uorfs_genomic_positions,
-    "data/pipeline/UORFS_Genomic_Positions.tsv",
-    sep = "\t"
-)
+fwrite(uorfs_genomic_positions, output_file_path, sep = "\t")
