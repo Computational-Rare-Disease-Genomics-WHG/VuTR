@@ -5,25 +5,53 @@ library("stringi")
 library("stringr")
 library("optparse")
 
+option_list <- list(
+    make_option(c("-m", "--mane_genomic"),
+        type = "character",
+        help = "Mane GFF file (as TSV)",
+        metavar = "character"
+    ),
+    make_option(c("-s", "--smorf"),
+        type = "character",
+        help = "Smorf file with the bed location of the smorfs",
+        metavar = "character"
+    ),
 
-# TODO THIS FILE NEEDS FIXING
+    make_option(c("-g", "--g2tcoord"),
+        type = "character",
+        help = "Genome 2 Transcript output file",
+        metavar = "character"
+    ),
+
+    make_option(c("-o", "--output_file"),
+        type = "character",
+        help = "Output file name (should end in .tsv)",
+        metavar = "character"
+    ),
+)
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+
+# Parse command line options
+mane_file <- opt$mane_gff
+smorf_file <- opt$smorf
+genome_transcript_fn <- opt$g2tcoord
+output_file_fn <- opt$output_file
 
 
-setwd("../../../data/pipeline")
-
-smorfs <- fread("SMORFS/all_final_orfCDS.txt")
-names(smorfs) <- c('chr', 'source', 'orf_type', 
-    'start', 'end', 'V6','strand', 'V8', 'iORF_id') # nolint
+smorfs <- fread(smorf_file)
+names(smorfs) <- c("chr", "source", "orf_type",
+    "start", "end", "V6","strand", "V8", "iORF_id") # nolint
 smorfs[, chr := paste0("chr", chr)]
-smorfs[chr == 'chr24', chr := 'chrX' ]
-smorfs[chr == 'chr25', chr := 'chrY' ]
+smorfs[chr == "chr24", chr := "chrX"]
+smorfs[chr == "chr25", chr := "chrY"]
 smorfs[, id := .I]
 setkey(smorfs, id)
 
 
-mane <- fread("MANE/1.0/MANE.GRCh38.v1.0.ensembl_genomic.tsv")
-mane %<>% .[type == 'five_prime_UTR']
-mane %<>% .[tag == 'MANE_Select']
+mane <- fread(mane_file)
+mane %<>% .[type == "five_prime_UTR"]
+mane %<>% .[tag == "MANE_Select"]
 mane %<>% .[, .(seqid, start, end, strand, transcript_id)]
 setkey(mane, start, end)
 
@@ -45,7 +73,7 @@ annotated_output <- smorfs[, .(source, orf_type, iORF_id, strand,
 
 
 # Convert IDs to tpos using transcript id and tpos
-tmap <- fread("UTR_Genome_Transcript_Coordinates.tsv")
+tmap <- fread(genome_transcript_fn)
 
 
 setkey(tmap, transcript_id, gpos)
@@ -57,18 +85,18 @@ annotated_output[,transcript_start :=
         gpos=annotated_output$genome_start), .(tpos)]]
 
 annotated_output[,transcript_end :=
-    tmap[.(transcript_id=annotated_output$transcript_id, 
-        gpos=annotated_output$genome_end), .(tpos)]]
+    tmap[.(transcript_id =annotated_output$transcript_id,
+        gpos = annotated_output$genome_end), .(tpos)]]
 
 # Swap for reverse strand
 annotated_output[
-    strand=='-', `:=` (
-        transcript_start=transcript_end,
+    strand == "-", `:=` (
+        transcript_start = transcript_end,
         transcript_end = transcript_start
     )
 ]
 
 fwrite(annotated_output,
-    "SMORFS/smorfs_locations.tsv",
-    sep="\t"
+    output_file_fn,
+    sep = "\t"
 )
