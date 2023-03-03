@@ -10,20 +10,29 @@ library("magrittr")
 library("optparse")
 
 option_list <- list(
-    make_option(c("-m", "--mane_version"),
-        type = "character", default = "1.0",
-        help = "dataset file name", metavar = "character"
-    )
+    make_option(c("-m", "--mane_gff"),
+        type = "character",
+        help = "dataset file name (should be .gff)", 
+        metavar = "character"
+    ),
+    make_option(c("-o", "--output_file"),
+        type = "character",
+        help = "Output file name (should end in .tsv)", 
+        metavar = "character"
+    ),
 )
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
-mane_version <- opt$mane_version
 
-setwd("../../../")
-mane <- "data/pipeline/MANE/%s/MANE.GRCh38.v%s.ensembl_genomic.gff.gz" %>% # nolint
-    sprintf(., mane_version, mane_version) %>%
+# Parse command line options
+mane_file <- opt$mane_gff
+output_file <- opt$output_file
+
+# Read file
+mane <- mane_file %>%
     readGFF() %>%
     as.data.table()
-"data/pipeline/MANE/%s/MANE.GRCh38.v%s.ensembl_genomic.tsv" %>%
-    sprintf(., mane_version, mane_version) %>%
+
+# Write data.table
+output_file %>%
     fwrite(mane, ., sep = "\t")
