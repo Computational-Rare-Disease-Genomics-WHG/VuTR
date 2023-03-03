@@ -10,22 +10,35 @@ library("magrittr")
 library("rtracklayer")
 library("optparse")
 
-setwd("../../../")
 option_list <- list(
-    make_option(c("-m", "--mane_version"),
-        type = "character", default = "1.0",
-        help = "dataset file name", metavar = "character"
-    )
+    make_option(c("-m", "--mane_tsv"),
+        type = "character",
+        help = "dataset file name (should be .gff file converted to .tsv)", 
+        metavar = "character"
+    ),
+    make_option(c("-o", "--output_file"),
+        type = "character",
+        help = "Output file name (should end in .tsv)", 
+        metavar = "character"
+    ),
 )
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
-mane_version <- opt$mane_version
+
+# Parse command line options
+mane_file <- opt$mane_gff
+output_file <- opt$output_file
+
+
+
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+mane_gff_path <- opt$mane_tsv
+output_file_path <- opt$output_file
 
 
 # Read genomic feature file
-genomic_mane <- "data/pipeline/MANE/%s/MANE.GRCh38.v%s.ensembl_genomic.tsv" %>% # nolint
-    sprintf(., mane_version, mane_version) %>%
-    fread()
+genomic_mane <- fread(mane_gff_path)
 # Filter to exons
 genomic_mane %<>% .[type == "exon"]
 
@@ -65,7 +78,4 @@ setkey(gt_lookup_dt, transcript_id, tpos)
 gt_lookup_dt[, ensembl_transcript_id := substr(transcript_id, 1, 15)]
 
 # Write to file
-fwrite(gt_lookup_dt,
-    "data/pipeline/UTR_Genome_Transcript_Coordinates.tsv",
-    sep = "\t"
-)
+fwrite(gt_lookup_dt, output_file_path, sep = "\t")

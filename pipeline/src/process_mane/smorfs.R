@@ -6,7 +6,7 @@ library("stringr")
 library("optparse")
 
 option_list <- list(
-    make_option(c("-m", "--mane_genomic"),
+    make_option(c("-m", "--mane_tsv"),
         type = "character",
         help = "Mane GFF file (as TSV)",
         metavar = "character"
@@ -33,7 +33,7 @@ opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
 # Parse command line options
-mane_file <- opt$mane_gff
+mane_file <- opt$mane_tsv
 smorf_file <- opt$smorf
 genome_transcript_fn <- opt$g2tcoord
 output_file_fn <- opt$output_file
