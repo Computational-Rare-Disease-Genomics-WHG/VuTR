@@ -71,24 +71,18 @@ setkey(mane_rna_dt, ensembl_transcript_id)
 get_field_val <- function(ann) {
   # Convert into list separated by spaces
   p <- str_split(ann, " ") %>% unlist()
-  
   # Annotate the second field as type:cdna
   p[2] <- sprintf("type:%s", p[2])
-  
   # paste the description from first occurance till the end of the string
   description_pos <- grep("description", p)
-  
   # Concatenate the last couple of fields
   p <- c(p[1:description_pos - 1],
          paste(p[description_pos:length(p)], collapse = " "))
-  
   # Remove first ID as it is not necessary
   p <- p[2:length(p)]
-  
   # Split the annotation based into a fixed width matrix with
   # first_column being the field name and the second one the value
   key_val <- str_split_fixed(p, ":", 2)
-  
   # Convert matrix into named list
   transcript_annotation <- as.vector(key_val[, 2])
   transcript_annotation <-
@@ -120,13 +114,12 @@ feature_file <- fread(mane_file_path, sep = "\t") # nolint
 feature_file[, width := end - start + 1]
 transcript_feats <- feature_file[,
                                  .(
-                                   five_prime_utr_length = sum(.SD[type == "five_prime_UTR"]$width),
-                                   three_prime_utr_length = sum(.SD[type == "three_prime_UTR"]$width),
-                                   num_five_prime_utr_exons = nrow(.SD[type == "five_prime_UTR"]),
-                                   start_site_pos = sum(.SD[type == "five_prime_UTR"]$width) + 1,
-                                   cds_start = nrow(.SD[type == "five_prime_UTR"]) + 1,
-                                   cds_end = sum(.SD[type == "CDS"]$width) + nrow(.SD[type == "five_prime_UTR"]),
-                                   # nolint
+                                   five_prime_utr_length = sum(.SD[type == "five_prime_UTR"]$width), # nolint
+                                   three_prime_utr_length = sum(.SD[type == "three_prime_UTR"]$width), # nolint: line_length_linter.
+                                   num_five_prime_utr_exons = nrow(.SD[type == "five_prime_UTR"]),  # nolint: line_length_linter.
+                                   start_site_pos = sum(.SD[type == "five_prime_UTR"]$width) + 1,  # nolint: line_length_linter.
+                                   cds_start = nrow(.SD[type == "five_prime_UTR"]) + 1,  # nolint: line_length_linter.
+                                   cds_end = sum(.SD[type == "CDS"]$width) + nrow(.SD[type == "five_prime_UTR"]),  # nolint: line_length_linter.
                                    cds_length = sum(.SD[type == "CDS"]$width),
                                    ensembl_transcript_id = transcript_id
                                  ),
