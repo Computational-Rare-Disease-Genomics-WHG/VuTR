@@ -6,7 +6,6 @@
 # flag
 
 
-
 library("data.table")
 library("magrittr")
 library("stringr")
