@@ -5,9 +5,36 @@ library("stringi")
 library("stringr")
 library("optparse")
 
-setwd("../../../data/pipeline")
+parser <- OptionParser()
 
-mane_dt <- fread("MANE/1.0/MANE.GRCh38.v1.0.ensembl_genomic.tsv")
+# define options
+options_list <- list(
+  make_option(
+    c("-m", "--mane-file"),
+    dest = "mane_file",
+    type = "character",
+    help = "Path to the mane file"
+  ),
+  make_option(
+    c("-o", "--output-file-path"),
+    dest = "output_file_path",
+    type = "character",
+    help = "Path to the output intron file"
+  ),
+  make_option(
+    c("-b", "--output-bed"),
+    dest = "output_bed",
+    type = "character",
+    help = "Path to the output Bed file"
+  )
+)
+parser <- add_options(parser, options_list)
+
+mane_file_path <- options$mane_file
+output_file_path <- options$output_file_path
+output_bed <- options$output_bed
+
+mane_dt <- fread(mane_file_path)
 mane <- mane_dt [
     type == "exon"
 ]
@@ -41,7 +68,7 @@ flank_dt %<>%  .[
 ]
 
 # Create a intron stichting flat table
-fwrite(flank_dt, "Introns.tsv", sep = "\t")
+fwrite(flank_dt, output_file_path, sep = "\t")
 
 # Create bed files
 fwrite(
@@ -54,5 +81,5 @@ fwrite(
             ".",
             strand
         )
-    ], "Introns.bed", sep = "\t", col.names = FALSE
+    ], output_bed, sep = "\t", col.names = FALSE
 )
