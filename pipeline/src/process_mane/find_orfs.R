@@ -10,6 +10,7 @@ library("stringi")
 library("stringr")
 library("optparse")
 
+
 #' Returns the TIS -6,+4
 #' @param pos
 #' @param cdna_seq
@@ -28,16 +29,16 @@ process_te_table <- function(dt) {
     setkey(dt, tis_context) # nolint
     # Add quantiles
     eff_quantiles <- quantile(dt$efficiency, prob = seq(0, 1, 0.1))
-    dt[, efficiency_decile := as.numeric(cut(efficiency,
+    dt[, efficiency_decile := as.numeric(cut(efficiency, # nolint
         eff_quantiles,
         include.lowest = T,
         label = F
     ))]
 
     return(dt[, .(
-        tis_context,
-        efficiency,
-        efficiency_decile
+        tis_context, # nolint
+        efficiency, # nolint
+        efficiency_decile # nolint
     )])
 }
 
@@ -110,18 +111,43 @@ categorize_frame <- function(start_pos, ref_pos) {
     }
 }
 
-option_list <- list(
-    make_option(c("-m", "--mane_version"),
-        type = "character", default = "1.0",
-        help = "dataset file name", metavar = "character"
-    )
+# define options
+parser <- OptionParser()
+options_list <- list(
+  make_option(
+    c("-m", "--mane-rna-file"),
+    dest = "mane_rna_file",
+    type = "character",
+    help = "Path to the mane file"
+  ),
+  make_option(
+    c("-g", "--g2tcoord"),
+    dest = "g2tcoord",
+    type = "character",
+    help = "Genome 2 Transcript output file",
+    metavar = "character"
+  ),
+  make_option(
+    c("-t", "--te-file"),
+    dest = "te_file",
+    type = "character",
+    help = "Path to the output RNA file"
+  ),
+  make_option(
+    c("-o", "--output-orf-features"),
+    dest = "output_orf_features",
+    type = "character",
+    help = "Path to the output RNA feature file"
+  )
 )
-opt_parser <- OptionParser(option_list = option_list)
-opt <- parse_args(opt_parser)
-mane_version <- opt$mane_version
-transcripts <- "../../../data/pipeline/MANE_transcripts_v%s.tsv" %>%
-    sprintf(., mane_version) %>%
-    fread(., sep = "\t")
+parser <- add_options(parser, options_list)
+
+mane_file_path <- options$mane_rna_file
+te_file_path <- options$te_file
+g2t_file_path <- options$g2tcoord
+output_orf_features_file_path <- options$output_orf_features
+
+transcripts <- fread(mane_file_path, sep = "\t")
 
 # Apply for each transcript id
 print("Finding orfs...")
@@ -207,8 +233,7 @@ orfs <- transcripts[
 print("Finding Genomic Coordinates...")
 
 # Add genomic coordinates
-genome_mapper <- "../../../data/pipeline/UTR_Genome_Transcript_Coordinates.tsv" %>% # nolint
-    fread(., sep = "\t")
+genome_mapper <- fread(g2t_file_path, sep = "\t")
 setkey(genome_mapper, transcript_id, tpos)
 g <- genome_mapper[, .(transcript_id, gpos, tpos)]
 setkey(g, transcript_id, tpos)
@@ -222,14 +247,11 @@ orfs$orf_stop_codon), gpos]]
 print("Completed")
 
 # Add translational efficiency
-te <- fread("../../../data/pipeline/translational_efficiency.txt")
+te <- fread(te_file_path)
 setkey(te, context)
 setkey(orfs, context)
 orfs <- te[orfs]
 
 setkey(orfs, orf_id)
 # Write to file
-fwrite(orfs,
-    sprintf("../../../data/pipeline/ORFS_Features_%s.tsv", mane_version),
-    sep = "\t"
-)
+fwrite(orfs,output_orf_features_file_path,sep = "\t")
