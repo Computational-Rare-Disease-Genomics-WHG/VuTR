@@ -125,4 +125,3 @@ dependencies:
     - requests==2.26.0
     - sqlitedict==1.7.0
     - urllib3==1.26.7
-prefix: /Users/edsouza/miniconda3/envs/utr-app-pipeline
