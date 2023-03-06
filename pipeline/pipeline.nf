@@ -1,3 +1,76 @@
+params.config = load('pipeline-env.yaml')
+
+/*
+* Converts to TSV
+*/
+process convertToTsv{
+    input: 
+    file input_file from 
+
+    output: 
+    file mane_gff.tsv
+
+    script: 
+    """
+    Rscript src/process_mane/convert_mane_features_to_tsv.R --mane_gff ${} --output_file ${}
+    Rscript src/process_mane/transcripts.R --mane-file ${} --rna-file {} --output-rna-file ${} --output-rna-feature-file ${}
+    """
+}
+
+/*w
+Creates a genomic lookup table 
+*/
+process createLookupTable {
+    input:
+    file input_file from convertToTsv
+    file rna_file 
+
+    output:
+    file dx
+    file file
+
+    script:
+    """
+    Rscript src/process_mane/create_gpos_lookup.R
+    """
+}
+
+
+// Create smORFS
+process manageSmORFs{
+    input:
+    file fxc from
+    file cx from
+
+    output:
+
+    script:
+    """
+    Rscript  \
+    --mane-file  {}\
+    --smorf {} \
+    --g2tcoord {} \
+    --output-file {}\
+    
+    """
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // process maneProcess{
 //     input :  
