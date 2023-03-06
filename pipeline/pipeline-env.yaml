@@ -1,4 +1,4 @@
-name: utr-app-pipeline
+name: vutr-pipeline
 channels:
   - bioconda
   - conda-forge
