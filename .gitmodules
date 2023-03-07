@@ -1,0 +1,3 @@
+[submodule "pipeline/UTRannotator"]
+	path = pipeline/UTRannotator
+	url = https://github.com/ImperialCardioGenetics/UTRannotator.git
