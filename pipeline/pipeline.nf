@@ -1,11 +1,16 @@
-params.config = load('pipeline-env.yaml')
+// Import the YAML library
+import org.yaml.snakeyaml.Yaml
+
+// Load the configuration from the YAML file
+def config = new Yaml().load(new File('../config/config.yml').text)
+
 
 /*
 * Converts to TSV
 */
 process convertToTsv{
     input: 
-    file input_file from 
+    file input_file from config.output
 
     output: 
     file mane_gff.tsv
