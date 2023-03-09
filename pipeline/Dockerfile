@@ -6,6 +6,18 @@
 # docker login (Need to do this once)
 # docker buildx build --platform linux/amd64 -t elstonndsouza/docker-vutr-pipeline:latest --push .
 
+# Development notes: 
+
+# Was building this for on the ARM M1 however
+# we run into issues with numpy for arm64. 
+# This is okay because ARM M1 macs can 
+# run docker images.
+
+# Installing hail was also a goal however, we run into 
+# issues due to the fact that the python version is a 
+# bit too high at python3.9, hail currently only works
+# stably for python3.7. Perhaps
+
 
 ###################################################
 # Stage 1 - docker container to build ensembl-vep #
