@@ -3,8 +3,17 @@ name: "CodeQL" # From hail-is/hail
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'pipeline/src/*'
+      - 'server/*'
+      - 'utr_utils/*'
   pull_request:
     branches: [ "main" ]
+    paths:
+    - 'pipeline/src/*'
+    - 'server/*'
+    - 'utr_utils/*'
+
 jobs:
   analyze:
     name: Analyze
