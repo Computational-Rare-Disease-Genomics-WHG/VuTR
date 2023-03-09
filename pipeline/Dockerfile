@@ -177,44 +177,39 @@ RUN echo >> $OPT/.profile && \
     # Run INSTALL.pl and remove the ensemb-vep tests and travis
     ./INSTALL.pl -a a -l -n && rm -rf t travisci .travis.yml
 
-# Install conda and R
 USER root
 
 RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime
 
+# Install  R
+# Install bedtools, htslib and samtools, bedtools 
+# and other dependencies
+
 RUN apt-get update && \
-    apt-get install -y r-base r-base-dev
+    apt-get install -y r-base \
+     r-base-dev \
+     samtools \
+     tabix \
+     bcftools \ 
+     bedtools \
+     openjdk-8-jre-headless \
+     g++ \
+     libopenblas-base \
+     liblapack3 
 
 # Install R packages from CRAN and Bioconductor
 RUN R -e "install.packages(c('magrittr', 'data.table', 'BiocManager'), repos='https://cran.rstudio.com/')" && \
     R -e "BiocManager::install(c('rtracklayer'))"
 
-COPY --from=continuumio/miniconda3:4.12.0 /opt/conda /opt/conda
+# Install python
+RUN apt-get install -y software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get install -y python3.9 python3-pip 
 
-ENV PATH=/opt/conda/bin:$PATH
+# # Install Hail
+# COPY requirements.txt ./
 
-# Usage examples
-RUN set -ex && \
-    conda config --set always_yes yes --set changeps1 no && \
-    conda info -a && \
-    conda config --add channels conda-forge && \
-    conda install --quiet --freeze-installed -c main conda-pack &&\
-    conda init bash 
-
-WORKDIR /root 
-
-# Copy the environment.yml
-# file into the container
-COPY vutr-pipeline-env.yml .
-
-# # # Create a new Conda 
-# # # environment based on the environment file
-RUN conda env update -n base -f vutr-pipeline-env.yml --prune && \
-    conda clean -afy && \
-    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.profile
-
-# Install bedtools, htslib and samtools, bedtools 
-# and other dependencies
-RUN apt-get update && \
-    apt-get install -y samtools tabix bcftools bedtools \
+WORKDIR /root
+RUN pip3 install sqlalchemy \
+    && pip3 install numpy \
+    && pip3 install pandas \
