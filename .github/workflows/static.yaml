@@ -1,6 +1,12 @@
-name: Tests / CI
+name: Static Analysis
 
-on: [push]
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'pipeline/src/*'
+      - 'server/*'
+      - 'utr_utils/*'
 
 jobs:
   build:
