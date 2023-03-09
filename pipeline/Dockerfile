@@ -3,9 +3,8 @@
 
 # To build and install and send to dockerhub
 
-# docker build -t docker-vutr-pipeline -f Dockerfile .
-# docker tag docker-vutr-pipeline elstonndsouza/docker-vutr-pipeline
-# docker push elstonndsouza/docker-vutr-pipeline:latest
+# docker login (Need to do this once)
+# docker buildx build --platform linux/amd64 -t elstonndsouza/docker-vutr-pipeline:latest --push .
 
 
 ###################################################
@@ -212,4 +211,4 @@ RUN apt-get install -y software-properties-common && \
 WORKDIR /root
 RUN pip3 install sqlalchemy \
     && pip3 install numpy \
-    && pip3 install pandas \
+    && pip3 install pandas 
