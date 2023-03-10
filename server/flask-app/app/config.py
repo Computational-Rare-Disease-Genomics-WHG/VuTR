@@ -16,8 +16,8 @@ class DevelopmentConfig(Config):
     DEBUG = True
     PORT = 5000
     IMPACT_URL = 'http://127.0.0.1:5000/viewer/utr_impact'
-    VARIANT_DATABASE = 'sqlite:///../../../pipeline/database/variant_store.db'
-    FEATURES_DATABASE = 'sqlite:///../../../pipeline/database/features.db'
+    VARIANT_DATABASE = 'sqlite:///../../../data/database/variant_store.db'
+    FEATURES_DATABASE = 'sqlite:///../../../data/database/features.db'
 
 
 class ProductionConfig(Config):
