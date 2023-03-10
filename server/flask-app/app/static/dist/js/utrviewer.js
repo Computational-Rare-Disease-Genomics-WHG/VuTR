@@ -15,6 +15,77 @@ views for reverse strand genes
 
 
 
+  
+function reverse(str) {
+    return str.split('').reverse().join('');
+  }
+
+function processSequence(cdnaSequence, strand, startSite, buffer, exonBoundaries) {
+    let seqWithIntronBuffer = '';
+    for (let i = 0; i < exonBoundaries.length; i++) {
+      const e = exonBoundaries[i];
+      // Check if the exon is after the start site + buffer
+      if (e.y > startSite + buffer) {
+        seqWithIntronBuffer += cdnaSequence.substring(e.x - 1, startSite + buffer);
+        break;
+      }
+      // Pad introns with blank spaces
+      seqWithIntronBuffer += cdnaSequence.substring(e.x - 1, e.y) + 'X'.repeat(45);
+    }
+  
+    const sequence = strand === '+' ? seqWithIntronBuffer.toUpperCase() : reverse(seqWithIntronBuffer.toUpperCase());
+    return sequence;
+  }
+  
+/**
+@param {pos}
+@param {exonBoundaries}
+@returns {num}
+*/
+var findExonNumber = function(
+    pos, 
+    exonBoundaries
+){
+    var foundExon = exonBoundaries.filter(
+        e => {return ((e.x <= pos) && (pos<= e.y))}
+    );
+    if (foundExon.length==1){
+        return (foundExon[0].exon_number)
+    }
+    return (-1)
+}
+
+/**
+@param {genomic_features}
+@returns {List[Obj]}
+*/
+var getExonBoundaries = function (
+    genomic_features
+){
+    /* Filter to five prime UTR*/
+    var genomic_features = genomic_features.filter(e => {
+        return (e.type === 'exon');
+    });
+    /* Sort by exon number */
+    genomic_features.sort((a, b) => (a.exon_number > b.exon_number) ? 1 : -
+        1);
+    
+    output = [];
+    x = 1;
+    genomic_features.forEach((element, index) => {
+        width_exon = element['end'] - element['start'];
+        output.push({
+            'exon_number' : index+1,
+            'x' : x,
+            'y' : x+width_exon
+
+        }
+        );
+        x += width_exon+1; 
+    });
+    return (output);
+}
+
 /**
 This function converts a transcript [start, end] to an appropriate coordinate 
 for Feature viewer depending on which strand the gene is located on. 
@@ -33,12 +104,20 @@ var scInterval = function(
     end,
     start_site,
     buffer,
-    strand
+    strand, 
+    exonBoundaries
 ) {
+
+    var intronSize = 45;
+    var startExonNumber = findExonNumber(start, exonBoundaries);
+    var endExonNumber = findExonNumber(end, exonBoundaries);
+    var startIntronDelta = intronSize*(startExonNumber-1)
+    var endIntronDelta = intronSize*(endExonNumber-1)
+
     if (strand == '+') {
         return ({
-            'start': start,
-            'end': Math.min(end - 1, start_site+buffer+1)
+            'start': start+startIntronDelta,
+            'end': Math.min(end - 1, start_site+buffer+1)+endIntronDelta
         });
     } else {
         return ({
@@ -63,7 +142,8 @@ var getExonStructure = function(
     genomic_features,
     buffer,
     start_site,
-    strand) {
+    strand, 
+    exonBoundaries) {
 
     /* Filter to five prime UTR*/
     var genomic_features = genomic_features.filter(e => {
@@ -82,9 +162,9 @@ var getExonStructure = function(
 
         width_exon = element['end'] - element['start'];
         exon_start = scInterval(new_x, new_x +
-            width_exon, start_site, buffer, strand)['start']
+            width_exon, start_site, buffer, strand, exonBoundaries)['start']
         exon_end = scInterval(new_x, new_x +
-            width_exon, start_site, buffer, strand)['end'];
+            width_exon, start_site, buffer, strand, exonBoundaries)['end'];
 
         /* Exclude exons that start before the CDS */
         if (exon_end > 0) {
@@ -643,14 +723,11 @@ var createTranscriptViewer = function(
     smorf,
     gnomad_utr_impact,
     clinvar_utr_impact,
-    genomic_features
+    genomic_features, 
+    exonBoundaries
 ) {
-
-    // Subset to the first 100 bases following the CDS
-    var sequence = strand == "+" ? seq
-        .substring(0, start_site + buffer).toUpperCase() :
-        reverse(seq.substring(0, start_site + buffer)).toUpperCase();
-
+    // Process Sequence
+    var sequence = processSequence(seq, strand, start_site, buffer, exonBoundaries)
 
     // Create the feature viewer
     var ft2 = new FeatureViewer.createFeature(sequence, div, {
@@ -669,15 +746,15 @@ var createTranscriptViewer = function(
             data: [{
                 x: scInterval(start_site + 1,
                     start_site + buffer + 2, start_site,
-                    buffer, strand)['start'],
+                    buffer, strand, exonBoundaries)['start'],
                 y: scInterval(start_site + 1,
                     start_site + buffer + 2, start_site,
-                    buffer, strand)['end'],
+                    buffer, strand, exonBoundaries)['end'],
                 color: '#58565F',
                 description: "CDS",
                 id: 'cds_rect',
             }, ...getExonStructure(genomic_features, buffer,
-                start_site, strand)],
+                start_site, strand, exonBoundaries)],
             color: '#2C302E',
             name: 'Gene Structure',
             className: 'exon_struct',
@@ -693,12 +770,12 @@ var createTranscriptViewer = function(
                 x: scInterval(
                     e.transcript_start, e.transcript_end +
                     1,
-                    start_site, buffer, strand
+                    start_site, buffer, strand, exonBoundaries
                 )['start'],
                 y: scInterval(
                     e.transcript_start, e.transcript_end +
                     1,
-                    start_site, buffer, strand
+                    start_site, buffer, strand, exonBoundaries
                 )['end'],
                 id: e.smorf_iorf_id
             }));
@@ -748,11 +825,11 @@ var createTranscriptViewer = function(
         curr_orf_type.forEach(e => curr_orf_frame_dat.push({
             x: scInterval(e
                 .orf_start_codon, e.orf_stop_codon,
-                start_site, buffer, strand)[
+                start_site, buffer, strand, exonBoundaries)[
                 'start'],
             y: scInterval(e
                 .orf_start_codon, e.orf_stop_codon,
-                start_site, buffer, strand)['end'],
+                start_site, buffer, strand, exonBoundaries)['end'],
             color: kozak_colors[e
                 .kozak_consensus_strength],
             id: e.orf_id,
@@ -809,7 +886,7 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
                 element['tpos']-1.25, 
                 element['tpos']+1,
                 start_site,
-                buffer, strand)
+                buffer, strand, exonBoundaries)
             pop_var_feat_dat.push({
                 x: strand_corrected_tpos['start'],
                 y: strand_corrected_tpos['end'],
@@ -840,11 +917,11 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
                         element['end'],
                         start_site,
                         buffer,
-                        strand)['start'],
+                        strand, exonBoundaries)['start'],
                     y: scInterval(
                         element['start'], element[
                             'end'], start_site,
-                        buffer, strand)['end'],
+                        buffer, strand, exonBoundaries)['end'],
                     id: element["annotation_id"]
                 }],
                 type: "rect",
@@ -884,10 +961,10 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
         clinvar_var_feat_dat.push({
             x: scInterval(element['tpos']-1.25,
                 element['tpos'] + 1.1, start_site, buffer,
-                strand)['start'],
+                strand, exonBoundaries)['start'],
             y: scInterval(element['tpos']-1.25,
                 element['tpos'] + 1.1, start_site, buffer,
-                strand)['end'],
+                strand, exonBoundaries)['end'],
             color: pathogenicity_colors[element
                 .clinical_significance],
             id: element['variant_id'],
@@ -913,11 +990,11 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
                     x: scInterval(
                         element['start']-1.25, element[
                             'end']+1.1, start_site,
-                        buffer, strand)['start'],
+                        buffer, strand, exonBoundaries)['start'],
                     y: scInterval(
                         element['start']-1.25, element[
                             'end']+1.1, start_site,
-                        buffer, strand)['end'],
+                        buffer, strand, exonBoundaries)['end'],
                     id: element.annotation_id
                 }],
                 type: "rect",
@@ -978,8 +1055,8 @@ var initialiseUserViewer = function(
     start_site,
     strand,
     buffer) {
-    var sequence = strand == "+" ? seq.substring(0, start_site + buffer) :
-        reverse(seq.substring(0, start_site + buffer));
+    var sequence = processSequence(seq, strand, start_site, buffer, exonBoundaries)
+
     user_viewer = new FeatureViewer.createFeature(sequence, div, {
         showAxis: false,
         showSequence: false,
@@ -1009,14 +1086,15 @@ var addUserSuppliedFeature = function(
     var_name,
     start_site,
     buffer,
-    strand
+    strand, 
+    exonBoundaries
 ) {
     dat = payload["data"]["intervals"]
     intervals = [{
         x: scInterval(dat['start']-1.25, dat['end']+1.1,
-            start_site, buffer, strand)['start'],
+            start_site, buffer, strand, exonBoundaries)['start'],
         y: scInterval(dat['start']+1.25, dat['end']+1.1,
-            start_site, buffer, strand)['end'],
+            start_site, buffer, strand, exonBoundaries)['end'],
         id: dat['variant_id']
     }]
     user_viewer.addFeature({
