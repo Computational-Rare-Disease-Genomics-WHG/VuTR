@@ -15,11 +15,20 @@ views for reverse strand genes
 
 
 
-  
+/** Reverses a string
+@param {str}
+@returns {str} The string reversed
+*/
 function reverse(str) {
     return str.split('').reverse().join('');
   }
 
+/**
+
+@param {pos}
+@param {exonBoundaries}
+@returns {num}
+*/
 function processSequence(cdnaSequence, strand, startSite, buffer, exonBoundaries) {
     let seqWithIntronBuffer = '';
     for (let i = 0; i < exonBoundaries.length; i++) {
@@ -200,7 +209,6 @@ var getExonStructure = function(
                             buffer),
                         color: '#A4AAAC',
                         description: 'Exon ' + (index + 1),
-
                     });
                 } else {
                     output.push({
