@@ -514,6 +514,8 @@
       var all_possible_variants={{all_possible_variants|safe}};
       var seq = "{{five_prime_utr_stats["seq"]|safe}}";
       var smorfs = {{smorfs | safe}}
+      var exonBoundaries  = getExonBoundaries(genomic_features);
+
       var viewers = createTranscriptViewer(
          transcript_features,
          transcript_div,
@@ -524,7 +526,7 @@
          smorfs,
          gnomad_utr_impact,
          clinvar_utr_impact,
-         genomic_features);
+         genomic_features, exonBoundaries);
 
     // Initialize user suplied visualization
     var user_viewer = initialiseUserViewer('#user_variants',
@@ -605,7 +607,8 @@
                e.params.data.text,
                start_site,
                buffer,
-               strand);
+               strand,
+               exonBoundaries);
 
                // Append variant data
                user_variant_data.push(res['data']['variant'])
@@ -614,8 +617,7 @@
          });
       });
 
-
-
+      
 
       </script>
    </body>
