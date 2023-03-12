@@ -38,7 +38,7 @@ VuTR features two key components, a Nextflow pipeline to generate the databases 
 
 ## License
 
-VuTR is released under the GPLv2 licencce. Please see the LICENSE.md file for more information.
+VuTR is released under the GPLv2 licence. Please see the LICENSE.md file for more information.
 
 ## Contact
 
