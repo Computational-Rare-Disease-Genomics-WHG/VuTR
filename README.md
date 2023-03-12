@@ -36,9 +36,9 @@ Contributions to VuTR are always welcome! Please see the CONTRIBUTING.md file fo
 VuTR features two key components, a Nextflow pipeline to generate the databases and a Flask Web server that is used to view vutr.rarediseasegenomics.org. Visit `pipeline/` or `server/` to see additional information on how to install or reproduce VuTR.
 
 
-## License
+## Licence
 
-VuTR is released under the GPLv2 licencce. Please see the LICENSE.md file for more information.
+VuTR is released under the GPLv2 licence. Please see the LICENSE.md file for more information.
 
 ## Contact
 
