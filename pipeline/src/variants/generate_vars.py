@@ -124,7 +124,7 @@ def write_vcf_header(output_path):
     header.append("##reference=GRCh38\n")
     header.append("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n")
 
-    with open(output_path, "w", encoding="utf-8") as file:
+    with open(output_path, "a", encoding="utf-8") as file:
         file.writelines(header)
 
 
@@ -183,6 +183,8 @@ def main(args):
     assembly_report = pandas.read_csv(args.assembly_report, sep="\t")
 
     with open(args.bed_file, encoding="utf-8") as bedfile:
+        write_vcf_header(args.output_file)
+
         # Filter bed file to chromosome
         for line in tqdm(bedfile):
             
@@ -191,7 +193,6 @@ def main(args):
             start = int(fields[1])
             end = int(fields[2])
 
-            write_vcf_header(args.output_file)
             if chrom in chrom_set:                
                 # Get sequence for region
                 acc_id = assembly_report[
