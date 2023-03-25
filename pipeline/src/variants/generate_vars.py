@@ -11,7 +11,7 @@ Usage:
         --bed_file /path/to/bed_file.bed \
         --output_file /path/to/output.vcf \
         --indel_size 3 \
-        --num_processes 4 \
+        --threads 4 \
         --only_chr_22
 """
 
@@ -212,33 +212,33 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Creates a TSV file that creates all possible UTR variants"  # noqa: E501 # pylint: disable=C0301
+        description="Creates a VCF file that creates all possible UTR variants"  # noqa: E501 # pylint: disable=C0301
     )
     parser.add_argument(
         "--bed_file",
         type=str,
         required=True,
-        help="Which mane_version to use?",
+        help="The bed file to use to generate variants from the reference 5'UTR MANE",
     )
     parser.add_argument(
         "--reference_fasta_file",
         type=str,
         required=True,
-        help="Which mane_version to use?",
+        help="The reference fasta from NCBI",
     )
 
     parser.add_argument(
         "--output_file",
         type=str,
         required=True,
-        help="Which mane_version to use?",
+        help="Output VCF file to write to",
     )
 
     parser.add_argument(
         "--assembly_report",
         type=str,
         required=True,
-        help="Which mane_version to use?",
+        help="The assembly report from NCBI",
     )
 
     parser.add_argument(
@@ -259,6 +259,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--only_chr_22",
         action="store_true",
-        help="Verbose outputs",
+        help="Filter to chr 22 only",
     )
     main(args=parser.parse_args())
