@@ -113,6 +113,21 @@ def generate_vcf_lines(chrom, variants):
     return vcf_str
 
 
+def write_vcf_header(output_path):
+    """
+    Write the vcf header to a file
+
+    @param output_path : The path to write the vcf header to
+    @returns None
+    """
+    header = ["##fileformat=VCFv4.3\n"]
+    header.append("##reference=GRCh38\n")
+    header.append("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n")
+
+    with open(output_path, "w", encoding="utf-8") as file:
+        file.writelines(header)
+
+
 def write_to_vcf(vcf_lines, output_path):
     """
     Write the vcf lines to a vcf file
@@ -121,13 +136,7 @@ def write_to_vcf(vcf_lines, output_path):
     @param output_path : The path to write the vcf file to
     @returns None
     """
-    header = ["##fileformat=VCFv4.3\n"]
-    header.append("##reference=GRCh38\n")
-    header.append("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n")
-
     with open(output_path, "a", encoding="utf-8") as file:
-        # Write header
-        file.writelines(header)
 
         # Write VCF lines
         file.writelines(vcf_lines)
@@ -182,6 +191,7 @@ def main(args):
             start = int(fields[1])
             end = int(fields[2])
 
+            write_vcf_header(args.output_file)
             if chrom in chrom_set:                
                 # Get sequence for region
                 acc_id = assembly_report[
