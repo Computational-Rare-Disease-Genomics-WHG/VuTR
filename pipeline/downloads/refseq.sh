@@ -8,4 +8,6 @@ mkdir ../../data/pipeline/refseq
 
 wget $url -P  ../../data/pipeline/refseq
 
+wget "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/GCA_000001405.15_GRCh38_assembly_report.txt" -P ../../data/pipeline/refseq
+
 echo "...completed downloadxw"
