@@ -6,36 +6,47 @@ Potential performance improvement : Use Dask as the dataframe are really big
 import sys
 import os
 import argparse
+import tqdm
 import pandas as pd
 import numpy as np
-import tqdm
 
 
 def wide_to_long(df):
     """
-    Make from wide to long.
-    @param df with 5'utr consequence concatentated by &.
-    @returns long_df What we want is a
-            row per variant / transcript / five_prime_UTR_variant_annotation.
+    Convert a DataFrame from wide to long format.
+
+    Args:
+        df (pandas.DataFrame): The input DataFrame, with 5'UTR consequence concatenated by "&".
+
+    Returns:
+        pandas.DataFrame: A new DataFrame with one row per variant/transcript/five_prime_UTR_variant_annotation.
     """
-    # split the columns into lists of values
+    # Split the columns into lists of values
+    df = df.copy()
     df['five_prime_UTR_variant_consequence'] = df['five_prime_UTR_variant_consequence'].str.split('&')
     df['five_prime_UTR_variant_annotation'] = df['five_prime_UTR_variant_annotation'].str.split('&')
 
-    # use pd.concat and pd.melt to transform the dataframe
-    dfs = [df.loc[~df['five_prime_UTR_variant_consequence'].str.contains('&')], 
-           pd.concat([df.loc[df['five_prime_UTR_variant_consequence'].str.contains('&')].reset_index(drop=True),
-                      pd.melt(df.loc[df['five_prime_UTR_variant_consequence'].str.contains('&')], 
-                              id_vars=df.columns[:-2], 
-                              value_vars=['five_prime_UTR_variant_consequence', 'five_prime_UTR_variant_annotation'],
-                              var_name='variable', 
-                              value_name='value')], axis=1)]
+    # Define a boolean mask for the rows with multiple consequences
+    has_multiple_consequences = df['five_prime_UTR_variant_consequence'].apply(lambda x: len(x) > 1)
 
-    # concatenate the dataframes
-    long_df = pd.concat(dfs, ignore_index=True)
+    # Define the subsets of the DataFrame
+    single_consequence_df = df.loc[~has_multiple_consequences]
+    multiple_consequence_df = df.loc[has_multiple_consequences]
 
-    # set the index and drop unnecessary columns
-    long_df = long_df.set_index([c for c in df.columns[:-2] if c != 'five_prime_UTR_variant_consequence']).drop(['variable', 'index'], axis=1)
+    # Melt the columns with multiple consequences
+    melted_df = pd.melt(multiple_consequence_df, id_vars=df.columns[:-2],
+                        value_vars=['five_prime_UTR_variant_consequence', 'five_prime_UTR_variant_annotation'],
+                        var_name='variable', value_name='value')
+
+    # Concatenate the DataFrames
+    long_df = pd.concat([single_consequence_df, melted_df], ignore_index=True)
+
+    long_df['five_prime_UTR_variant_consequence'] = long_df['five_prime_UTR_variant_consequence'].str[0]
+    long_df['five_prime_UTR_variant_annotation'] = long_df['five_prime_UTR_variant_annotation'].str[0]
+
+    # Set the index and drop unnecessary columns
+    # index_cols = [col for col in df.columns[:-2] if col != 'five_prime_UTR_variant_consequence']
+    # long_df = long_df.set_index(index_cols).drop(['variable'], axis=1)
 
     return long_df
 
