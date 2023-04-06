@@ -3,6 +3,8 @@
 Parses the outputs from VEP running UTR annotator and saves it as a .tsv
 Potential performance improvement : Use Dask as the dataframe are really big
 """
+import sys
+import os
 import argparse
 import pandas as pd
 import numpy as np
@@ -73,11 +75,20 @@ def main(args):
     # Chunk the data frame
     df_groups = vep_df.groupby(vep_df.index // args.chunk_size)
 
+    if os.path.isfile(write_path):
+        # file already exists
+        print('File already exists. Aborting.')
+        sys.exit(1)
+
     print(f'Writing to file {write_path}')
-    # Convert wide to long data frame
+
+    # Convert wide to long data frame and write to file
+    header = True
     for _group_idx, df_group in tqdm(df_groups):
         wide_to_long(df_group).to_csv(write_path, sep='\t', mode='a',
-                                      header=False, index=False)
+                                      header=header, index=False)
+        header = False
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Parses the vep output files')
