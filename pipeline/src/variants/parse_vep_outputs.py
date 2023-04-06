@@ -84,7 +84,7 @@ def main(args):
 
     # Convert wide to long data frame and write to file
     header = True
-    for _group_idx, df_group in tqdm(df_groups):
+    for _group_idx, df_group in tqdm.tqdm(df_groups):
         wide_to_long(df_group).to_csv(write_path, sep='\t', mode='a',
                                       header=header, index=False)
         header = False
