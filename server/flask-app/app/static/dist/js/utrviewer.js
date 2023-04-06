@@ -24,6 +24,8 @@ function reverse(str) {
   }
 
 /**
+Processes a sequences and pads introns with X's
+TODO: Change X's to intron sequences
 
 @param {pos}
 @param {exonBoundaries}
@@ -170,6 +172,7 @@ var getExonStructure = function(
         /* Find the width of the exon*/
 
         width_exon = element['end'] - element['start'];
+
         exon_start = scInterval(new_x, new_x +
             width_exon, start_site, buffer, strand, exonBoundaries)['start']
         exon_end = scInterval(new_x, new_x +
@@ -190,7 +193,6 @@ var getExonStructure = function(
                         description: 'Exon ' + (index + 1),
                     });
                 } else {
-
                     output.push({
                         'x': Math.max(0, exon_start),
                         'y': Math.min(exon_end, start_site +
@@ -213,7 +215,7 @@ var getExonStructure = function(
                 } else {
                     output.push({
                         'x': Math.max(0, exon_start),
-                        'y': Math.min(exon_end, start_site +
+                        'y': Math.min(exon_end, start_site +  
                             0.999),
                         color: '#A4AAAC',
                         description: 'Exon ' + (index + 1),
