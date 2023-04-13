@@ -215,7 +215,7 @@ RUN R -e "install.packages(c('magrittr', 'data.table', 'BiocManager'), repos='ht
 # Install python
 RUN apt-get install -y software-properties-common && \
     add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get install -y python3.9 python3-pip 
+    apt-get install -y python3.7 python3-pip 
 
 # # Install Hail
 # COPY requirements.txt ./
@@ -223,4 +223,5 @@ RUN apt-get install -y software-properties-common && \
 WORKDIR /root
 RUN pip3 install sqlalchemy \
     && pip3 install numpy \
-    && pip3 install pandas 
+    && pip3 install pandas \
+		&& pip3 install hail
