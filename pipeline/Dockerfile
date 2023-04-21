@@ -222,6 +222,4 @@ RUN apt-get install -y software-properties-common && \
 
 WORKDIR /root
 RUN pip3 install sqlalchemy \
-    && pip3 install numpy \
-    && pip3 install pandas \
 		&& pip3 install hail
