@@ -1,0 +1,48 @@
+#!/bin/sh
+# This script filters a VCF file using tabix and saves the results as a TSV file
+# The script takes three arguments:
+# 1. The input VCF file
+# 2. The output TSV file
+# 3. The region file to use for filtering
+
+# NOTE: 
+# We require the following headers
+# CHROM, POS, ID, HGVSC, INFO/AC, INFO/AN, INFO/AF, INFO/vep, INFO/variant_type
+
+# Define the headers for the output TSV file
+headers='chrom\tpos\tid\thgvsc\tac\tan\taf\tvep\tvariant_type\n'
+
+# Check if the input file argument was provided
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 input_file output_file tabix_region_file"
+    exit 1
+fi
+
+# Get the input file path from the command-line argument
+input=$1
+
+# Check if the input file exists
+if [ ! -f $input ]; then
+    echo "Input file not found: $input"
+    exit 1
+fi
+
+# Get the output file path from the command-line argument
+output=$2
+
+# First check if the output file already exists
+if [ -f $output ]; then
+    echo "Output file already exists: $output"
+    exit 1
+fi
+
+# Get the region file path from the command-line argument
+region=$3
+
+# Filter using tabix using the specified region file 
+# and perfrom query save to the output file
+echo -e $headers > $output
+tabix -h $input -R $region | \
+bcftools query -f '%CHROM\t%POS\t%ID\t%HGVSC\t%INFO/AC\t%INFO/AN\t%INFO/AF\t%INFO/vep\t%INFO/variant_type\n' >> $output
+
+echo "Filtered TSV file saved to $output"
