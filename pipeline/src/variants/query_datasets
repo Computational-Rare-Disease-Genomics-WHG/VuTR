@@ -4,9 +4,10 @@
 # 1. The input VCF file
 # 2. The output TSV file
 # 3. The region file to use for filtering
+# 4. The type of data (gnomad or clinvar)
 
 # Check if the input file argument was provided
-if [ $# -eq 0 ]; then
+if [ $# -lt 3 ]; then
     echo "Usage: $0 input_file output_file tabix_region_file type"
     exit 1
 fi
@@ -15,7 +16,7 @@ fi
 input=$1
 
 # Check if the input file exists
-if [ ! -f $input ]; then
+if [ ! -f "$input" ]; then
     echo "Input file not found: $input"
     exit 1
 fi
@@ -24,7 +25,7 @@ fi
 output=$2
 
 # First check if the output file already exists
-if [ -f $output ]; then
+if [ -f "$output" ]; then
     echo "Output file already exists: $output"
     exit 1
 fi
@@ -32,25 +33,27 @@ fi
 # Get the region file path from the command-line argument
 region=$3
 
-
+# Get the type argument
 type=$4
 
 # Define the headers for the output TSV file
-if [ $type = "gnomad" ]; then
+if [ "$type" = "gnomad" ]; then
     # If type is gnomad, then we need to add the following headers
-    # NOTE: 
+    # NOTE:
     # We require the following headers from gnomAD
     # CHROM, POS, ID, HGVSC, INFO/AC, INFO/AN, INFO/AF, INFO/vep, INFO/variant_type
-    headers='chrom\tpos\tref\talt\tid\thgvsc\tac\tan\taf\tvep\tvariant_type\n'
-    query_string='%CHROM\t%POS\t%REF\t%ALT\t%ID\t%HGVSC\t%INFO/AC\t%INFO/AN\t%INFO/AF\t%INFO/vep\t%INFO/variant_type\n'
+    headers='chrom\tpos\tref\talt\tid\tac\tan\taf\tvep\tvariant_type'
+    query_string='%CHROM\t%POS\t%REF\t%ALT\t%ID\t%INFO/AC\t%INFO/AN\t%INFO/AF\t%INFO/vep\t%INFO/variant_type\n'
 # Otherwise if clinvar, then we need to add the following headers
-elif [ $type  = 'clinvar']; then
+elif [ "$type" = 'clinvar' ]; then
     # NOTE:
     # We require the following headers from ClinVar
     # CHROM, POS, REF, ALT, ID, CLNSIG, CLNREVSTAT, CLNDN, CLNDISDB, CLNVC, CLNHGVS, CLNVI
-    headers='chrom\tpos\tref\talt\tid\tclnsig\tclnrevstat\tclndn\tclndisdb\tclnvc\tclnhgvs\tclnvi\n'
+    headers='chrom\tpos\tref\talt\tid\tclnsig\tclnrevstat\tclndn\tclndisdb\tclnvc\tclnhgvs\tclnvi'
     query_string='%CHROM\t%POS\t%REF\t%ALT\t%ID\t%INFO/CLNSIG\t%INFO/CLNREVSTAT\t%INFO/CLNDN\t%INFO/CLNDISDB\t%INFO/CLNVC\t%INFO/CLNHGVS\t%INFO/CLNVI\n'
-
+else
+    echo "Invalid type argument: $type"
+    exit 1
 fi
 
 # Filter using tabix using the specified region file 
