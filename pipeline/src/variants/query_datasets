@@ -6,6 +6,9 @@
 # 3. The region file to use for filtering
 # 4. The type of data (gnomad or clinvar)
 
+# Running the file 
+
+
 # Check if the input file argument was provided
 if [ $# -lt 3 ]; then
     echo "Usage: $0 input_file output_file tabix_region_file type"
