@@ -34,19 +34,13 @@ def wide_to_long(df):
     multiple_consequence_df = df.loc[has_multiple_consequences]
 
     # Melt the columns with multiple consequences
-    melted_df = pd.melt(multiple_consequence_df, id_vars=df.columns[:-2],
-                        value_vars=['five_prime_UTR_variant_consequence', 'five_prime_UTR_variant_annotation'],
-                        var_name='variable', value_name='value')
+    melted_df = multiple_consequence_df.explode(['five_prime_UTR_variant_consequence', 'five_prime_UTR_variant_annotation'])
 
     # Concatenate the DataFrames
+    single_consequence_df['five_prime_UTR_variant_consequence'] = single_consequence_df['five_prime_UTR_variant_consequence'].apply(lambda x: x[0])
+    single_consequence_df['five_prime_UTR_variant_annotation'] = single_consequence_df['five_prime_UTR_variant_annotation'].apply(lambda x: x[0])
+
     long_df = pd.concat([single_consequence_df, melted_df], ignore_index=True)
-
-    long_df['five_prime_UTR_variant_consequence'] = long_df['five_prime_UTR_variant_consequence'].str[0]
-    long_df['five_prime_UTR_variant_annotation'] = long_df['five_prime_UTR_variant_annotation'].str[0]
-
-    # Set the index and drop unnecessary columns
-    # index_cols = [col for col in df.columns[:-2] if col != 'five_prime_UTR_variant_consequence']
-    # long_df = long_df.set_index(index_cols).drop(['variable'], axis=1)
 
     return long_df
 
