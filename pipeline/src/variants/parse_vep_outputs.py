@@ -1,48 +1,46 @@
-"""Parses the outputs from VEP running UTR annotator and saves it as a .tsv
+"""
 
+Parses the outputs from VEP running UTR annotator and saves it as a .tsv
 Potential performance improvement : Use Dask as the dataframe are really big
 """
+import sys
+import os
 import argparse
+import tqdm
 import pandas as pd
 import numpy as np
 
 
 def wide_to_long(df):
     """
-    Make from wide to long.
-    @param df with 5'utr consequence concatentated by &.
-    @returns long_df What we want is a
-            row per variant / transcript / five_prime_UTR_variant_annotation.
+    Convert a DataFrame from wide to long format.
+
+    Args:
+        df (pandas.DataFrame): The input DataFrame, with 5'UTR consequence concatenated by "&".
+
+    Returns:
+        pandas.DataFrame: A new DataFrame with one row per variant/transcript/five_prime_UTR_variant_annotation.
     """
-    long_df = pd.DataFrame(columns=df.columns.values.tolist())
+    # Split the columns into lists of values
+    df = df.copy()
+    df['five_prime_UTR_variant_consequence'] = df['five_prime_UTR_variant_consequence'].str.split('&')
+    df['five_prime_UTR_variant_annotation'] = df['five_prime_UTR_variant_annotation'].str.split('&')
 
-    for _index, row in df.iterrows():
+    # Define a boolean mask for the rows with multiple consequences
+    has_multiple_consequences = df['five_prime_UTR_variant_consequence'].apply(lambda x: len(x) > 1)
 
-        binding_df = pd.DataFrame()
-        # If single just row bind it to long_df
-        if '&' not in row['five_prime_UTR_variant_consequence']:
-            binding_df = pd.DataFrame(row.to_frame().T)
-        else:
-            # Replicate the rows per ORF consequences
-            nrows = row['five_prime_UTR_variant_consequence'].count('&')
-            consequences_split = row['five_prime_UTR_variant_consequence'].split('&')
-            annotation_split = row['five_prime_UTR_variant_annotation'].split('&')
-            binding_df = pd.concat(
-                [
-                    row.to_frame().T.drop(
-                        columns=[
-                            'five_prime_UTR_variant_consequence',
-                            'five_prime_UTR_variant_annotation',
-                        ]
-                    )
-                ]
-                * (nrows + 1),
-                ignore_index=True,
-            )
-            binding_df['five_prime_UTR_variant_consequence'] = consequences_split
-            binding_df['five_prime_UTR_variant_annotation'] = annotation_split
-        long_df = pd.concat([long_df, binding_df], axis=0, ignore_index=True)
+    # Define the subsets of the DataFrame
+    single_consequence_df = df.loc[~has_multiple_consequences]
+    multiple_consequence_df = df.loc[has_multiple_consequences]
 
+    # Melt the columns with multiple consequences
+    melted_df = multiple_consequence_df.explode(['five_prime_UTR_variant_consequence', 'five_prime_UTR_variant_annotation'])
+
+    # Concatenate the DataFrames
+    single_consequence_df['five_prime_UTR_variant_consequence'] = single_consequence_df['five_prime_UTR_variant_consequence'].apply(lambda x: x[0])
+    single_consequence_df['five_prime_UTR_variant_annotation'] = single_consequence_df['five_prime_UTR_variant_annotation'].apply(lambda x: x[0])
+
+    long_df = pd.concat([single_consequence_df, melted_df], ignore_index=True)
 
     return long_df
 
@@ -52,20 +50,18 @@ def main(args):
     Main entry point
     """
     vep_file_path = args.vep_file
-    mane_version = args.mane_version
-    mane_summary_path = f'../../data/pipeline/MANE/{mane_version}/MANE.GRCh38.v{mane_version}.summary.txt.gz'  # noqa: E501 # pylint: disable=C0301
-
+    mane_summary_path = args.mane_file
     write_path = args.output_file
 
     print(f'Reading file {vep_file_path}')
     # Read clinvar file and the mane summary file
     vep_df = pd.read_csv(vep_file_path, sep='\t', skiprows=args.header_lines)
 
-    print(f'Read completed')
+    print('Read completed')
 
     mane_summary_df = pd.read_csv(mane_summary_path, sep='\t')
 
-    print(f'Filtering out 5 prime UTR variants with no consequence')
+    print('Filtering out 5 prime UTR variants with no consequence')
     # Filter to variants that impact uORFs (remove all other variants)
     no_utr_consequence = ['-', '', None, np.nan]
     vep_df = vep_df[
@@ -77,25 +73,42 @@ def main(args):
         lambda x: x[0:15]
     )
 
-    print(f'Filtering to MANE consequences')
+    print('Filtering to MANE consequences')
     # Filter to consequence on the MANE transcript
     vep_df = vep_df[vep_df['Feature'].isin(mane_summary_df['transcript_id'])]
 
-    print(f'Transforming table to long')
-    # Convert wide to long data frame
-    long_vep_df = wide_to_long(vep_df)
+    # Chunk the data frame
+    df_groups = vep_df.groupby(vep_df.index // args.chunk_size)
 
-    print(f'Writing to file')
-    # Write to file
-    long_vep_df.to_csv(write_path, sep='\t', index=False)
+    if os.path.isfile(write_path):
+        # file already exists
+        print('File already exists. Aborting.')
+        sys.exit(1)
+
+    print(f'Writing to file {write_path}')
+
+    # Convert wide to long data frame and write to file
+    header = True
+    for _group_idx, df_group in tqdm.tqdm(df_groups):
+        wide_to_long(df_group).to_csv(write_path, sep='\t', mode='a',
+                                      header=header, index=False)
+        header = False
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Parses the vep output files')
     parser.add_argument(
-        '--mane_version',
-        default='1.0',
+        '--mane_file',
+        required=True,
+        type=str,
         help='Which mane version to use?',
+    )
+    parser.add_argument(
+        '--chunk_size',
+        required=True,
+        type=int,
+        default=1000,
+        help='Chunk size to use when writing to file',
     )
 
     parser.add_argument(
