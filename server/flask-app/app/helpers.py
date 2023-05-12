@@ -187,7 +187,10 @@ def find_intervals_for_utr_consequence(
 
     elif conseq_type == 'uSTOP_lost':
         intervals['start'] = cdna_pos
-        intervals['end'] = int(conseq_dict['uSTOP_lost_AltStopDistanceToCDS'])
+        if conseq_dict['uSTOP_lost_AltStop'] == 'True':
+            intervals['end'] = int(conseq_dict['uSTOP_lost_AltStopDistanceToCDS'])
+        else:
+            intervals['end'] = start_site+buffer_length
         intervals['viz_type'] = 'New Feature'
         intervals['viz_color'] = 'main'
         intervals['type'] = 'uSTOP_lost'
