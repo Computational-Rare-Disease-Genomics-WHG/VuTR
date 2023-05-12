@@ -130,12 +130,10 @@ def viewer_page(ensembl_transcript_id):
     # Get the annotations for these values.
     gnomad_utr_impact = get_utr_annotation_for_list_variants(
         gnomad_variants_list, possible_variants, 
-        start_site, buffer, transcript_features
+        start_site, buffer
     )
     clinvar_utr_impact = get_utr_annotation_for_list_variants(
-        clinvar_variants_list, possible_variants, start_site, buffer,
-        transcript_features
-    )
+        clinvar_variants_list, possible_variants, start_site, buffer)
     # Find all possible variants
     all_possible_variants = find_all_high_impact_utr_variants(
         ensembl_transcript_id=ensembl_transcript_id

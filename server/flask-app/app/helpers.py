@@ -110,7 +110,7 @@ def convert_uploaded_variation_to_variant_id(uploaded_variation):
 
 def get_utr_annotation_for_list_variants(
     list_variants, possible_variants_dict, 
-    start_site, buffer_length, orfs
+    start_site, buffer_length
 ):
     """
     Get the utr annotation for a list of variants
@@ -136,9 +136,7 @@ def get_utr_annotation_for_list_variants(
                 cdna_pos=v['cDNA_position'],
                 start_site=start_site,
                 buffer_length=buffer_length,
-                annotation_id=v['annotation_id'],
-                orfs = orfs
-            )
+                annotation_id=v['annotation_id'])
             for v in possible_variants_dict
             if v['variant_id'] in high_impact_utr_variants
         ]
@@ -152,7 +150,7 @@ def get_utr_annotation_for_list_variants(
 
 def find_intervals_for_utr_consequence(
     var_id, conseq_type, conseq_dict, 
-    cdna_pos, start_site, buffer_length, annotation_id, orfs
+    cdna_pos, start_site, buffer_length, annotation_id
 ):
     """
     Parses the output of UTR annotator to a dictionary of
