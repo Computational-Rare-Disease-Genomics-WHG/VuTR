@@ -95,7 +95,9 @@ def viewer_page(ensembl_transcript_id):
     # Get features
     gene_features = get_genomic_features(ensembl_gene_id)
     five_prime_utr_stats = get_transcript_features(ensembl_transcript_id)
-    transcript_features = get_all_orfs_features(ensembl_transcript_id)
+    transcript_features = get_all_orfs_features(
+        ensembl_transcript_id
+    )
 
     # sorfs = find_sorfs_by_ensg(ensembl_gene_id)
     constraint = get_constraint_score(ensembl_gene_id)
@@ -109,6 +111,7 @@ def viewer_page(ensembl_transcript_id):
     # Get smORF data
     smorfs = get_smorfs(ensembl_transcript_id)
 
+    # Find all possible variants
     possible_variants = get_possible_variants(
         ensembl_transcript_id=ensembl_transcript_id
     )
@@ -126,10 +129,12 @@ def viewer_page(ensembl_transcript_id):
 
     # Get the annotations for these values.
     gnomad_utr_impact = get_utr_annotation_for_list_variants(
-        gnomad_variants_list, possible_variants, start_site, buffer
+        gnomad_variants_list, possible_variants, 
+        start_site, buffer, transcript_features
     )
     clinvar_utr_impact = get_utr_annotation_for_list_variants(
-        clinvar_variants_list, possible_variants, start_site, buffer
+        clinvar_variants_list, possible_variants, start_site, buffer,
+        transcript_features
     )
     # Find all possible variants
     all_possible_variants = find_all_high_impact_utr_variants(
