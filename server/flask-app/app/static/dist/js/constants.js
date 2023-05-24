@@ -1,8 +1,8 @@
 const kozak_colors = {
     Strong: "#E69F00",
     Moderate: "#56B4E9",
-    Weak: "#009E73",
-    None: "#009E73"
+    Weak: "#999999",
+    None: "#999999"
 };
 
 const smorf_sources = {
@@ -15,8 +15,13 @@ const smorf_sources = {
 const pathogenicity_colors = {
     "Pathogenic": "#D55E00",
     "Likely pathogenic": "#D55E00",
-    "Benign": "#0072B2",
-    "Likely benign": "#0072B2",
+    "Pathogenic/Likely pathogenic": "#D55E00",
+
+    "Benign": "#009E73",
+    "Likely benign": "#009E73",
+    "Benign/Likely benign": "#009E73",
+
+    "Conflicting interpretations of pathogenicity": "#CC79A7",
     "Conflicting interpretations": "#CC79A7",
     "Uncertain significance": "#CC79A7",
 };
