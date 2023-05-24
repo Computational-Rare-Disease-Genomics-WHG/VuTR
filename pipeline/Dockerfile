@@ -46,10 +46,6 @@ RUN apt-get update && \
 RUN R -e "install.packages(c('magrittr', 'data.table', 'BiocManager'), repos='https://cran.rstudio.com/')" && \
     R -e "BiocManager::install(c('rtracklayer'))"
 
-# Install python
-RUN apt-get install -y software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get install -y python3.7 python3-pip 
 
 # # Install Hail
 # COPY requirements.txt ./
@@ -57,7 +53,4 @@ RUN apt-get install -y software-properties-common && \
 WORKDIR /root
 
 # Install python packages
-RUN pip3 install sqlalchemy
-
-# Install Hail
-RUN pip3 install hail
+RUN pip3 install sqlalchemy numpy pandas scipy matplotlib
