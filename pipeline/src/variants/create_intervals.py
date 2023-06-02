@@ -1,14 +1,19 @@
 """
 Creates the visualisation intervals based on the variant data.
 
-Usage: 
-python3 create_intervals.py 
-    -i <input_file> 
-    -m <mane_file>
-    -o <output_file>
+Usage:
+python create_intervals.py \
+    -i <input_file> \
+    -m <mane_file> \
+    -t <transcript_sequences> \
+    --orf_file <orf_file> \
+    -o <output_file> \
+    -is <intron_size> \
+    -bs <buffer_size>
 
-Each variant-consequence has the following structure
-saved as a json string in the intervals column of the output file.  
+The output file will be a tab separated file. Namely it will have a column for the
+ach variant-consequence which has the following structure
+saved as a json string in the intervals column of the output file.
 {
         'variant_id' : '',
         'annotation_id' : '',
@@ -42,50 +47,45 @@ import sys
 import json
 
 
-
-
-def ustop_lost():
-    """
-    """
-    pass
-    return consequences
-
-
 def ustop_gained():
     """
     """
     pass
 
 
+
 def uaug_lost():
     """
-    
     """
     pass
+
 
 def frameshift():
     """
-    
     """
     pass
+
 
 def uaug_gained():
     """
-    
     """
-    
     pass
 
 
+def ustop_lost(**kwargs):
+    """
+    Calculates the consequences of a uSTOP_lost variant
+    """
 
-def get_genomic_vis_intervals(
+
+def get_intervals(
         transcript_start,
         transcript_end,
         exons,
         intron_size,
         buffer_size,
         strand
-    ):
+):
     """
     Converts the transcript coordinates a list of genomic intervals
     @param transcript_start: Start position of transcript
@@ -93,36 +93,50 @@ def get_genomic_vis_intervals(
     @param exons: List of exons
     @return: List of dictionaries with genomic intervals keyed by x and y
     """
-    if strand == '+':
-        # Find the exon_number that the transcript_start and transcript_end fall between
-        exon_number_start = exons[exons['start'] <= transcript_start]['exon_number'].max()
-        exon_start = exons[exons['exon_number'] == exon_number_start]['start'].values[0]
-        delta_start = transcript_start - exon_start
 
-        # Get the exon start and end positions
-        exon_number_end = exons[exons['start'] <= transcript_end]['exon_number'].max()
-        exon_end = exons[exons['exon_number'] == exon_number_end]['end'].values[0]
-        delta_end = transcript_end - exon_end
-        
-        if exon_number_start == exon_number_end:
-            exon_coordinate = exons[exons['exon_number'] == exon_number_start]['vis_start'].values[0] 
-            return [
-                {
-                    'x' : exon_coordinate + delta_start,
-                    'y' : exon_coordinate + delta_end, 
-                }
-            ]
-        else:
-            # TODO: List the values between the start and end
-            # Iterate over the exons from start to end.
-            pass
+    # flip coordinates if strand is negative
+    if strand == '-':
+        transcript_start, transcript_end = transcript_end, transcript_start
 
+    # Find the exon_number that the transcript_start and transcript_end fall between
+    start_mask = exons['start'] <= transcript_start
+    t_start_exon_number = exons.loc[start_mask, 'exon_number'].max()
+    t_start_exon_start = exons.loc[exons['exon_number'] == t_start_exon_number, 'start'].iloc[0]
+    t_start_exon_end = exons.loc[exons['exon_number'] == t_start_exon_number, 'end'].iloc[0]
+    delta_start = transcript_start - t_start_exon_start
+
+    end_mask = exons['start'] <= transcript_end
+    t_end_exon_number = exons.loc[end_mask, 'exon_number'].max()
+    t_end_exon_start = exons.loc[exons['exon_number'] == t_end_exon_number, 'start'].iloc[0]
+    t_end_exon_end = exons.loc[exons['exon_number'] == t_end_exon_number, 'end'].iloc[0]
+    delta_end = transcript_end - t_end_exon_start
+    
+    # If located on the same exon
+    if t_start_exon_number == t_end_exon_number:
+        exon_coordinate = exons[exons['exon_number'] == t_start_exon_number]['vis_start'].values[0]
+        return [
+            {
+                'x' : exon_coordinate + delta_start,
+                'y' : exon_coordinate + delta_end,
+            }
+        ]
+    # If located on different exons
     else:
-        # TODO: Do the case for the reverse strand
-        pass
 
-    return []
+        # List the values between the start and end
+        middle_bit = exons.loc[~start_mask & ~end_mask, ['vis_start', 'vis_end']]
 
+        # Convert vis_start and vis_end to x and y
+        middle_bit['x'] = middle_bit['vis_start']
+        middle_bit['y'] = middle_bit['vis_end']
+
+        # Drop vis_start and vis_end
+        middle_bit = middle_bit.drop(columns=['vis_start', 'vis_end'])
+        middle_bit = middle_bit.to_dict(orient='records')
+        return [
+            {'x' : exon_coordinate + delta_start, 'y' : t_start_exon_end},
+            {'x' : exon_coordinate + delta_start, 'y' : t_end_exon_end},
+        ].append(middle_bit)
 
 
 def parse_five_prime_utr_variant_consequence(conseq_str):
@@ -141,8 +155,9 @@ def create_intervals(
         parsed_variants,
         ensembl_transcript_id,
         transcript_sequences, 
+        exon_structure,
         strand,
-        mane_file, 
+        start_site_pos,
         intron_size=20, 
         buffer_size=40):
     """
@@ -166,9 +181,6 @@ def create_intervals(
     }
     # Iterate over each variant consequence
     for variant in parsed_variants:
-        # Get the strand
-        # Get the exon
-        # Get the transcript sequence
         # Get the variant position
         # Get the ORFS impacted
 
@@ -178,15 +190,16 @@ def create_intervals(
         )
 
         visualised_cons = consequence_functions[variant['five_prime_UTR_variant_consequence']](
-        )
-
+            ...,
+       )
+        
         # Get plotting coordinates
         visualised_cons[
             'intervals'
-        ] = get_genomic_vis_intervals(
+        ] = get_intervals(
             visualised_cons['transcript']['start'],
             visualised_cons['transcript']['end'],
-            mane_file,
+            exon_structure,
             intron_size,
             buffer_size,
             strand
@@ -195,6 +208,61 @@ def create_intervals(
         # Convert to json and serialise to string 
         variant['intervals']['visualisation'] = json.dumps(visualised_cons)
     return parsed_variants
+
+
+def process_exons(
+        mane_file,
+        transcript_sequences,
+        intron_size,
+        buffer_size):
+    """
+    Process the exons to add the visualisation coordinates
+    @param exons: Dataframe with exons
+    @return: Dataframe with exons with visualisation coordinates
+    """
+
+    # Find the start site position
+    exons = mane_file[mane_file['type'] == 'exon']
+    exons = exons[['transcript_id', 'exon_number', 'start', 'end', 'strand']]
+
+    # Merge with transcript sequences to get the start site position
+    exons = exons.merge(
+        transcript_sequences[['transcript_id', 'start_site_pos']],
+        left_on='transcript_id',
+        right_on='transcript_id',
+        how='left'
+    )
+
+    # Strip the version number from the transcript_id
+    exons['transcript_id'] = exons['transcript_id'].apply(
+        lambda x: x.split('.')[0])
+    
+    # |Calculate the width of the exon
+    exons['width'] = exons['end'] - exons['start'] + 1
+
+    # Order the mane file by transcript_id and exon_number
+    exons = exons.sort_values(
+        ['transcript_id', 'exon_number']
+    )
+    # Create a cumulative sum of the exon widths
+    exons['tstart'] = exons.groupby('transcript_id',
+                                            group_keys=False)['width'].apply(
+        lambda x: x.shift(fill_value=1).cumsum())
+    exons['tend'] = exons.groupby('transcript_id')['width'].cumsum()
+
+    # Add the visualisation coordinates
+    exons['vis_start'] = exons['tstart'] + (
+        exons['exon_number'] - 1) * intron_size
+    exons['vis_end'] = exons['tend'] + (
+        exons['exon_number'] - 1) * intron_size
+
+    # TODO: When strand is '-', the visualisation coordinates are reversed
+    # CONSIDER NEGATIVE STRANDS
+    # exons.loc[exons['strand'] == '-', ['vis_start', 'vis_end']] = 
+
+    # Drop the genomic start and end columns
+    exons = exons.drop(columns=['start', 'end'])
+    return exons
 
 
 def main(args):
@@ -235,26 +303,13 @@ def main(args):
     # and remove the version number from the transcript_id
     # calculate the length of the exon
     mane_file = pandas.read_csv(args.mane_file, sep="\t")
-    mane_file = mane_file[mane_file['type'] == 'exon']
-    mane_file = mane_file[['transcript_id', 'exon_number', 'start', 'end', 'strand']]
-    mane_file['transcript_id'] = mane_file['transcript_id'].apply(
-        lambda x: x.split('.')[0])
-    mane_file['width'] = mane_file['end'] - mane_file['start'] + 1
-
-    # Order the mane file by transcript_id and exon_number
-    mane_file = mane_file.sort_values(
-        ['transcript_id', 'exon_number']
-    )
-    
-    # TODO: Create a cumulative sum of the exon widths
-    # TODO: Add intron size to the cumulative sum
-    # TODO: Drop the genomic start and end columns
-
+    mane_file = process_exons(mane_file, transcript_sequences, intron_size, buffer_size)
 
     # Reading in ORF file and filter to exon features
     orfs = pandas.read_csv(args.orf_file, sep="\t")
     orfs['ensembl_transcript_id'] = orfs['ensembl_transcript_id'].apply(
-        lambda x: x.split('.')[0])
+        lambda x: x.split('.')[0]
+    )
 
     # Reading in parsed variants from VEP + UTR Annotator
     parsed_variants = pandas.read_csv(args.input_file, sep="\t")
@@ -276,14 +331,16 @@ def main(args):
 
         # Get the strand of the transcript
         strand = exon_structure['strand'].unique()[0]
+        start_site_pos = exon_structure['start_site_pos'].unique()[0]
 
         # Create intervals
         output = create_intervals(
             parsed_variants=variants_per_transcript,
             ensembl_transcript_id=transcript_id,
             transcript_sequences=sequence,
-            mane_file=exon_structure,
+            exon_structure=exon_structure,
             strand=strand,
+            start_site_pos=start_site_pos,
             intron_size=intron_size,
             buffer_size=buffer_size
         )
