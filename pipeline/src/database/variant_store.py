@@ -8,6 +8,7 @@ import argparse
 import os
 import sys
 import json
+import tqdm
 
 import pandas as pd
 
@@ -57,9 +58,8 @@ def main(args):
 
     variant_df = pd.read_csv(args.variant_file, sep='\t')
     variant_df = variant_df.drop_duplicates()
-    for index, row in variant_df.iterrows():
+    for index, row in tqdm.tqdm(variant_df.iterrows()):
         variant_conseq = row.to_dict()
-        print(f'Performing insertion on {index}')
         c.execute(
             'insert into variant_annotations values (?, ?, ?,?, ?, ?)',
             [
