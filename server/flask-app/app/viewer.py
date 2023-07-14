@@ -34,6 +34,33 @@ from . import variant_db
 viewer = Blueprint('viewer', __name__)
 
 
+@viewer.route('/viewer/possible_variants', methods=['GET', 'POST'])
+def get_possible_variants_api():
+    """
+    A JSON API resource to get the possible variants for a supplied search query
+    @param search_term e.g. 5-150904976-T-A 
+    @param ensembl_transcript_id e.g. ENST00000274599
+    @returns a list of matches
+    """
+    search_term = request.args['search_term']
+    ensembl_transcript_id = request.args['ensembl_transcript_id']
+    db = variant_db.get_db()  # pylint: disable=C0103
+    cursor = db.execute(
+        '''
+            SELECT variant_id
+            FROM variant_annotations
+            WHERE variant_id LIKE ? COLLATE NOCASE
+            AND ensembl_transcript_id =?
+            LIMIT 10;
+        ''', [search_term, ensembl_transcript_id])
+    rows = cursor.fetchall()
+    response_object = {
+        'message': 'Ok',
+        'data': rows,
+    }
+    return response_object, 200
+
+
 @viewer.route('/viewer/utr_impact', methods=['GET', 'POST'])
 def get_utr_impacts():
     """
