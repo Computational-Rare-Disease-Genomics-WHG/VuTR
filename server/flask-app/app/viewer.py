@@ -33,7 +33,6 @@ from . import variant_db
 
 viewer = Blueprint('viewer', __name__)
 
-
 @viewer.route('/viewer/possible_variants', methods=['GET', 'POST'])
 def get_possible_variants_api():
     """
@@ -50,7 +49,7 @@ def get_possible_variants_api():
             SELECT variant_id
             FROM variant_annotations
             WHERE variant_id LIKE ? COLLATE NOCASE
-            AND ensembl_transcript_id =?
+            AND ensembl_transcript_id = ?
             LIMIT 10;
         ''', [search_term, ensembl_transcript_id])
     rows = cursor.fetchall()
