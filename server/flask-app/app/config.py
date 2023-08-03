@@ -16,8 +16,9 @@ class DevelopmentConfig(Config):
     DEBUG = True
     PORT = 5000
     IMPACT_URL = 'http://127.0.0.1:5000/viewer/utr_impact'
-    VARIANT_DATABASE = 'sqlite:///../../../pipeline/database/variant_store.db'
-    FEATURES_DATABASE = 'sqlite:///../../../pipeline/database/features.db'
+    SEARCH_URL = 'http://127.0.0.1:5000/viewer/possible_variants'
+    VARIANT_DATABASE = 'sqlite:///../../../data/database/variant_store.db'
+    FEATURES_DATABASE = 'sqlite:///../../../data/database/features.db'
 
 
 class ProductionConfig(Config):
@@ -26,6 +27,7 @@ class ProductionConfig(Config):
     DEBUG = False
     PORT = 8080
     IMPACT_URL = 'https://vutr.rarediseasegenomics.org/viewer/utr_impact'
+    SEARCH_URL = 'https://vutr.rarediseasegenomics.org/viewer/possible_variants'
     VARIANT_DATABASE = '/db/variant_store.db'
     FEATURES_DATABASE = '/db/features.db'
 

@@ -231,7 +231,15 @@
                            </div>
                            <div class="card-body">
 
-                              <div class="">
+
+
+                              <div class="upstream_box">
+                              <div class="row">
+                                 <div class="col-8">
+                                 <h5 class="text-left"><strong>5' UTR elements</strong></h6>
+                              </div>
+                              </div>
+                              <div class="callout">
                                  <div class="row">
                                     <div class="col-3">
                                     <h6 class="text-left"><strong>Kozak Consensus Strength</strong></h6>
@@ -261,72 +269,67 @@
                                     </div>
 
                               </div>
-
-                              <div class="upstream_box">
-                              <div class="row">
-                                 <div class="col-8">
-                                 <h6 class="text-left"><strong>5' UTR elements</strong></h6>
-                              </div>
-                              </div>
                               <div id = "transcript_viewer">
                               </div>
                               </div>
                               <div class="gnomad_box">
                                  <div class="row">
                                     <div class="col-8">
-                                    <h6 class="text-left"><strong>gnomAD Variants</strong></h6>
+                                    <h5 class="text-left"><strong>gnomAD Variants</strong></h6>
                                     </div>
                                  </div>
                                  <div id = "gnomad_tracks">
                                  </div>
                                  </div>
-                              <div class="clinvar_box">
+                              <div class="clinvar_box ">
 
                                  <div class="row">
                                     <div class="col-2">
-                                       <h6 class="text-left"><strong>ClinVar Variants</strong></h6>
+                                       <h5 class="text-left"><strong>ClinVar Variants</strong></h6>
 
                                     </div>
-
-                                    <div class="col-3">
-                                         <div class="">
-                                          <i class="nav-icon fas fa-circle" style="color:#D55E00"></i>
-                                           <span class="">Pathogenic / Likely Pathogenic</span>
+                                 </div>
+                                 <div class="callout">
+                                    <div class = "row">
+                                       <div class="col-3">
+                                          <h6 class="text-left"><strong>Pathogenicity</strong></h6>
                                        </div>
-                                     </div>
 
-                                     <div class="col-3">
+                                       <div class="col-3">
+                                          <div class="">
+                                           <i class="nav-icon fas fa-circle" style="color:#D55E00"></i>
+                                            <span class="">Pathogenic / Likely Pathogenic</span>
+                                        </div>
+                                      </div>
+   
+                                      <div class="col-3">
+   
+                                          <div class="">
+                                           <i class="nav-icon fas fa-circle" style="color:#009E73"></i>
+                                            <span class="">Benign / Likely Benign</span>
+                                        </div>
+                                      </div>
+                                      <div class="col-3">
+   
+                                          <div class="">
+                                           <i class="nav-icon fas fa-circle" style="color:#CC79A7"></i>
+                                            <span class="">Conflicting Evidence / Uncertain significance</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    </div>
 
-                                         <div class="">
-                                          <i class="nav-icon fas fa-circle" style="color:#009E73"></i>
-                                           <span class="">Benign / Likely Benign</span>
-                                       </div>
-                                     </div>
-                                     <div class="col-3">
-
-                                         <div class="">
-                                          <i class="nav-icon fas fa-circle" style="color:#CC79A7"></i>
-                                           <span class="">Conflicting Evidence / Uncertain significance</span>
-                                       </div>
-                                     </div>
+                                 
 
                                  </div>
-
-                                 <div id = "clinvar_tracks">
-                                 </div>
+                              <div id = "clinvar_tracks">
                               </div>
-
                               <!--Search bar-->
                               <div class="">
                                  <div class="row">
                                     <div class="col-12">
                                     <h6 class="text-left"><strong>Input variant</strong></h6>
-                                    <select id ="input_variant" style="width:100% !important" class="form-control select2 text-center mx-auto"  multiple="multiple" data-placeholder="Search by variant id e.g. {{all_possible_variants[0]| safe}}">
-                                       {% for var in all_possible_variants %}
-                                       <option>{{var}}</option>
-                                       {% endfor %}
-                                    </select>
-
+                                    <select id ="input_variant" style="width:100% !important" class="form-control select2 text-center mx-auto"  multiple="multiple" data-placeholder="Search by variant id e.g. {{few_possible_variants[0]| safe}}"></select>
                                     <div class="input_variant">
                                     </div>
                                     </div>
@@ -490,15 +493,43 @@
 
       <!--Custom Scripts-->
       <script type="text/javascript">
+      
+      // Dynamic input search 
+      var search_url = " {{search_url|safe}}";
+      var enst = "{{ensembl_transcript_id|safe}}";
 
-      $('#input_variant').select2();
+      $('#input_variant').select2({
+         ajax: {
+            url : search_url,
+            dataType: 'json', 
+            data: function (params) {
+            var query = {
+               search_term: params.term,
+               ensembl_transcript_id: enst
+            }
+
+         // Query parameters will be ?search=[term]&type=public
+         return query;
+       },
+            processResults : function (response){
+               console.log(response)
+               return{
+                  results: response['data']
+               };
+            }
+
+         }
+      });
+
+      // Tooltip
       $('[data-toggle="tooltip"]').tooltip()
 
+      // Help modal
       $('#gene-details-help').click(function (){
          $('#detailmodal').modal()
       });
 
-
+      // Create viewer
       var gnomad_data = {{gnomad_data|tojson}};
       var nan = null;
       var None = null;
