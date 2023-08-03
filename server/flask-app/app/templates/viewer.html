@@ -329,7 +329,8 @@
                                  <div class="row">
                                     <div class="col-12">
                                     <h6 class="text-left"><strong>Input variant</strong></h6>
-                                    <select id ="input_variant" style="width:100% !important" class="form-control select2 text-center mx-auto"  multiple="multiple" data-placeholder="Search by variant id e.g. {{few_possible_variants[0]| safe}}"></select>
+                                    <select id ="input_variant" style="width:100% !important" class="form-control select2 text-center mx-auto"  multiple="multiple" data-placeholder="Search by variant id e.g. {{few_possible_variants[0]| safe}}">
+                                    </select>
                                     <div class="input_variant">
                                     </div>
                                     </div>
@@ -511,13 +512,18 @@
          // Query parameters will be ?search=[term]&type=public
          return query;
        },
-            processResults : function (response){
-               console.log(response)
-               return{
+       minimumInputLength: 2,
+       delay: 250,
+       processResults : function (response){
+         if (response['data'].length != 0){
+            return {
                   results: response['data']
                };
-            }
+         }
 
+
+            },
+         cache: true
          }
       });
 
