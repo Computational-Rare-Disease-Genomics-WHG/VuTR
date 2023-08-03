@@ -64,10 +64,10 @@ def get_possible_variants_api():
     @returns a list of matches
     """
     try:
-        search_term = request.args.get("search_term")
         ensembl_transcript_id = request.args.get("ensembl_transcript_id")
 
-        if not search_term or not ensembl_transcript_id:
+        # Find the first 5 variants for a given ENST
+        if not ensembl_transcript_id:
             return (
                 jsonify(
                     {
@@ -77,18 +77,26 @@ def get_possible_variants_api():
                 ),
                 400,
             )
-
         db = variant_db.get_db()  # pylint: disable=C0103
-        cursor = db.execute(
-            """
+
+        cursor = None
+        search_term = request.args.get("search_term")
+        if not search_term:
+            cursor = db.execute("""
+                SELECT variant_id
+                FROM variant_annotations
+                WHERE ensembl_transcript_id = ?
+                LIMIT 5;
+                """, [ensembl_transcript_id])
+        else : 
+            cursor = db.execute("""
                 SELECT variant_id
                 FROM variant_annotations
                 WHERE variant_id LIKE ? COLLATE NOCASE
                 AND ensembl_transcript_id = ?
                 LIMIT 10;
-            """,
-            ["%" + search_term + "%", ensembl_transcript_id],
-        )
+            """, ["%" + search_term + "%", ensembl_transcript_id])
+        
         rows = cursor.fetchall()
         # Convert row objects to dictionaries
         rows_as_dict = [{'text': row['variant_id'], 'id' : row['variant_id']} for row in rows]
