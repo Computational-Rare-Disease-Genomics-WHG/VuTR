@@ -50,8 +50,9 @@ def get_first_variants(ensembl_transcript_id):
         """,
         [ensembl_transcript_id],
     )
-    rows = cursor.fetchall()
+    rows = [u['variant_id'] for u in cursor.fetchall()]
     return rows
+
 
 
 @viewer.route("/viewer/possible_variants", methods=["GET"])
@@ -90,7 +91,7 @@ def get_possible_variants_api():
         )
         rows = cursor.fetchall()
         # Convert row objects to dictionaries
-        rows_as_dict = [row['variant_id'] for row in rows]
+        rows_as_dict = [{'text': row['variant_id'], 'id' : row['variant_id']} for row in rows]
         response_object = {
             "message": "Ok",
             "data": rows_as_dict,
