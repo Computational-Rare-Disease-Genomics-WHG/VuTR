@@ -510,13 +510,18 @@
          // Query parameters will be ?search=[term]&type=public
          return query;
        },
-            processResults : function (response){
-               console.log(response)
-               return{
+       minimumInputLength: 2,
+       delay: 250,
+       processResults : function (response){
+         if (response['data'].length != 0){
+            return {
                   results: response['data']
                };
-            }
+         }
 
+
+            },
+         cache: true
          }
       });
 
