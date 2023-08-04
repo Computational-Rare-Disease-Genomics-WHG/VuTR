@@ -3,7 +3,7 @@
    <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Viewer | VuTR </title>
+      <title>{{hgnc}}  | VuTR </title>
       <!-- Google Font: Source Sans Pro -->
       <link rel="preconnect" href="https://fonts.gstatic.com">
       <!--Favicon-->
@@ -132,8 +132,7 @@
                      <!-- /.col -->
                      <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                           <li class="breadcrumb-item"><a href="#">Home</a></li>
-                           <li class="breadcrumb-item"><a href="#">Viewer</a></li>
+                           <li class="breadcrumb-item"><a href="/">Home</a></li>
                            <li class="breadcrumb-item active">{{ensembl_transcript_id}}({{hgnc}})</li>
                         </ol>
                      </div>
@@ -235,7 +234,7 @@
 
                               <div class="upstream_box">
                               <div class="row">
-                                 <div class="col-8">
+                                 <div class="col-12">
                                  <h5 class="text-left"><strong>5' UTR elements</strong></h6>
                               </div>
                               </div>
@@ -274,7 +273,7 @@
                               </div>
                               <div class="gnomad_box">
                                  <div class="row">
-                                    <div class="col-8">
+                                    <div class="col-12">
                                     <h5 class="text-left"><strong>gnomAD Variants</strong></h6>
                                     </div>
                                  </div>
@@ -284,7 +283,7 @@
                               <div class="clinvar_box ">
 
                                  <div class="row">
-                                    <div class="col-2">
+                                    <div class="col-12">
                                        <h5 class="text-left"><strong>ClinVar Variants</strong></h6>
 
                                     </div>
@@ -298,7 +297,7 @@
                                        <div class="col-3">
                                           <div class="">
                                            <i class="nav-icon fas fa-circle" style="color:#D55E00"></i>
-                                            <span class="">Pathogenic / Likely Pathogenic</span>
+                                            <span class="">Pathogenic / LP</span>
                                         </div>
                                       </div>
    
@@ -306,14 +305,14 @@
    
                                           <div class="">
                                            <i class="nav-icon fas fa-circle" style="color:#009E73"></i>
-                                            <span class="">Benign / Likely Benign</span>
+                                            <span class="">Benign / LB</span>
                                         </div>
                                       </div>
                                       <div class="col-3">
    
                                           <div class="">
                                            <i class="nav-icon fas fa-circle" style="color:#CC79A7"></i>
-                                            <span class="">Conflicting Evidence / Uncertain significance</span>
+                                            <span class="">Conflicting / Uncertain </span>
                                         </div>
                                       </div>
                                     </div>
@@ -328,9 +327,8 @@
                               <div class="">
                                  <div class="row">
                                     <div class="col-12">
-                                    <h6 class="text-left"><strong>Input variant</strong></h6>
-                                    <select id ="input_variant" style="width:100% !important" class="form-control select2 text-center mx-auto"  multiple="multiple" data-placeholder="Search by variant id e.g. {{few_possible_variants[0]| safe}}">
-                                    </select>
+                                    <h5 class="text-left"><strong>Input variant</strong></h5>
+                                    <select id ="input_variant" style="width:100% !important" class="form-control select2 text-center mx-auto"  multiple="multiple" data-placeholder="Search by variant id e.g. {{few_possible_variants[0]| safe}}"></select>
                                     <div class="input_variant">
                                     </div>
                                     </div>
