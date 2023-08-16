@@ -290,5 +290,24 @@ tbl_models = {
         'remove_ensembl_id_version_numbers': False,
         'ensembl_ids': None,
         'dtype': None, 
+    },
+    'conservation_scores': {
+        'location': 'utr_cons.txt',
+        'separator': '\t',
+        'col_mappings': {
+            'chrom': 'chr',
+            'pos' : 'pos',
+            'ref' : 'ref',
+            'transcript_id' : 'ensembl_transcript_id',
+            'phast_cons' : 'phastcons',
+            'phylop' : 'phylop',
+            'gerp_rs' : 'gerp_rs',
+            'gerp_rs_pval' : 'gerp_rs_pval',
+            'gerp_s' : 'gerp_s',
+            'gerp_n' : 'gerp_n'
+        },
+        'remove_ensembl_id_version_numbers': False,
+        'ensembl_ids': ['ensembl_transcript_id'],
+        'dtype': None
     }
 }
