@@ -299,7 +299,7 @@ tbl_models = {
             'gpos' : 'pos',
             'tpos' : 'tpos',
             'ensembl_transcript_id' : 'ensembl_transcript_id',
-            'phast_cons' : 'phastcons',
+            'phastcons' : 'phastcons',
             'phylop' : 'phylop',
             'gerp_rs' : 'gerp_rs',
             'gerp_s' : 'gerp_s',

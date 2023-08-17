@@ -420,6 +420,22 @@ def get_all_orfs_features(ensembl_transcript_id):
     return rows
 
 
+def get_conservation_scores(ensembl_transcript_id):
+    """
+    Gets the phylop and gerp scores for a given transcript
+    @param ensembl_transcript_id 
+    @returns a dictionary of scores
+    """
+    db = features_db.get_db()
+    cursor = db.execute(
+        'SELECT tpos, phastcons, phylop, gerp_s FROM conservation_scores WHERE ensembl_transcript_id=?',
+        [ensembl_transcript_id],
+    )
+    rows = cursor.fetchall()
+    features_db.close_db()
+    return rows
+
+
 def get_constraint_score(ensembl_gene_id):
     """
     Get constraint score from the features db

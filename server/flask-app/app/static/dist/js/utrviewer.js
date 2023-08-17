@@ -643,7 +643,8 @@ var createTranscriptViewer = function(
     smorf,
     gnomad_utr_impact,
     clinvar_utr_impact,
-    genomic_features
+    genomic_features,
+    conservation_data
 ) {
 
     // Subset to the first 100 bases following the CDS
@@ -779,6 +780,49 @@ var createTranscriptViewer = function(
                 'orf');
         }
     });
+    
+    /*
+    Conservation Track
+    */
+
+
+    var phylop = [];
+    var gerp = [];
+
+    // Populate conservation tracks
+    conservation.forEach(e => {
+        const scIntervalResult = scInterval(e['tpos'], e['tpos'], start_site, buffer, strand);
+        
+        phylop.push({
+            x: scIntervalResult['start'],
+            y: e['phylop']
+        });
+    
+        gerp.push({
+            x: scIntervalResult['start'],
+            y: e['gerp_s']
+        });
+    });
+    
+    ft2.addFeature({
+        data: phylop,
+        type: "line",
+        className: "conservation_line",
+        name: "PhyloP Score",
+        color: '#3333',
+        height: "2",
+        fill: '#00000'
+    });
+
+  
+    ft2.addFeature({
+        data: gerp,
+        type: "line",
+        className: "conservation_line",
+        name: "GERP++ Score",
+        color: '#99999',
+        height: "2"
+    });
 
 
 
@@ -814,7 +858,8 @@ pop_var_tpos = []; // tmp for storing the transcript positions of the variants
                 x: strand_corrected_tpos['start'],
                 y: strand_corrected_tpos['end'],
                 id: element['variant_id'],
-                className: 'no_impact_gnomad'
+                //description: element['alt'].toUpperCase(),
+                className: 'no_impact_gnomad',
             });
         }
 
