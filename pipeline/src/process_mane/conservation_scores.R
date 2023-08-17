@@ -3,6 +3,13 @@
 # Processes the CADD conservation scores file to only include MANE transcripts
 # and removes duplicate rows
 
+# Usage example:
+# Rscript conservation_scores.R \
+# -i /path/to/conservation_scores.tsv \
+#  -m /path/to/mane_summary.tsv \
+#  -g /path/to/g2t.tsv \
+#  -o /path/to/output.tsv \
+
 library(data.table)
 library(optparse)
 
@@ -10,8 +17,9 @@ library(optparse)
 option_list <- list(
     make_option(c("-i", "--input"), type = "character",
                 help = "Path to UTR cons scores file", metavar = "character"),
-    make_option(c("-m", "--mane"), type = "character",
-                help = "Path to MANE summary file", metavar = "character"),
+    make_option(c("-g", "--g2tfile"), type = "character",
+                help = "Genome To Transcript coordinate file",
+                metavar = "character"),
     make_option(c("-o", "--output"),
     type = "character", default = "utr_cons.txt",
                 help = "Output file path", metavar = "character")
@@ -20,16 +28,45 @@ option_list <- list(
 # Parse the options
 args <- parse_args(OptionParser(option_list=option_list))
 input_file <- args$input
-mane_file <- args$mane
+g2tfile <- args$g2tfile
 output_file <- args$output
 
-# Original code, modified to use the file paths from CLI
-b <- fread(input_file)
-b <- unique(b)
-mane <- fread(mane_file)
-mane[, transcript_id := substr(Ensembl_nuc, 1, 15)]
-transcript_ids <- mane$transcript_id
-b <- b[FeatureID %in% transcript_ids]
-setnames(b, c("chrom", "pos", "ref", "cadd", "transcript_id", "phast_cons",
-"phylop", "gerp_rs", "gerp_rs_pval", "gerp_n", "gerp_s"))
-fwrite(b, output_file, sep = "\t")
+
+# Reading in the files
+dt <- fread(input_file)
+g2t <- fread(g2tfile)
+
+# Rename headers
+setnames(dt, c("chr", "gpos", "ref", "cadd",
+    "ensembl_transcript_id", "phastcons",
+    "phylop", "gerp_rs", "gerp_rs_pval", "gerp_n", "gerp_s"))
+
+setnames(g2t,
+    c("chr", "transcript_id", "strand", "exon_number", 
+    "gpos", "tpos", "ensembl_transcript_id")
+)
+
+dt[, chr:= paste0("chr", chr)]
+
+# Filter to relevant cols
+dt %<>% .[, .(
+    chr, gpos, phastcons, phylop,
+    gerp_rs, gerp_s
+)]
+
+g2t %<>% .[, .(
+    chr, gpos, tpos, ensembl_transcript_id
+)]
+
+
+# Filter to unique sites
+dt <- unique(dt)
+
+# Set the keys 
+setkey(dt, chr, gpos)
+setkey(g2t, chr, gpos)
+
+dt <- g2t[dt]
+
+
+fwrite(dt, output_file, sep = "\t")
