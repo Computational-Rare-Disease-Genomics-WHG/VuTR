@@ -785,23 +785,23 @@ var createTranscriptViewer = function(
     Conservation Track
     */
 
-
     var phylop = [];
-    var gerp = [];
+    var cadd = [];
 
     // Populate conservation tracks
     conservation.forEach(e => {
-        const scIntervalResult = scInterval(e['tpos'], e['tpos'], start_site, buffer, strand);
+        const pos = scInterval(e['tpos'], e['tpos'], start_site, buffer, strand)['start'];
         
         phylop.push({
-            x: scIntervalResult['start'],
+            x: pos,
             y: e['phylop']
         });
     
-        gerp.push({
-            x: scIntervalResult['start'],
-            y: e['gerp_s']
-        });
+        cadd.push({
+            x: pos,
+            y: e['phred_cadd']
+        })
+
     });
     
     ft2.addFeature({
@@ -814,16 +814,15 @@ var createTranscriptViewer = function(
         fill: '#00000'
     });
 
-  
+
     ft2.addFeature({
-        data: gerp,
+        data: cadd,
         type: "line",
         className: "conservation_line",
-        name: "GERP++ Score",
+        name: "CADD Score",
         color: '#99999',
         height: "2"
     });
-
 
 
     /* gnomAD Variant Track */
