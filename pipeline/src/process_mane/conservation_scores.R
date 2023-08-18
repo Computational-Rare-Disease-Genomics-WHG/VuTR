@@ -11,6 +11,7 @@
 #  -o /path/to/output.tsv \
 
 library(data.table)
+library(magrittr)
 library(optparse)
 
 # Define the options
@@ -26,7 +27,7 @@ option_list <- list(
 )
 
 # Parse the options
-args <- parse_args(OptionParser(option_list=option_list))
+args <- parse_args(OptionParser(option_list = option_list))
 input_file <- args$input
 g2tfile <- args$g2tfile
 output_file <- args$output
@@ -37,12 +38,13 @@ dt <- fread(input_file)
 g2t <- fread(g2tfile)
 
 # Rename headers
-setnames(dt, c("chr", "gpos", "ref", "cadd",
+setnames(dt, c("chr", "gpos", "ref", "cons_score",
     "ensembl_transcript_id", "phastcons",
-    "phylop", "gerp_rs", "gerp_rs_pval", "gerp_n", "gerp_s"))
+    "phylop", "gerp_rs", "gerp_rs_pval", "gerp_n",
+    "gerp_s", "raw_cadd", "phred_cadd"))
 
 setnames(g2t,
-    c("chr", "transcript_id", "strand", "exon_number", 
+    c("chr", "transcript_id", "strand", "exon_number",
     "gpos", "tpos", "ensembl_transcript_id")
 )
 
@@ -51,7 +53,7 @@ dt[, chr:= paste0("chr", chr)]
 # Filter to relevant cols
 dt %<>% .[, .(
     chr, gpos, phastcons, phylop,
-    gerp_rs, gerp_s
+    gerp_rs, gerp_s, raw_cadd, phred_cadd
 )]
 
 g2t %<>% .[, .(
@@ -62,11 +64,12 @@ g2t %<>% .[, .(
 # Filter to unique sites
 dt <- unique(dt)
 
-# Set the keys 
+# Set the keys
 setkey(dt, chr, gpos)
 setkey(g2t, chr, gpos)
 
+# Merge the data.table
 dt <- g2t[dt]
 
-
+# Write to file
 fwrite(dt, output_file, sep = "\t")
