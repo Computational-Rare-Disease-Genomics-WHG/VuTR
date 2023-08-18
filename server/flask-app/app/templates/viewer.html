@@ -73,6 +73,10 @@
       .tooltip2, .tooltip3{
          display:none;
       }
+      .gnomAD_varText{
+         fill:white !important;
+         color:white !important; 
+      }
       </style>
    </head>
    <body class="hold-transition layout-top-nav" id="main-content" >
@@ -271,6 +275,7 @@
                               <div id = "transcript_viewer">
                               </div>
                               </div>
+                         
                               <div class="gnomad_box">
                                  <div class="row">
                                     <div class="col-12">
@@ -279,7 +284,7 @@
                                  </div>
                                  <div id = "gnomad_tracks">
                                  </div>
-                                 </div>
+                              </div>
                               <div class="clinvar_box ">
 
                                  <div class="row">
@@ -548,7 +553,9 @@
       var clinvar_utr_impact = {{clinvar_utr_impact|safe}};
       var all_possible_variants={{all_possible_variants|safe}};
       var seq = "{{five_prime_utr_stats["seq"]|safe}}";
-      var smorfs = {{smorfs | safe}}
+      var smorfs = {{smorfs | safe}};
+      var conservation = {{conservation_scores | safe}};
+
       var viewers = createTranscriptViewer(
          transcript_features,
          transcript_div,
@@ -559,7 +566,9 @@
          smorfs,
          gnomad_utr_impact,
          clinvar_utr_impact,
-         genomic_features);
+         genomic_features,
+         conservation
+      );
 
     // Initialize user suplied visualization
     var user_viewer = initialiseUserViewer('#user_variants',
@@ -604,6 +613,7 @@
       $('#user_variants svg')[0].addEventListener('contextmenu', function(event) {
          event.stopImmediatePropagation();
       }, true);
+
 
 
       // Use double click to reset zoom.

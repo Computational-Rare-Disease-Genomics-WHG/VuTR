@@ -26,6 +26,7 @@ from .helpers import (
     find_intervals_for_utr_consequence,
     get_gnomad_variants_in_utr_regions,
     get_omim_id,
+    get_conservation_scores,
     get_clingen_entry,
 )
 from . import variant_db
@@ -256,6 +257,9 @@ def viewer_page(ensembl_transcript_id):
     all_possible_variants = find_all_high_impact_utr_variants(ensembl_transcript_id)
     few_possible_variants = get_first_variants(ensembl_transcript_id)
 
+    # Conservation scores
+    conservation_scores = get_conservation_scores(ensembl_transcript_id)
+
     # UTR regions
     utr_regions = [i for i in gene_features if i["type"] == "five_prime_UTR"]
 
@@ -286,6 +290,7 @@ def viewer_page(ensembl_transcript_id):
         clingen_entry=clingen_entry,
         omim_id=omim_id,
         impact_url=impact_url,
+        conservation_scores=conservation_scores,
         few_possible_variants=few_possible_variants,
         search_url=search_url,
         gnomad_data=gnomad_data,

@@ -258,7 +258,7 @@ tbl_models = {
         },
         'remove_ensembl_id_version_numbers' : False,
         'ensembl_ids' : None,
-        'dtype' : None,
+        'dtype' : None
     },
 
 
@@ -289,6 +289,25 @@ tbl_models = {
             'Date Last Evaluated': 'date_last_evaluated'},
         'remove_ensembl_id_version_numbers': False,
         'ensembl_ids': None,
-        'dtype': None, 
+        'dtype': None
+    },
+    'conservation_scores': {
+        'location': 'utr_cons.txt',
+        'separator': '\t',
+        'col_mappings': {
+            'chr': 'chr',
+            'gpos' : 'pos',
+            'tpos' : 'tpos',
+            'ensembl_transcript_id' : 'ensembl_transcript_id',
+            'phastcons' : 'phastcons',
+            'phylop' : 'phylop',
+            'gerp_rs' : 'gerp_rs',
+            'gerp_s' : 'gerp_s',
+            'phred_cadd' : 'phred_cadd',
+            'raw_cadd' : 'raw_cadd'
+        },
+        'remove_ensembl_id_version_numbers': False,
+        'ensembl_ids': ['ensembl_transcript_id'],
+        'dtype': None
     }
 }
