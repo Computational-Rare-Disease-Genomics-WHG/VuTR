@@ -303,6 +303,8 @@ tbl_models = {
             'phylop' : 'phylop',
             'gerp_rs' : 'gerp_rs',
             'gerp_s' : 'gerp_s',
+            'phred_cadd' : 'phred_cadd',
+            'raw_cadd' : 'raw_cadd'
         },
         'remove_ensembl_id_version_numbers': False,
         'ensembl_ids': ['ensembl_transcript_id'],

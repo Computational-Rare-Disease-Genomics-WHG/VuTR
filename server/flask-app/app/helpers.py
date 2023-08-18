@@ -428,7 +428,7 @@ def get_conservation_scores(ensembl_transcript_id):
     """
     db = features_db.get_db()
     cursor = db.execute(
-        'SELECT tpos, phastcons, phylop, gerp_s FROM conservation_scores WHERE ensembl_transcript_id=?',
+        'SELECT tpos, phastcons, phylop, gerp_s, phred_cadd, raw_cadd FROM conservation_scores WHERE ensembl_transcript_id=?',
         [ensembl_transcript_id],
     )
     rows = cursor.fetchall()
