@@ -235,6 +235,14 @@ var openModal = function(data, type) {
         delete data['viz_type'];
     }
 
+    var title = {
+        'gnomad': 'gnomAD Variant',
+        'clinvar': 'ClinVar Variant',
+        'orf': 'ORF detail',
+        'smorf': 'smORF',
+        'user-supplied': 'Variant'
+    }
+
 
     var custom;
 
@@ -251,7 +259,7 @@ var openModal = function(data, type) {
 <div class="modal-dialog modal-lg" role="document">
   <div class="modal-content">
     <div class="modal-header">
-      <h5 class="modal-title" id="exampleModalLongTitle">ORF Details</h5>
+      <h5 class="modal-title" id="exampleModalLongTitle">${title[type]}</h5>
       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
@@ -499,26 +507,10 @@ var openModal = function(data, type) {
         // hist_data$label %>% paste0(., collapse='","')
         // hist_data$counts %>% paste0(., collapse=",")
         
-        const labels = [
-            "15-20","20-25","25-30","30-35","35-40","40-45","45-50","50-55","55-60","60-65","65-70","70-75","75-80","80-85","85-90","90-95","95-100","100-105","105-110","110-115","115-120","120-125","125-130","130-135","135-140","140-145","145-150"]
-        const counts = [2,8,16,38,75,82,106,154,219,411,866,1539,2132,1972,1794,1776,1745,1694,1227,1320,831,431,198,82,21,11,1]
-        var bg_color = ['#134DF1',
-            '#134DF1',
-            '#134DF1',
-            '#134DF1',
-            '#134DF1',
-            '#134DF1',
-            '#134DF1',
-            '#134DF1',
-            '#134DF1',
-            '#134DF1',
-            '#134DF1',
-            '#134DF1',
-            '#134DF1',
-            '#134DF1',
-            '#134DF1'
-        ];
-
+        const labels = ["15-20","20-25","25-30","30-35","35-40","40-45","45-50","50-55","55-60","60-65","65-70","70-75","75-80","80-85","85-90","90-95","95-100","100-105","105-110","110-115","115-120","120-125","125-130","130-135","135-140","140-145","145-150"];
+        const counts = [2,8,16,38,75,82,106,154,219,411,866,1539,2132,1972,1794,1776,1745,1694,1227,1320,831,431,198,82,21,11,1];
+        var bg_color = ['#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1'];
+        
         // Find index where efficiency falls under 
         for (var i = 0; i < labels.length; ++i) {
             const r = labels[i].split('-');
