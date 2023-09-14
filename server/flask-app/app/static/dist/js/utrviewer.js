@@ -42,7 +42,7 @@ var scInterval = function(
         });
     } else {
         return ({
-            "start": Math.max((start_site + buffer + 2) - end, 1),
+            "start": Math.max((start_site + buffer + 1) - end, 1),
             "end": (start_site + buffer + 1) - start,
         });
     }
@@ -867,7 +867,7 @@ var createTranscriptViewer = function(
             if (!pop_var_tpos.includes(tpos)) {
                 pop_var_tpos.push(tpos);
                 strand_corrected_tpos = scInterval(
-                    element['tpos']-1, 
+                    element['tpos'], 
                     element['tpos'],
                     start_site,
                     buffer, strand)
