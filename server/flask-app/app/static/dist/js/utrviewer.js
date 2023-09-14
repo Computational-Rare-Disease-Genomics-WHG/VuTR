@@ -489,19 +489,19 @@ var openModal = function(data, type) {
             `<canvas id = 'te-plot'></canvas`;
         const ctx = document.getElementById('te-plot').getContext('2d');
         // Histogram data from R
-        // b <- Transcripts sequence 
-        // te <- Translational efficiency
+        // b <- fread("MANE_transcripts_v1.0.tsv") 
+        // fread("../../translational_efficiency.txt")
         // cdt <- b[, .(context=substr(seq, five_prime_utr_length-5,five_prime_utr_length+5))]
         // cdt %<>% .[nchar(context) == 11]
-        // hist_obj <- hist(te[cdt]$efficiency)
+        // hist_obj <- hist(te[cdt]$efficiency, breaks=20)
         // hist_data <- data.table(breaks = hist_obj$breaks[-length(hist_obj$breaks)], counts = hist_obj$counts)
-        // hist_data[, label:= paste0(breaks, "-", breaks+10)]
+        // hist_data[, label:= paste0(breaks, "-", breaks+5)]
+        // hist_data$label %>% paste0(., collapse='","')
+        // hist_data$counts %>% paste0(., collapse=",")
         
-        const labels = ["10-20", "20-30,", "30-40", "40-50", "50-60",
-            "60-70", "70-80", "80-90", "90-100", "100-110", "110-120",
-            "120-130", "130-140", "140-150"
-        ]
-        const counts = [2,24,113,188,373,1277,3671,3766,3521,2921,2151,629,103,12]
+        const labels = [
+            "15-20","20-25","25-30","30-35","35-40","40-45","45-50","50-55","55-60","60-65","65-70","70-75","75-80","80-85","85-90","90-95","95-100","100-105","105-110","110-115","115-120","120-125","125-130","130-135","135-140","140-145","145-150"]
+        const counts = [2,8,16,38,75,82,106,154,219,411,866,1539,2132,1972,1794,1776,1745,1694,1227,1320,831,431,198,82,21,11,1]
         var bg_color = ['#134DF1',
             '#134DF1',
             '#134DF1',
