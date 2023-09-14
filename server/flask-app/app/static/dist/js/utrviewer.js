@@ -834,33 +834,54 @@ var createTranscriptViewer = function(
             zoomMax: 10
         })
 
-    var pop_variants = gnomad_data[
-        'variants']; // gnomAD variants from the API
-    var
-pop_var_feat_dat = []; // Visualization intervals to pass to feature viewer
-    var
-pop_var_tpos = []; // tmp for storing the transcript positions of the variants
-    pop_variants.forEach(element => {
-        tpos = element['tpos']
-        // Only append to the track if didn't exist
-        if (!pop_var_tpos.includes(tpos)) {
-            pop_var_tpos.push(tpos);
-            strand_corrected_tpos = scInterval(
-                element['tpos']-1.25, 
-                element['tpos']+1,
-                start_site,
-                buffer, strand)
-            pop_var_feat_dat.push({
-                x: strand_corrected_tpos['start'],
-                y: strand_corrected_tpos['end'],
-                id: element['variant_id'],
-                //description: element['alt'].toUpperCase(),
-                className: 'no_impact_gnomad',
-            });
-        }
+        var pop_variants = gnomad_data['variants']; // gnomAD variants from the API
 
+    
+        // We want to plot the variants only once per transcript position
+        const track_vars = pop_variants.reduce((accumulator, variant) => {
+            const trackKey = `${variant.tpos}-${variant.ref}`;
+            const existingVariant = accumulator.find(item => item.track_id === trackKey);
+        
+            if (existingVariant) {
+                // If a variant with the same tpos / ref pair exists, set trackDescription to 'M'
+                existingVariant.trackDescription = 'M';
+            } else {
+                // Otherwise, add a new entry to the accumulator
+                accumulator.push({
+                    track_id: trackKey,
+                    ref: variant.ref,
+                    tpos: variant.tpos,
+                    trackDescription: variant.alt.toUpperCase(),
+                });
+            }
+        
+            return accumulator;
+        }, []);
+    
+    
+        var pop_var_feat_dat = []; // Visualization intervals to pass to feature viewer
+        var pop_var_tpos = []; // tmp for storing the transcript positions of the variants
+        track_vars.forEach(element => {
+            tpos = element['tpos']
+            // Only append to the track if didn't exist
+            if (!pop_var_tpos.includes(tpos)) {
+                pop_var_tpos.push(tpos);
+                strand_corrected_tpos = scInterval(
+                    element['tpos']-1, 
+                    element['tpos'],
+                    start_site,
+                    buffer, strand)
+                pop_var_feat_dat.push({
+                    x: strand_corrected_tpos['start'],
+                    y: strand_corrected_tpos['end'],
+                    id: element['track_id'],
+                    description: element['trackDescription'],
+                    className: 'no_impact_gnomad',
+                });
+            }
+    
 
-    });
+        });
     if (pop_var_feat_dat.length > 0) {
         gnomad_variant_ft.addFeature({
             data: pop_var_feat_dat,
