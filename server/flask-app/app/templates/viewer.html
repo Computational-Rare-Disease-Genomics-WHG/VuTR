@@ -177,6 +177,15 @@
                                        <h6><b>Ensembl Gene ID</b>: {{ensembl_gene_id}}</h6>
                                        <h6><b>Ensembl Transcript ID</b>: {{ensembl_transcript_id}}</h6>
                                        <h6><b>RefSeq Match</b>: {{refseq_match}}</h6>
+                                       {% if other_transcripts %}
+                                       <h6><b>Other transcripts for this gene</b>:
+                                       
+                                       {% for transcript in other_transcripts %}
+                                          <a href="{{url_for('viewer.viewer_page', ensembl_transcript_id=transcript)}}">{{ transcript }}</a>
+                                       {% endfor %}
+                           
+                                       </h6>
+                                       {% endif %}
                                     </div>
                                  </div>
                                  <div class = "col-lg-6 border-0 px-1">

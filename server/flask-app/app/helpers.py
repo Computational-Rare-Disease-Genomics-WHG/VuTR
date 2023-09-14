@@ -436,6 +436,24 @@ def get_constraint_score(ensembl_gene_id):
     return result['loeuf']
 
 
+def find_transcript_ids_by_gene_id(ensembl_gene_id):
+    """
+    Finds all ensembl_transcript_ids by ensembl_gene_id
+    """
+    db = features_db.get_db()
+    cursor = db.execute(
+        'SELECT ensembl_transcript_id FROM mane_summary WHERE ensembl_gene_id=?',
+        [ensembl_gene_id],
+    )
+    rows = cursor.fetchall()
+    features_db.close_db()
+
+    # Check if there are any results
+    if len(rows) == 0:
+        return None
+    return [i ['ensembl_transcript_id'] for i in rows]
+
+
 def get_gnomad_variants_in_utr_regions(utr_regions):
     """
     gnomAD search in utr regions

@@ -27,6 +27,7 @@ from .helpers import (
     get_gnomad_variants_in_utr_regions,
     get_omim_id,
     get_clingen_entry,
+    find_transcript_ids_by_gene_id
 )
 from . import variant_db
 
@@ -235,6 +236,10 @@ def viewer_page(ensembl_transcript_id):
         ensembl_transcript_id, "ensembl_transcript_id", "refseq_transcript_id"
     )
 
+    # Other transcripts
+    other_transcripts = [t for t in find_transcript_ids_by_gene_id(
+        ensembl_gene_id) if t != ensembl_transcript_id]
+
     # Get features
     gene_features = get_genomic_features(ensembl_gene_id)
     five_prime_utr_stats = get_transcript_features(ensembl_transcript_id)
@@ -296,5 +301,6 @@ def viewer_page(ensembl_transcript_id):
         gnomad_utr_impact=gnomad_utr_impact,
         clinvar_utr_impact=clinvar_utr_impact,
         all_possible_variants=all_possible_variants,
+        other_transcripts=other_transcripts
     )
 
