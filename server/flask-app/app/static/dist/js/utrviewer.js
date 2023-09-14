@@ -38,7 +38,7 @@ var scInterval = function(
     if (strand == '+') {
         return ({
             'start': start,
-            'end': Math.min(end - 1, start_site+buffer+1)
+            'end': Math.min(end - 1, start_site+buffer+1)+1
         });
     } else {
         return ({
@@ -214,6 +214,7 @@ On click event handlers to open the modal details
 
 */
 var openModal = function(data, type) {
+    console.log(data);
 
     /// Type is the data_type of the detail presented
 
@@ -557,6 +558,53 @@ var openModal = function(data, type) {
 }
 
 
+/***
+ * Create the first track of the Feature Viewer for gnomAD variants
+ * and clinvar variants
+ * @param {[Obj]} variants - The list of variants
+ * @param {string} variant_track - The type of variant track (gnomad or clinvar)
+ * @returns {[Obj]} - The list of variants with the track_id and trackDescription
+ */
+var createTrackVariants = function(variants, variant_track){
+    const track_vars = variants.reduce((accumulator, variant) => {
+        const trackKey = `${variant.tpos}-${variant.ref}`;
+        const existingVariant = accumulator.find(item => item.track_id === trackKey);
+    
+        if (existingVariant) {
+            // If a variant with the same tpos / ref pair exists, set trackDescription to 'M'
+            existingVariant.trackDescription = 'M';
+
+            if (variant_track == 'clinvar'){
+                pathogenicity_order = Object.keys(pathogenicity_colors);
+                // Store the more pathogenic annotation
+                if (pathogenicity_order.indexOf(variant['clinical_significance']) < pathogenicity_order.indexOf(existingVariant['pathogenicity'])){
+                    existingVariant['pathogenicity'] = variant['clinical_significance'];
+                }
+            }
+
+        } else {
+            // Otherwise, add a new entry to the accumulator
+
+            tvar = {
+                track_id: trackKey,
+                ref: variant.ref,
+                tpos: variant.tpos,
+                trackDescription: variant.alt.toUpperCase(),
+            };
+
+            if (variant_track == 'clinvar'){
+                tvar['pathogenicity'] = variant['clinical_significance'];
+            }
+
+            accumulator.push(tvar);
+        }
+    
+        return accumulator;
+    }, []);
+    return track_vars;
+}
+
+
 /**
  * Quick wrapper to function to search through an
  * array of objects for a certain object 
@@ -835,33 +883,11 @@ var createTranscriptViewer = function(
         })
 
         var pop_variants = gnomad_data['variants']; // gnomAD variants from the API
-
-    
-        // We want to plot the variants only once per transcript position
-        const track_vars = pop_variants.reduce((accumulator, variant) => {
-            const trackKey = `${variant.tpos}-${variant.ref}`;
-            const existingVariant = accumulator.find(item => item.track_id === trackKey);
-        
-            if (existingVariant) {
-                // If a variant with the same tpos / ref pair exists, set trackDescription to 'M'
-                existingVariant.trackDescription = 'M';
-            } else {
-                // Otherwise, add a new entry to the accumulator
-                accumulator.push({
-                    track_id: trackKey,
-                    ref: variant.ref,
-                    tpos: variant.tpos,
-                    trackDescription: variant.alt.toUpperCase(),
-                });
-            }
-        
-            return accumulator;
-        }, []);
-    
-    
-        var pop_var_feat_dat = []; // Visualization intervals to pass to feature viewer
+        var pop_variants = pop_variants.map(e => ({...e, track_id: `${e.tpos}-${e.ref}`}));
+        var gnomad_track_vars = createTrackVariants(pop_variants, 'gnomad'); // Create the no impact track
+        var pop_var_feat_data = []; // Visualization intervals to pass to feature viewer
         var pop_var_tpos = []; // tmp for storing the transcript positions of the variants
-        track_vars.forEach(element => {
+        gnomad_track_vars.forEach(element => {
             tpos = element['tpos']
             // Only append to the track if didn't exist
             if (!pop_var_tpos.includes(tpos)) {
@@ -871,20 +897,20 @@ var createTranscriptViewer = function(
                     element['tpos'],
                     start_site,
                     buffer, strand)
-                pop_var_feat_dat.push({
+                pop_var_feat_data.push({
                     x: strand_corrected_tpos['start'],
                     y: strand_corrected_tpos['end'],
                     id: element['track_id'],
                     description: element['trackDescription'],
-                    className: 'no_impact_gnomad',
+                    className: 'gnomad_no_impact_track',
                 });
             }
     
 
         });
-    if (pop_var_feat_dat.length > 0) {
+    if (pop_var_feat_data.length > 0) {
         gnomad_variant_ft.addFeature({
-            data: pop_var_feat_dat,
+            data: pop_var_feat_data,
             type: "rect",
             className: "gnomAD_var",
             name: "gnomAD Variants",
@@ -924,9 +950,10 @@ var createTranscriptViewer = function(
                 'gnomad');
         }
         else{
-        gnomad_utr_conseq = searchObj(gnomad_utr_impact, id_sel, 'variant_id')
-        openModal(Object.assign(searchObj(pop_variants, id_sel, 'variant_id'), gnomad_utr_conseq),
-            'gnomad');
+            console.log(id_sel);
+            gnomad_utr_conseq = searchObj(gnomad_utr_impact, id_sel, 'track_id')
+            openModal(Object.assign(searchObj(pop_variants, id_sel, 'track_id'), gnomad_utr_conseq),
+                'gnomad');
         }
 
 
@@ -941,20 +968,17 @@ var createTranscriptViewer = function(
             zoomMax: 10
         })
     var clinvar_variants = gnomad_data['clinvar_variants'];
+    var clinvar_variant = clinvar_variants.map(e => ({...e, track_id: `${e.tpos}-${e.ref}`}));
+    var clinvar_track_variants = createTrackVariants(clinvar_variants, 'clinvar');
     var clinvar_var_feat_dat = [];
-    clinvar_variants.forEach(element => {
+    clinvar_track_variants.forEach(element => {
         clinvar_var_feat_dat.push({
-            x: scInterval(element['tpos']-1.25,
-                element['tpos'] + 1.1, start_site, buffer,
-                strand)['start'],
-            y: scInterval(element['tpos']-1.25,
-                element['tpos'] + 1.1, start_site, buffer,
-                strand)['end'],
-            color: pathogenicity_colors[element
-                .clinical_significance],
-            id: element['variant_id'],
-            className: 'no_impact_clinvar'
-
+            x: scInterval(element['tpos'], element['tpos'], start_site, buffer, strand)['start'],
+            y: scInterval(element['tpos'], element['tpos'], start_site, buffer, strand)['end'],
+            color: pathogenicity_colors[element['pathogenicity']],
+            id: element['track_id'],
+            description: element['trackDescription'],
+            className: 'no_impact_clinvar',
         });
     });
 
@@ -1004,10 +1028,10 @@ var createTranscriptViewer = function(
         }
         else{
             clinvar_utr_conseq = searchObj(clinvar_utr_impact,
-                id_sel, 'variant_id')
+                id_sel, 'track_id')
             openModal(Object.assign(
                     searchObj(clinvar_variants, id_sel,
-                        'variant_id'),
+                        'track_id'),
                     clinvar_utr_conseq),
                 'clinvar');
         }
