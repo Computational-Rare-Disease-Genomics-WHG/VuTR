@@ -423,7 +423,7 @@ var openModal = function(data, type) {
                 <li><b>Kozak Consensus Context</b> :  ${data['kozak_context']}</li>
               </ul>
               <hr>
-              <h5>Translation Efficiency Distribution</h5>
+              <h5>Translational efficiency of MANE CDS Start Sites</h5>
               
               <ul id="feature-modal-data">
 			  </ul>
@@ -489,13 +489,19 @@ var openModal = function(data, type) {
             `<canvas id = 'te-plot'></canvas`;
         const ctx = document.getElementById('te-plot').getContext('2d');
         // Histogram data from R
+        // b <- Transcripts sequence 
+        // te <- Translational efficiency
+        // cdt <- b[, .(context=substr(seq, five_prime_utr_length-5,five_prime_utr_length+5))]
+        // cdt %<>% .[nchar(context) == 11]
+        // hist_obj <- hist(te[cdt]$efficiency)
+        // hist_data <- data.table(breaks = hist_obj$breaks[-length(hist_obj$breaks)], counts = hist_obj$counts)
+        // hist_data[, label:= paste0(breaks, "-", breaks+10)]
+        
         const labels = ["10-20", "20-30,", "30-40", "40-50", "50-60",
             "60-70", "70-80", "80-90", "90-100", "100-110", "110-120",
             "120-130", "130-140", "140-150"
         ]
-        const counts = [10, 326, 795, 1230, 1628, 2182, 3563, 3510, 2600,
-            1687, 811, 239, 48, 7
-        ]
+        const counts = [2,24,113,188,373,1277,3671,3766,3521,2921,2151,629,103,12]
         var bg_color = ['#134DF1',
             '#134DF1',
             '#134DF1',
@@ -526,11 +532,10 @@ var openModal = function(data, type) {
         const data = {
             labels: labels,
             datasets: [{
-                label: 'Translational Efficiency of all uORFs',
+                label: 'Translational effienciency of all MANE CDS starts',
                 data: counts,
                 borderWidth: 0,
                 backgroundColor: bg_color,
-                //borderColor: 'rgb(75, 192, 192)',
             }]
         };
         // Create configurationT
