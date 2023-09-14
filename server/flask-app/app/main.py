@@ -15,6 +15,7 @@ from .helpers import (
     search_enst_by_transcript_id,
     get_transcript_features,
     get_genomic_features,
+    find_transcript_ids_by_gene_id
 )
 
 main = Blueprint('main', __name__)
