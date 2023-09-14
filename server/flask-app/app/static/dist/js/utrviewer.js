@@ -612,6 +612,7 @@ var createTrackVariants = function(variants, variant_track){
  * @param {string} id - The identifier to search
  * @param {string} id_var - The key to search for
  * @returns {Obj or [Obj]}  The object (s) found
+ * TODO: 
  */
 var searchObj = function(data, id, id_var) {
     found = data.filter(e => {
@@ -899,7 +900,7 @@ var createTranscriptViewer = function(
                     buffer, strand)
                 pop_var_feat_data.push({
                     x: strand_corrected_tpos['start'],
-                    y: strand_corrected_tpos['end'],
+                    y: strand_corrected_tpos['end']+1,
                     id: element['track_id'],
                     description: element['trackDescription'],
                     className: 'gnomad_no_impact_track',
@@ -974,7 +975,7 @@ var createTranscriptViewer = function(
     clinvar_track_variants.forEach(element => {
         clinvar_var_feat_dat.push({
             x: scInterval(element['tpos'], element['tpos'], start_site, buffer, strand)['start'],
-            y: scInterval(element['tpos'], element['tpos'], start_site, buffer, strand)['end'],
+            y: scInterval(element['tpos'], element['tpos'], start_site, buffer, strand)['end']+1,
             color: pathogenicity_colors[element['pathogenicity']],
             id: element['track_id'],
             description: element['trackDescription'],
