@@ -900,7 +900,7 @@ var createTranscriptViewer = function(
                     buffer, strand)
                 pop_var_feat_data.push({
                     x: strand_corrected_tpos['start'],
-                    y: strand_corrected_tpos['end']+1,
+                    y: strand_corrected_tpos['end']+0.8,
                     id: element['track_id'],
                     description: element['trackDescription'],
                     className: 'gnomad_no_impact_track',
@@ -975,7 +975,7 @@ var createTranscriptViewer = function(
     clinvar_track_variants.forEach(element => {
         clinvar_var_feat_dat.push({
             x: scInterval(element['tpos'], element['tpos'], start_site, buffer, strand)['start'],
-            y: scInterval(element['tpos'], element['tpos'], start_site, buffer, strand)['end']+1,
+            y: scInterval(element['tpos'], element['tpos'], start_site, buffer, strand)['end']+0.8,
             color: pathogenicity_colors[element['pathogenicity']],
             id: element['track_id'],
             description: element['trackDescription'],
