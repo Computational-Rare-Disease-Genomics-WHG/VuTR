@@ -38,7 +38,7 @@ var scInterval = function(
     if (strand == '+') {
         return ({
             'start': start,
-            'end': Math.min(end - 1, start_site+buffer+1)+1
+            'end': Math.min(end - 1, start_site + buffer + 1) + 1
         });
     } else {
         return ({
@@ -214,7 +214,6 @@ On click event handlers to open the modal details
 
 */
 var openModal = function(data, type) {
-    console.log(data);
 
     /// Type is the data_type of the detail presented
 
@@ -238,7 +237,9 @@ var openModal = function(data, type) {
 
     var title = {
         'gnomad': 'gnomAD Variant',
-        'clinvar': 'ClinVar Variant',
+        'gnomad_multiple_variants': 'gnomAD Variant',
+        'clinvar': 'ClinVar Variants',
+        'clinvar_multiple_variants': 'ClinVar Variants',
         'orf': 'ORF detail',
         'smorf': 'smORF',
         'user-supplied': 'Variant'
@@ -293,8 +294,86 @@ var openModal = function(data, type) {
 </div>
 </div>`;
     }
+    if (type == 'gnomad_multiple_variants') {
+        let tabsHtml = '';
+        let tabContentHtml = '';
 
-    if (type=='user-supplied'){
+
+        /* Create Tabs and Modals */
+        data.forEach((variant, index) => {
+            const isActive = index === 0 ? 'active' : '';
+            const tabId = `variant-tab-${index}`;
+            const isShown = index === 0 ? 'show' : '';
+            const tabContentId = `variant-tab-content-${index}`;
+
+            // Generate the tab headers
+            tabsHtml += `
+              <a class="nav-link ${isActive}" id="${tabId}-tab" data-toggle="pill" href="#${tabContentId}" role="tab" aria-controls="${tabContentId}" aria-selected="${index === 0}">${variant['variant_id']}</a>
+            `;
+
+            // Generate the tab content
+            tabContentHtml += `
+              <div class="tab-pane fade ${isActive} ${isShown}" id="${tabContentId}" role="tabpanel" aria-labelledby="${tabId}-tab">
+                <!-- Insert your variant details here using variant.data -->
+                <ul>
+                  <li><b>REF</b> : ${variant.ref}</li>
+                  <li><b>ALT</b> : ${variant.alt}</li>
+                  <li><b>Genome Position</b> : ${variant.pos}</li>
+                    <li><b>Transcript Position</b> : ${variant.tpos}</li>
+                    <li><b>Variant ID</b> : ${variant.variant_id}</li>
+                    <li><b>HGVSC</b> : ${variant.hgvsc}</li>
+                </ul>
+                <hr>
+                ${createUtrAnnotationList(variant)}
+                <h5>gnomAD Frequency</h5>
+                <ul>
+                    <li><b>Allele Count</b> : ${variant.genome.ac}</li>
+                    <li><b>Allele Number</b> : ${variant.genome.an}</li>
+                    <li><b>Allele Frequency (all pop)</b> : ${variant.genome.af}</li>
+                </ul>
+                <hr>
+                <b>View variant in gnomAD</b>: <a href='https://gnomad.broadinstitute.org/variant/${variant['variant_id']}?dataset=gnomad_r3'>${variant['variant_id']}</a>
+              </div>
+            `;
+        });
+
+        custom = `
+        <div class="modal fade"
+        id="feature-modal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="exampleModalLongTitle"
+        aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">${title[type]}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" >&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Add your tab navigation here -->
+                    <h6>There are multiple variants at this position</h6>
+                    <div class="row">
+                    <div class="col-5 col-sm-3">
+                        <div class="nav flex-column nav-tabs h-100" id="variant-tabs" role="tablist" aria-orientation="vertical">
+                        ${tabsHtml}
+                        </div>
+                    </div>
+                    <div class="col-7 col-sm-9">
+                        <!-- Add your tab content here -->
+                        <div class="tab-content" id="variant-tab-content">
+                        ${tabContentHtml}
+                    </div>
+                    </div>
+                    </div>
+                </div>
+            </div>`;
+
+    }
+
+    if (type == 'user-supplied') {
         custom = `
         <div class="modal fade" 
         id="feature-modal"
@@ -303,14 +382,14 @@ var openModal = function(data, type) {
         aria-labelledby="exampleModalLongTitle" 
         aria-hidden="true">
     
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Variant ${data['variant_id']} </h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
+        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Variant ${data['variant_id']} </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
     
     
         <div class="modal-body">
@@ -321,7 +400,7 @@ var openModal = function(data, type) {
       </div>
     </div>
     </div>`;
-        
+
 
     }
 
@@ -507,11 +586,11 @@ var openModal = function(data, type) {
         // hist_data[, label:= paste0(breaks, "-", breaks+5)]
         // hist_data$label %>% paste0(., collapse='","')
         // hist_data$counts %>% paste0(., collapse=",")
-        
-        const labels = ["15-20","20-25","25-30","30-35","35-40","40-45","45-50","50-55","55-60","60-65","65-70","70-75","75-80","80-85","85-90","90-95","95-100","100-105","105-110","110-115","115-120","120-125","125-130","130-135","135-140","140-145","145-150"];
-        const counts = [2,8,16,38,75,82,106,154,219,411,866,1539,2132,1972,1794,1776,1745,1694,1227,1320,831,431,198,82,21,11,1];
+
+        const labels = ["15-20", "20-25", "25-30", "30-35", "35-40", "40-45", "45-50", "50-55", "55-60", "60-65", "65-70", "70-75", "75-80", "80-85", "85-90", "90-95", "95-100", "100-105", "105-110", "110-115", "115-120", "120-125", "125-130", "130-135", "135-140", "140-145", "145-150"];
+        const counts = [2, 8, 16, 38, 75, 82, 106, 154, 219, 411, 866, 1539, 2132, 1972, 1794, 1776, 1745, 1694, 1227, 1320, 831, 431, 198, 82, 21, 11, 1];
         var bg_color = ['#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1'];
-        
+
         // Find index where efficiency falls under 
         for (var i = 0; i < labels.length; ++i) {
             const r = labels[i].split('-');
@@ -565,19 +644,19 @@ var openModal = function(data, type) {
  * @param {string} variant_track - The type of variant track (gnomad or clinvar)
  * @returns {[Obj]} - The list of variants with the track_id and trackDescription
  */
-var createTrackVariants = function(variants, variant_track){
+var createTrackVariants = function(variants, variant_track) {
     const track_vars = variants.reduce((accumulator, variant) => {
         const trackKey = `${variant.tpos}-${variant.ref}`;
         const existingVariant = accumulator.find(item => item.track_id === trackKey);
-    
+
         if (existingVariant) {
             // If a variant with the same tpos / ref pair exists, set trackDescription to 'M'
-            existingVariant.trackDescription = 'M';
+            existingVariant.trackDescription = existingVariant.trackDescription + ',' + variant.alt.toUpperCase();
 
-            if (variant_track == 'clinvar'){
+            if (variant_track == 'clinvar') {
                 pathogenicity_order = Object.keys(pathogenicity_colors);
                 // Store the more pathogenic annotation
-                if (pathogenicity_order.indexOf(variant['clinical_significance']) < pathogenicity_order.indexOf(existingVariant['pathogenicity'])){
+                if (pathogenicity_order.indexOf(variant['clinical_significance']) < pathogenicity_order.indexOf(existingVariant['pathogenicity'])) {
                     existingVariant['pathogenicity'] = variant['clinical_significance'];
                 }
             }
@@ -592,13 +671,13 @@ var createTrackVariants = function(variants, variant_track){
                 trackDescription: variant.alt.toUpperCase(),
             };
 
-            if (variant_track == 'clinvar'){
+            if (variant_track == 'clinvar') {
                 tvar['pathogenicity'] = variant['clinical_significance'];
             }
 
             accumulator.push(tvar);
         }
-    
+
         return accumulator;
     }, []);
     return track_vars;
@@ -615,10 +694,19 @@ var createTrackVariants = function(variants, variant_track){
  * TODO: 
  */
 var searchObj = function(data, id, id_var) {
+    // If its a variant 
+    if (id_var == 'track_id' || id_var == 'variant_id') {
+        found = data.filter(e => {
+            return (e[id_var] == id)
+        })
+        return (found)
+    }
+
     found = data.filter(e => {
         return (e[id_var] == id)
     })
     return (found[0])
+
 }
 
 /**
@@ -826,7 +914,7 @@ var createTranscriptViewer = function(
                 'orf');
         }
     });
-    
+
     /*
     Conservation Track
     */
@@ -837,19 +925,19 @@ var createTranscriptViewer = function(
     // Populate conservation tracks
     conservation.forEach(e => {
         const pos = scInterval(e['tpos'], e['tpos'], start_site, buffer, strand)['start'];
-        
+
         phylop.push({
             x: pos,
             y: e['phylop']
         });
-    
+
         cadd.push({
             x: pos,
             y: e['phred_cadd']
         })
 
     });
-    
+
     ft2.addFeature({
         data: phylop,
         type: "line",
@@ -883,32 +971,35 @@ var createTranscriptViewer = function(
             zoomMax: 10
         })
 
-        var pop_variants = gnomad_data['variants']; // gnomAD variants from the API
-        var pop_variants = pop_variants.map(e => ({...e, track_id: `${e.tpos}-${e.ref}`}));
-        var gnomad_track_vars = createTrackVariants(pop_variants, 'gnomad'); // Create the no impact track
-        var pop_var_feat_data = []; // Visualization intervals to pass to feature viewer
-        var pop_var_tpos = []; // tmp for storing the transcript positions of the variants
-        gnomad_track_vars.forEach(element => {
-            tpos = element['tpos']
-            // Only append to the track if didn't exist
-            if (!pop_var_tpos.includes(tpos)) {
-                pop_var_tpos.push(tpos);
-                strand_corrected_tpos = scInterval(
-                    element['tpos'], 
-                    element['tpos'],
-                    start_site,
-                    buffer, strand)
-                pop_var_feat_data.push({
-                    x: strand_corrected_tpos['start'],
-                    y: strand_corrected_tpos['end']+0.8,
-                    id: element['track_id'],
-                    description: element['trackDescription'],
-                    className: 'gnomad_no_impact_track',
-                });
-            }
-    
+    var pop_variants = gnomad_data['variants']; // gnomAD variants from the API
+    var pop_variants = pop_variants.map(e => ({
+        ...e,
+        track_id: `${e.tpos}-${e.ref}`
+    }));
+    var gnomad_track_vars = createTrackVariants(pop_variants, 'gnomad'); // Create the no impact track
+    var pop_var_feat_data = []; // Visualization intervals to pass to feature viewer
+    var pop_var_tpos = []; // tmp for storing the transcript positions of the variants
+    gnomad_track_vars.forEach(element => {
+        tpos = element['tpos']
+        // Only append to the track if didn't exist
+        if (!pop_var_tpos.includes(tpos)) {
+            pop_var_tpos.push(tpos);
+            strand_corrected_tpos = scInterval(
+                element['tpos'],
+                element['tpos'],
+                start_site,
+                buffer, strand)
+            pop_var_feat_data.push({
+                x: strand_corrected_tpos['start'],
+                y: strand_corrected_tpos['end'] + 0.8,
+                id: element['track_id'],
+                description: element['trackDescription'],
+                className: 'gnomad_no_impact_track',
+            });
+        }
 
-        });
+
+    });
     if (pop_var_feat_data.length > 0) {
         gnomad_variant_ft.addFeature({
             data: pop_var_feat_data,
@@ -945,16 +1036,21 @@ var createTranscriptViewer = function(
     )
     gnomad_variant_ft.onFeatureSelected(function(m) {
         let id_sel = m.detail.id;
-        if (id_sel.startsWith('annotation')){
+        if (id_sel.startsWith('annotation')) {
             gnomad_utr_conseq = searchObj(gnomad_utr_impact, id_sel, 'annotation_id');
             openModal(Object.assign(searchObj(pop_variants, gnomad_utr_conseq['variant_id'], 'variant_id'), gnomad_utr_conseq),
                 'gnomad');
-        }
-        else{
-            console.log(id_sel);
-            gnomad_utr_conseq = searchObj(gnomad_utr_impact, id_sel, 'track_id')
-            openModal(Object.assign(searchObj(pop_variants, id_sel, 'track_id'), gnomad_utr_conseq),
-                'gnomad');
+        } else {
+            consequences = searchObj(pop_variants, id_sel, 'track_id')
+            if (Array.isArray(consequences)) {
+                if (consequences.length > 1) {
+                    console.log('multiple variants');
+                    openModal(Object.assign(searchObj(pop_variants, id_sel, 'track_id'), consequences), 'gnomad_multiple_variants');
+                } else if (consequences.length == 1) {
+                    openModal(Object.assign(searchObj(pop_variants, id_sel, 'track_id'), consequences[0]), 'gnomad');
+                }
+            }
+
         }
 
 
@@ -969,13 +1065,16 @@ var createTranscriptViewer = function(
             zoomMax: 10
         })
     var clinvar_variants = gnomad_data['clinvar_variants'];
-    var clinvar_variant = clinvar_variants.map(e => ({...e, track_id: `${e.tpos}-${e.ref}`}));
+    var clinvar_variant = clinvar_variants.map(e => ({
+        ...e,
+        track_id: `${e.tpos}-${e.ref}`
+    }));
     var clinvar_track_variants = createTrackVariants(clinvar_variants, 'clinvar');
     var clinvar_var_feat_dat = [];
     clinvar_track_variants.forEach(element => {
         clinvar_var_feat_dat.push({
             x: scInterval(element['tpos'], element['tpos'], start_site, buffer, strand)['start'],
-            y: scInterval(element['tpos'], element['tpos'], start_site, buffer, strand)['end']+0.8,
+            y: scInterval(element['tpos'], element['tpos'], start_site, buffer, strand)['end'] + 0.8,
             color: pathogenicity_colors[element['pathogenicity']],
             id: element['track_id'],
             description: element['trackDescription'],
@@ -998,12 +1097,12 @@ var createTranscriptViewer = function(
             clinvar_variant_ft.addFeature({
                 data: [{
                     x: scInterval(
-                        element['start']-1.25, element[
-                            'end']+1.1, start_site,
+                        element['start'] - 1.25, element[
+                            'end'] + 1.1, start_site,
                         buffer, strand)['start'],
                     y: scInterval(
-                        element['start']-1.25, element[
-                            'end']+1.1, start_site,
+                        element['start'] - 1.25, element[
+                            'end'] + 1.1, start_site,
                         buffer, strand)['end'],
                     id: element.annotation_id
                 }],
@@ -1018,16 +1117,15 @@ var createTranscriptViewer = function(
     /*Event handler to view the Clinvar variant detail page*/
     clinvar_variant_ft.onFeatureSelected(function(d) {
         let id_sel = d.detail.id;
-        if (id_sel.startsWith('annotation')){
+        if (id_sel.startsWith('annotation')) {
             clinvar_utr_conseq = searchObj(clinvar_utr_impact,
-                id_sel, 'annotation_id')    
+                id_sel, 'annotation_id')
             openModal(Object.assign(
                     searchObj(clinvar_variants, clinvar_utr_conseq['variant_id'],
                         'variant_id'),
                     clinvar_utr_conseq),
                 'clinvar');
-        }
-        else{
+        } else {
             clinvar_utr_conseq = searchObj(clinvar_utr_impact,
                 id_sel, 'track_id')
             openModal(Object.assign(
@@ -1100,9 +1198,9 @@ var addUserSuppliedFeature = function(
 ) {
     dat = payload["data"]["intervals"]
     intervals = [{
-        x: scInterval(dat['start']-1.25, dat['end']+1.1,
+        x: scInterval(dat['start'] - 1.25, dat['end'] + 1.1,
             start_site, buffer, strand)['start'],
-        y: scInterval(dat['start']+1.25, dat['end']+1.1,
+        y: scInterval(dat['start'] + 1.25, dat['end'] + 1.1,
             start_site, buffer, strand)['end'],
         id: dat['variant_id']
     }]
