@@ -457,6 +457,84 @@ var openModal = function(data, type) {
 
     }
 
+    if (type == 'clinvar_multiple_variants') {
+        let tabsHtml = '';
+        let tabContentHtml = '';
+
+        /* Create Tabs and Modals */
+        data.forEach((variant, index) => {
+            const isActive = index === 0 ? 'active' : '';
+            const tabId = `variant-tab-${index}`;
+            const isShown = index === 0 ? 'show' : '';
+            const tabContentId = `variant-tab-content-${index}`;
+
+            // Generate the tab headers
+            tabsHtml += `
+                <a class="nav-link ${isActive}" id="${tabId}-tab" data-toggle="pill" href="#${tabContentId}" role="tab" aria-controls="${tabContentId}" aria-selected="${index === 0}">${variant['variant_id']}</a>
+            `;
+            // Generate the tab content
+            tabContentHtml += `
+                <div class="tab-pane fade ${isActive} ${isShown}" id="${tabContentId}" role="tabpanel" aria-labelledby="${tabId}-tab">
+                    <!-- Insert your variant details here using variant.data -->
+                    <ul>
+                        <li><b>REF</b> : ${variant.ref}</li>
+                        <li><b>ALT</b> : ${variant.alt}</li>
+                        <li><b>Genome Position</b> : ${variant.pos}</li>
+                        <li><b>Transcript Position</b> : ${variant.tpos}</li>
+                        <li><b>Variant ID</b> : ${variant.variant_id}</li>
+                        <li><b>HGVSC</b> : ${variant.hgvsc}</li>
+                    </ul>
+                    <hr>
+                    <h5>ClinVar variant details</h5>
+                    <ul>
+                        <li><b>Clinical Significance</b> : ${variant.clinical_significance}</li>
+                        <li><b>Review Status</b> : ${variant.review_status}</li>
+                        <li><b>Gold Stars</b> : ${variant.gold_stars}</li>
+                        <li><b>ClinVar Variation ID</b> : ${variant.clinvar_variation_id}</li>
+                        <li><b>Variant in gnomAD?</b> : ${variant.in_gnomad}</li>
+                    </ul>
+                    <hr>
+                    ${createUtrAnnotationList(variant)}
+                    <b>View variant in ClinVar</b>: <a href='https://www.ncbi.nlm.nih.gov/clinvar/variation/${variant['clinvar_variation_id']}'>${variant['clinvar_variation_id']}</a>
+                </div>
+            `;
+        });
+            
+        custom = `
+        <div class="modal fade"
+        id="feature-modal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="exampleModalLongTitle"
+        aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">${title[type]}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" >&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Add your tab navigation here -->
+                    <h6>There are multiple variants at this position</h6>
+                    <div class="row">
+                    <div class="col-5 col-sm-3">
+                        <div class="nav flex-column nav-tabs h-100" id="variant-tabs" role="tablist" aria-orientation="vertical">
+                        ${tabsHtml}
+                        </div>
+                    </div>
+                    <div class="col-7 col-sm-9">
+                        <!-- Add your tab content here -->
+                        <div class="tab-content" id="variant-tab-content">
+                        ${tabContentHtml}
+                    </div>
+                    </div>
+                    </div>
+                </div>
+            </div>`;
+    }
+
     if (type == 'orf') {
         custom = `
 		<div class="modal fade" 
@@ -1065,7 +1143,7 @@ var createTranscriptViewer = function(
             zoomMax: 10
         })
     var clinvar_variants = gnomad_data['clinvar_variants'];
-    var clinvar_variant = clinvar_variants.map(e => ({
+    var clinvar_variants = clinvar_variants.map(e => ({
         ...e,
         track_id: `${e.tpos}-${e.ref}`
     }));
@@ -1126,16 +1204,23 @@ var createTranscriptViewer = function(
                     clinvar_utr_conseq),
                 'clinvar');
         } else {
-            clinvar_utr_conseq = searchObj(clinvar_utr_impact,
-                id_sel, 'track_id')
-            openModal(Object.assign(
-                    searchObj(clinvar_variants, id_sel,
-                        'track_id'),
-                    clinvar_utr_conseq),
-                'clinvar');
+            clinvar_utr_conseq = searchObj(clinvar_variants,
+                id_sel, 'track_id');
+            
+            if (Array.isArray(clinvar_utr_conseq)) {
+                if (clinvar_utr_conseq.length > 1) {
+                    console.log('multiple variants');
+                    openModal(Object.assign(searchObj(clinvar_variants, id_sel, 'track_id'), clinvar_utr_conseq), 'clinvar_multiple_variants');
+                } else if (clinvar_utr_conseq.length == 1) {
+                openModal(Object.assign(
+                        searchObj(clinvar_variants, id_sel,
+                            'track_id'),
+                        clinvar_utr_conseq[0]),
+                    'clinvar');
         }
+    
 
-    });
+    }}});
 
     var viewers = {
         'clinvar_ft': clinvar_variant_ft,
