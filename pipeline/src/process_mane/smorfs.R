@@ -1,10 +1,14 @@
-
+# Filters smorfs to mane locations
+# and annotations their relative transcript position
+# Input is the smORF tsv file curated by the CRDG Novo
+# and is available upon request
 
 library("data.table")
 library("magrittr")
 library("stringi")
 library("stringr")
 library("optparse")
+library("logger")
 
 option_list <- list(
   make_option(
@@ -30,7 +34,7 @@ option_list <- list(
     type = "character",
     help = "Output file name (should end in .tsv)",
     metavar = "character"
-  ),
+  )
 )
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
@@ -42,24 +46,56 @@ genome_transcript_fn <- opt$g2tcoord
 output_file_fn <- opt$output_file
 
 
+log_info("Reading files")
 smorfs <- fread(smorf_file)
+mane <- fread(mane_file)
+tmap <- fread(genome_transcript_fn)
+
+
+# Renaming headers
 names(smorfs) <- c("chr",
-                   "source",
-                   "orf_type",
                    "start",
                    "end",
-                   "V6",
+                   "smorf_id",
+                   "score",
                    "strand",
-                   "V8",
-                   "iORF_id") # nolint
-smorfs[, chr := paste0("chr", chr)]
-smorfs[chr == "chr24", chr := "chrX"]
-smorfs[chr == "chr25", chr := "chrY"]
+                   "thick_start",
+                   "thick_end",
+                   "item_rgb",
+                   "block_count",
+                   "block_sizes",
+                   "block_starts",
+                   "aa_seq",
+                   "start_codon",
+                   "smorf_names",
+                   "smorf_datasets",
+                   "dataset_count",
+                   "name",
+                   "cluster",
+                   "filtering",
+                   "confidence",
+                   "type",
+                   "alternate_types",
+                   "tx_id",
+                   "gene_name",
+                   "gene_id",
+                   "alternate_transcripts",
+                   "alternate_gene_ids",
+                   "alternate_gene_transcripts",
+                   "smorf_length",
+                   "isoform_count") # nolint
+
+all_chrs <- paste0("chr", c(1:22, "X", "Y"))
+
+# Filter to necessary chromosomes
+smorfs %<>% .[chr %in% all_chrs]
+
+# Create a unique "id" for each smorf
 smorfs[, id := .I]
 setkey(smorfs, id)
 
-
-mane <- fread(mane_file)
+log_info("Filtering")
+# Filter down to five prime UTRs
 mane %<>% .[type == "five_prime_UTR"]
 mane %<>% .[tag == "MANE_Select"]
 mane %<>% .[, .(seqid, start, end, strand, transcript_id)]
@@ -77,21 +113,13 @@ output <- smorfs[, {
 
 setkey(output, id)
 
-annotated_output <- smorfs[, .(
-  source,
-  orf_type,
-  iORF_id,
-  strand,
-  genome_start = start,
-  genome_end = end,
-  id
-)][output]
+# Rename a few columns
+setnames(smorfs, "start", "genome_start")
+setnames(smorfs, "end", "genome_end")
 
+annotated_output <- smorfs[output]
 
 # Convert IDs to tpos using transcript id and tpos
-tmap <- fread(genome_transcript_fn)
-
-
 setkey(tmap, transcript_id, gpos)
 setkey(annotated_output, transcript_id, genome_start)
 
@@ -107,7 +135,7 @@ annotated_output[, transcript_end :=
 # Swap for reverse strand
 annotated_output[strand == "-", `:=` (transcript_start = transcript_end,
                                       transcript_end = transcript_start)]
-
+log_info("Writing output")
 fwrite(annotated_output,
        output_file_fn,
        sep = "\t")
