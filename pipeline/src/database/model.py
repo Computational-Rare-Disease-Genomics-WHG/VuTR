@@ -185,25 +185,52 @@ tbl_models = {
         'dtype': None,  
     },
     'smorf_locations': {
-        'location': f'SMORFS/smorfs_locations.tsv',  # pylint: disable=C0301  # noqa: E501
+        'location': 'smorfs_public.txt',  # pylint: disable=C0301  # noqa: E501
         'separator': '\t',
         'col_mappings': {
-            'source': 'source',
-            'orf_type': 'smorf_orf_type',
-            'iORF_id': 'smorf_iorf_id',
-            'genome_start': 'genome_start',
-            'genome_end': 'genome_end',
+            'chr' : 'chr',
+            'genome_start' : 'genome_start',
+            'genome_end' : 'genome_end',
+            'smorf_id' : 'smorf_id',
+            'score' : 'score',
+            'strand' : 'strand',
+            'thick_start': 'thick_start',
+            'thick_end': 'thick_end',
+            'item_rgb': 'item_rgb',
+            'block_count': 'block_count',
+            'block_sizes': 'block_sizes',
+            'block_starts': 'block_starts',
+            'aa_seq': 'aa_seq',
+            'start_codon': 'start_codon',
+            'smorf_names': 'smorf_names',
+            'smorf_datasets': 'smorf_datasets',
+            'dataset_count': 'dataset_count',
+            'name': 'name',
+            'cluster' : 'cluster',
+            'filtering' : 'filtering',
+            'confidence' : 'confidence',
+            'type' : 'type',
+            'alternate_types' : 'alternate_types',
+            'gene_name' : 'gene_name',
+            'gene_id' : 'ensembl_gene_id',
+            'alternate_transcripts' : 'alternate_transcripts',
+            'alternate_gene_ids'  : 'alternate_gene_ids',
+            'alternate_gene_transcripts' : 'alternate_gene_transcripts',
+            'smorf_length' : 'smorf_length',
+            'isoform_count' : 'isoform_count',
+            'id' : 'id',
             'transcript_id': 'ensembl_transcript_id',
             'transcript_start': 'transcript_start',
             'transcript_end': 'transcript_end',
-        },
+        }
+        ,
         'remove_ensembl_id_version_numbers': True,
         'ensembl_ids': ['ensembl_transcript_id'],
-        'dtype': None, 
+        'dtype': None
     },
 
     'smorf_features': {
-        'location': f'SMORFS/final_orfs_filt_v5.txt',  # pylint: disable=C0301  # noqa: E501
+        'location': 'SMORFS/final_orfs_filt_v5.txt',  # pylint: disable=C0301  # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'ORF_id': 'smorf_orf_id',
