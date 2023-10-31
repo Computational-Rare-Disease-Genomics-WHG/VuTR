@@ -468,7 +468,6 @@ var openModal = function(data, type) {
                 <ul>
                 <li><b>ID</b> : ${data['id']} </li>
                 <li><b>Source</b> : ${data['smorf_datasets']}</li>
-                <li><b>Confidence</b> : ${data['confidence']}</li>
                 <li><b>Type</b> : ${data['type']}</li>
                 <li><b>Length</b> : ${data['smorf_length']} bps</li>
                 <li><b>Start Codon</b> : ${data['start_codon']} </li>
