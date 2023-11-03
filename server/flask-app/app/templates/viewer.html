@@ -23,7 +23,7 @@
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
       <!--Preload scripts-->
       <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
-
+      <script src="{{url_for('static', filename='dist/js/featureviewer.js')}}"></script>
 
       <style type="text/css">
       .select2-container--default .select2-
@@ -75,7 +75,14 @@
       }
       .gnomAD_varText{
          fill:white !important;
-         color:white !important; 
+         color:white !important;
+         visibility: visible !important;
+      }
+
+      .clinvar_varText{
+         fill:white !important;
+         color:white !important;
+         visibility: visible !important;
       }
       </style>
    </head>
