@@ -30,20 +30,19 @@ Also ensure that the interval doesn't go out of bounds for Feature Viewer
 */
 var scInterval = function(
     start,
-    end,
-    start_site,
-    buffer,
-    strand
-) {
-    if (strand == '+') {
+    end) 
+{
+
+    if (strand == '+'){
+    return ({
+        'start' : trackMap[start],
+        'end' :  trackMap[end] <= trackMap[start_site+buffer] ? trackMap[end] : trackMap[start_site+buffer]
+    });
+}
+    else {
         return ({
-            'start': start,
-            'end': Math.min(end - 1, start_site + buffer + 1) + 1
-        });
-    } else {
-        return ({
-            "start": Math.max((start_site + buffer + 1) - end, 1),
-            "end": (start_site + buffer + 1) - start,
+            'start' : trackMap[end]>=0? trackMap[end-1] : trackMap[start_site],
+            'end' : trackMap[start-1]
         });
     }
 }
@@ -81,60 +80,30 @@ var getExonStructure = function(
         /* Find the width of the exon*/
 
         width_exon = element['end'] - element['start'];
-        exon_start = scInterval(new_x, new_x +
-            width_exon, start_site, buffer, strand)['start']
-        exon_end = scInterval(new_x, new_x +
-            width_exon, start_site, buffer, strand)['end'];
+        exon_start = scInterval(new_x, new_x + width_exon)['start']
+        exon_end = scInterval(new_x, new_x + width_exon)['end'];
+
 
         /* Exclude exons that start before the CDS */
         if (exon_end > 0) {
-            /* Trim exon that goes beyond buffer a little bit */
-            if (exon_start < 0) {
-                if (strand == '-') {
-                    output.push({
-                        'x': Math.max(buffer + 0.0001,
-                            exon_start),
-                        'y': Math.min(exon_end + 1,
-                            start_site +
-                            buffer),
-                        color: '#A4AAAC',
-                        description: 'Exon ' + (index + 1),
-                    });
-                } else {
-
-                    output.push({
-                        'x': Math.max(0, exon_start),
-                        'y': Math.min(exon_end, start_site +
-                            buffer),
-                        color: '#A4AAAC',
-                        description: 'Exon ' + (index + 1)
-                    });
-                }
-
-            } else {
-                if (strand == '-') {
-                    output.push({
-                        'x': Math.max(buffer + 0.001,
-                            exon_start),
-                        'y': Math.min(exon_end, start_site +
-                            buffer),
-                        color: '#A4AAAC',
-                        description: 'Exon ' + (index + 1),
-
-                    });
-                } else {
-                    output.push({
-                        'x': Math.max(0, exon_start),
-                        'y': Math.min(exon_end, start_site +
-                            0.999),
-                        color: '#A4AAAC',
-                        description: 'Exon ' + (index + 1),
-
-                    });
-                }
-            }
-
+            if (strand == '+' && exon_start < trackMap[start_site + buffer]) {
+            output.push({
+                'x': exon_start ,
+                'y': trackMap[new_x + width_exon] <= trackMap[start_site+buffer] ? trackMap[new_x + width_exon] : trackMap[start_site],
+                color: '#A4AAAC',
+                description: 'Exon ' + (index + 1)
+            });
         }
+            if (strand == '-') {
+                output.push({
+                    'x': trackMap[new_x + width_exon] < trackMap[start_site] ? trackMap[new_x + width_exon] : trackMap[start_site-10],
+                    'y': trackMap[new_x],
+                    color: '#A4AAAC',
+                    description: 'Exon ' + (index + 1)
+                });
+        
+        }
+            }
         /* Add exon length*/
         new_x = new_x + width_exon + 1;
 
@@ -881,12 +850,10 @@ var createTranscriptViewer = function(
     if (start_site != 0) {
         ft2.addFeature({
             data: [{
-                x: scInterval(start_site + 1,
-                    start_site + buffer + 2, start_site,
-                    buffer, strand)['start'],
+                x: scInterval(start_site+1,
+                    start_site + buffer + 1)['start'],
                 y: scInterval(start_site + 1,
-                    start_site + buffer + 2, start_site,
-                    buffer, strand)['end'],
+                    start_site + buffer + 2)['end'],
                 color: '#58565F',
                 description: "CDS",
                 id: 'cds_rect',
@@ -1176,12 +1143,12 @@ var createTranscriptViewer = function(
             clinvar_variant_ft.addFeature({
                 data: [{
                     x: scInterval(
-                        element['start'] - 1.25, element[
-                            'end'] + 1.1, start_site,
+                        element['start'] - 1, element[
+                            'end'] + 1, start_site,
                         buffer, strand)['start'],
                     y: scInterval(
-                        element['start'] - 1.25, element[
-                            'end'] + 1.1, start_site,
+                        element['start'] - 1, element[
+                            'end'] + 1, start_site,
                         buffer, strand)['end'],
                     id: element.annotation_id
                 }],

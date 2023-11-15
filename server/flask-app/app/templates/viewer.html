@@ -572,6 +572,48 @@
       var smorfs = {{smorfs | safe}};
       var conservation = {{conservation_scores | safe}};
 
+
+      const trackMap = {};
+
+const exons = genomic_features
+  .filter(e => e.type === 'exon')
+  .sort((a, b) => a.exon_number > b.exon_number ? 1 : -1);
+
+const exonsTranscriptCoords = [];
+let newCounter = 1;
+
+exons.forEach(element => {
+  // Calculate the width of each exon
+  const width = element.end - element.start;
+  const start = newCounter;
+  const end = newCounter + width;
+  if (newCounter <= start_site + buffer) {
+    exonsTranscriptCoords.push({
+      start,
+      end,
+      width,
+      exon_number: element.exon_number
+    });
+
+    newCounter += width;
+  }
+});
+
+exonsTranscriptCoords.forEach(element => {
+  for (let i = element.start; i <= element.end+1; i++) {
+    if (strand === '-') {
+      trackMap[i] = (buffer + start_site+40*(exonsTranscriptCoords.length-1)) - i - (40 * (element.exon_number - 1))+1;
+      console.log(i, trackMap[i]);
+    } else {
+      trackMap[i] = i + (40 * (element.exon_number - 1));
+    }
+  }
+});
+
+      
+
+
+
       var viewers = createTranscriptViewer(
          transcript_features,
          transcript_div,
