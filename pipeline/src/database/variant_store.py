@@ -156,8 +156,8 @@ def main(args):
                 clinvar_clnsig varchar,
                 clinvar_review varchar,
                 clinvar_clnrevstat varchar,
-                clinvar_star varchar
-            )""")
+                clinvar_star varchar);
+        """)
         batch_size = 10000
         chunk_iter = pd.read_csv(args.clinvar, sep='\t', chunksize=batch_size)
 
@@ -166,6 +166,16 @@ def main(args):
             conn.commit()
 
     print(f'Completed adding variants to database {args.db_name}')
+
+
+    # Create indexes
+    print(f'Creating indexes')
+    c.execute("""
+        CREATE INDEX idx_variant_annotations ON variant_annotations(ensembl_transcript_id);
+        CREATE INDEX idx_gnomad_variants ON gnomad_variants(ensembl_transcript_id);
+        CREATE INDEX idx_clinvar_variants ON clinvar_variants(ensembl_transcript_id);
+    """)
+    print(f'Completed creating indexes')
 
     conn.close()
 

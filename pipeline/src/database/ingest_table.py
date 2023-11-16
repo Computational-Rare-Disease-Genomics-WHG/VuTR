@@ -3,17 +3,6 @@ Takes a table and ingests it into the sqlite3 database
 
 Usage : python3 ingest_table.py --db_name db.sqlite --all --verbose --overwrite
 
-TODO : Add indexing to this program for example.
-Especially for particularly large tables.
-
-CREATE INDEX idx_genome_to_transcript_coordinates ON
- genome_to_transcript_coordinates(ensembl_transcript_id);
-CREATE INDEX idx_orf ON orf_features(ensembl_transcript_id);
-CREATE INDEX idx_mane_transcript_features ON
-    mane_transcript_features(ensembl_transcript_id);
-CREATE INDEX idx_smorf_locs ON smorf_locations(ensembl_transcript_id);
-CREATE INDEX idx_smorf_feat_iorf ON smorf_features(smorf_iorf_id);
-
 NOTE : Dtype specification issue doesn't work
     either through sqlcol or by manual specification in model.py
 """
