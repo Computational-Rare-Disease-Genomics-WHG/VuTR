@@ -27,12 +27,6 @@ tbl_models = {
 }
 
 """
-from sqlalchemy.types import (
-    VARCHAR,
-    Integer,
-    Float,
-)  # pylint: disable=E0401
-
 # Replace with config/config.yml values
 MANE_VERSION = 1.0
 ENSEMBL_VERSION = 104
