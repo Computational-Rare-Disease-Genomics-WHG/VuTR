@@ -970,6 +970,7 @@ var createTranscriptViewer = function(
 
     // Populate conservation tracks
     conservation.forEach(e => {
+        console.log(e['tpos']);
         const pos = scInterval(e['tpos'], e['tpos'], start_site, buffer, strand)['start'];
 
         phylop.push({
