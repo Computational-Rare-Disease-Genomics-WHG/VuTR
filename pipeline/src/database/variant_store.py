@@ -7,8 +7,12 @@ import argparse
 import os
 import sys
 import json
-import tqdm
-import pandas as pd
+import tqdm  # pylint: disable=import-error
+import pandas as pd  # pylint: disable=import-error
+import multiprocessing
+
+
+
 
 def parse_five_prime_utr_variant_consequence(conseq_str):
     """
@@ -25,22 +29,28 @@ def convert_uploaded_variation_to_variant_id(uploaded_variation):
     """
     return uploaded_variation.replace('_', '-').replace('/', '-')
 
-def process_batch(batch_df, c):
+
+def process_batch(conn, batch_df):
     """
     Processes a batch of variants and their consequences
     """
+    c = conn.cursor()
     rows = []
     for _, row in batch_df.iterrows():
         variant_conseq = row.to_dict()
         rows.append((
             variant_conseq['Feature'],
-            convert_uploaded_variation_to_variant_id(variant_conseq['#Uploaded_variation']),
+            convert_uploaded_variation_to_variant_id(
+                variant_conseq['#Uploaded_variation']
+            ),
             variant_conseq['cDNA_position'],
             variant_conseq['five_prime_UTR_variant_consequence'],
-            json.dumps(parse_five_prime_utr_variant_consequence(variant_conseq['five_prime_UTR_variant_annotation'])),
+            json.dumps(parse_five_prime_utr_variant_consequence(
+                variant_conseq['five_prime_UTR_variant_annotation'])),
             json.dumps(variant_conseq),
         ))
     c.executemany('INSERT INTO variant_annotations VALUES (?, ?, ?, ?, ?, ?)', rows)
+    conn.commit()
 
 
 def process_gnomad_batch(batch_df, c):
@@ -50,17 +60,18 @@ def process_gnomad_batch(batch_df, c):
     rows = []
     for _, row in batch_df.iterrows():
         variant = row.to_dict()
+        chrom = variant['chr'].replace('chr', '')
+        variant_id = f'{chrom}-{variant["pos"]}-{variant["ref"]}-{variant["alt"]}'
         rows.append((
-            variant['variant_id'],
+            variant_id,
             variant['ensembl_transcript_id'],
-            variant['chr'],
+            chrom,
             variant['pos'],
             variant['ref'],
             variant['alt'],
             variant['af'],
             variant['ac'],
-            variant['an'],
-            variant['hgvsc'],
+            variant['an']
         ))
     c.executemany('INSERT INTO gnomad_variants VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', rows)
 
@@ -75,14 +86,14 @@ def process_clinvar_batch(batch_df, c):
         rows.append((
             variant['variant_id'],
             variant['ensembl_transcript_id'],
-            variant['chr'],
+            variant['chrom'],
             variant['pos'],
             variant['ref'],
             variant['alt'],
             variant['clinvar_id'],
-            variant['clinvar_clnsig'],
+            variant['clnsig'],
             variant['clinvar_review'],
-            variant['clinvar_clnrevstat'],
+            variant['clnrevstat'],
             variant['clinvar_star'],
         ))
     c.executemany('INSERT INTO clinvar_variants VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', rows)
@@ -109,19 +120,27 @@ def main(args):
             five_prime_UTR_variant_consequence varchar,
             five_prime_UTR_variant_annotation data,
             annotations data
-        )"""
-    )
-    print(f'Completed creating tables')
+        )""")
+    print('Completed creating tables')
 
-    batch_size = 10000  # Adjust the batch size based on available memory
+    # Set up process pool
+    num_processes = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(processes=num_processes)
+
+    batch_size = 80000  # Adjust the batch size based on available memory
+    conn.execute('BEGIN TRANSACTION')
     chunk_iter = pd.read_csv(args.variant_file, sep='\t', chunksize=batch_size)
+    results = []
+
     for chunk_df in tqdm.tqdm(chunk_iter):
-        process_batch(chunk_df, c)
-        conn.commit()
+        results.append(
+            pool.apply_async(process_batch, (conn, chunk_df))
+        )
+    conn.commit()
 
     # Add gnomAD variants
     if args.gnomad:
-        print(f'Adding gnomAD variants')
+        print('Adding gnomAD variants')
         c.execute("""
             CREATE TABLE IF NOT EXISTS gnomad_variants (
                 variant_id varchar PRIMARY KEY,
@@ -132,8 +151,7 @@ def main(args):
                 alt varchar,
                 af float,
                 ac int,
-                an int,
-                hgvsc varchar
+                an int
             )""")
         batch_size = 10000
         chunk_iter = pd.read_csv(args.gnomad, sep='\t', chunksize=batch_size)
@@ -167,15 +185,14 @@ def main(args):
 
     print(f'Completed adding variants to database {args.db_name}')
 
-
     # Create indexes
-    print(f'Creating indexes')
+    print('Creating indexes')
     c.execute("""
-        CREATE INDEX idx_variant_annotations ON variant_annotations(ensembl_transcript_id);
-        CREATE INDEX idx_gnomad_variants ON gnomad_variants(ensembl_transcript_id);
-        CREATE INDEX idx_clinvar_variants ON clinvar_variants(ensembl_transcript_id);
+CREATE INDEX idx_variant_annotations ON variant_annotations(ensembl_transcript_id);
+CREATE INDEX idx_gnomad_variants ON gnomad_variants(ensembl_transcript_id);
+CREATE INDEX idx_clinvar_variants ON clinvar_variants(ensembl_transcript_id);
     """)
-    print(f'Completed creating indexes')
+    print('Completed creating indexes')
 
     conn.close()
 
@@ -186,8 +203,13 @@ if __name__ == '__main__':
         '--db_name', required=True, type=str,
         help='Output sqlite3 file name and location'
         )
-    parser.add_argument('--variant_file', required=True, type=str, help='The variant tsv file to be ingested')
-    parser.add_argument('--overwrite', action='store_true', help='Overwrite existing database if exists')
+    parser.add_argument(
+        '--variant_file', required=True, type=str, 
+        help='The variant tsv file to be ingested')
+    parser.add_argument(
+        '--overwrite',
+        action='store_true',
+        help='Overwrite existing database if exists')
     parser.add_argument('--verbose', action='store_true', help='Verbose outputs')
     parser.add_argument('--gnomad', type=str, help='gnomAD variants tsv file')
     parser.add_argument('--clinvar', type=str, help='Clinvar variants tsv file')
