@@ -9,19 +9,74 @@ import sys
 import json
 import tqdm  # pylint: disable=import-error
 import pandas as pd  # pylint: disable=import-error
-import multiprocessing
+from concurrent.futures import ThreadPoolExecutor
 
 
+CLINVAR_TABLE_SQL_QUERY = """
+    CREATE TABLE IF NOT EXISTS clinvar_variants (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        variant_id VARCHAR,
+        chr VARCHAR,
+        pos INTEGER,
+        ref VARCHAR,
+        alt VARCHAR,
+        clinvar_id VARCHAR,
+        alleleid VARCHAR,
+        clndn VARCHAR,
+        clndnincl VARCHAR,
+        clndisdb VARCHAR,
+        clndisdbincl VARCHAR,
+        clnhgvs VARCHAR,
+        clnrevstat VARCHAR,
+        clnsig VARCHAR,
+        clnsigconf VARCHAR,
+        clnsigincl VARCHAR,
+        clnvc VARCHAR,
+        clnvco VARCHAR,
+        clnvi VARCHAR,
+        dbvarid VARCHAR,
+        geneinfo VARCHAR,
+        mc VARCHAR,
+        origin VARCHAR,
+        rs VARCHAR,
+        ensembl_transcript_id VARCHAR
+);
+"""
 
+GNOMAD_TABLE_SQL_QUERY = """
+    CREATE TABLE IF NOT EXISTS gnomad_variants (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        variant_id VARCHAR,
+        chr VARCHAR,
+        pos INTEGER,
+        ref VARCHAR,
+        alt VARCHAR,
+        rsid VARCHAR,
+        ac INTEGER,
+        an INTEGER,
+        af REAL,
+        variant_type VARCHAR,
+        ensembl_transcript_id VARCHAR
+    );
+"""
+
+VARIANT_ANNOTATION_SQL_QUERY = """
+    CREATE TABLE IF NOT EXISTS variant_annotations (
+        ensembl_transcript_id varchar,
+        variant_id varchar,
+        cdna_pos int,
+        dataset varchar,
+        five_prime_UTR_variant_consequence varchar,
+        five_prime_UTR_variant_annotation data,
+        annotations data
+    );
+"""
 
 def parse_five_prime_utr_variant_consequence(conseq_str):
     """
     Parses the five_prime_UTR_variant_consequence column into a dictionary
     """
-    return {
-        annotation.split(':')[0]: annotation.split(':')[1]
-        for annotation in conseq_str.split(',')
-    }
+    return {annotation.split(':')[0]: annotation.split(':')[1] for annotation in conseq_str.split(',')}
 
 def convert_uploaded_variation_to_variant_id(uploaded_variation):
     """
@@ -30,74 +85,87 @@ def convert_uploaded_variation_to_variant_id(uploaded_variation):
     return uploaded_variation.replace('_', '-').replace('/', '-')
 
 
-def process_batch(conn, batch_df):
+def variant_annotations_db_writer(db_conn, rows):
+    """
+    Writes the rows to the database for simulated
+    """
+    query = """
+        INSERT INTO variant_annotations (
+            ensembl_transcript_id, variant_id, cdna_pos,
+            five_prime_UTR_variant_consequence,
+            five_prime_UTR_variant_annotation, annotations, dataset
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    """
+    c = db_conn.cursor()
+    c.executemany(query, rows)
+
+def process_batch(batch_df, dataset):
     """
     Processes a batch of variants and their consequences
     """
-    c = conn.cursor()
     rows = []
+    convert_variant_id = convert_uploaded_variation_to_variant_id
+    parse_consequence = parse_five_prime_utr_variant_consequence
+
     for _, row in batch_df.iterrows():
         variant_conseq = row.to_dict()
-        rows.append((
-            variant_conseq['Feature'],
-            convert_uploaded_variation_to_variant_id(
-                variant_conseq['#Uploaded_variation']
-            ),
-            variant_conseq['cDNA_position'],
-            variant_conseq['five_prime_UTR_variant_consequence'],
-            json.dumps(parse_five_prime_utr_variant_consequence(
-                variant_conseq['five_prime_UTR_variant_annotation'])),
-            json.dumps(variant_conseq),
-        ))
-    c.executemany('INSERT INTO variant_annotations VALUES (?, ?, ?, ?, ?, ?)', rows)
-    conn.commit()
-
+        feature = variant_conseq['Feature']
+        uploaded_variation = convert_variant_id(variant_conseq['#Uploaded_variation'])
+        cDNA_position = variant_conseq['cDNA_position']
+        five_prime_UTR_variant_consequence = variant_conseq['five_prime_UTR_variant_consequence']
+        utr_variant_annotation = parse_consequence(variant_conseq['five_prime_UTR_variant_annotation'])
+        variant_conseq_json = json.dumps(variant_conseq)
+        rows.append((feature, uploaded_variation, cDNA_position, five_prime_UTR_variant_consequence, json.dumps(utr_variant_annotation), variant_conseq_json, dataset))
+    return rows
+    
 
 def process_gnomad_batch(batch_df, c):
     """
     Processes a batch of gnomAD variants
     """
-    rows = []
-    for _, row in batch_df.iterrows():
-        variant = row.to_dict()
-        chrom = variant['chr'].replace('chr', '')
-        variant_id = f'{chrom}-{variant["pos"]}-{variant["ref"]}-{variant["alt"]}'
-        rows.append((
-            variant_id,
-            variant['ensembl_transcript_id'],
-            chrom,
-            variant['pos'],
-            variant['ref'],
-            variant['alt'],
-            variant['af'],
-            variant['ac'],
-            variant['an']
-        ))
-    c.executemany('INSERT INTO gnomad_variants VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', rows)
+    rows = [tuple(row) for row in batch_df[[
+        'variant_id', 'chr','pos', 'ref', 'alt', 'rsid', 'ac', 'an', 'af', 'variant_type',
+        'transcript_id'
+    ]].to_records(index=False)]
+
+    # Using parameterized SQL to avoid SQL injection
+    c.executemany(
+        '''
+        INSERT INTO gnomad_variants (
+            variant_id, chr, pos,
+            ref, alt, rsid, ac, an, af,
+            variant_type, ensembl_transcript_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''',
+        rows
+    )
 
 
 def process_clinvar_batch(batch_df, c):
     """
     Processes a batch of clinvar variants
     """
-    rows = []
-    for _, row in batch_df.iterrows():
-        variant = row.to_dict()
-        rows.append((
-            variant['variant_id'],
-            variant['ensembl_transcript_id'],
-            variant['chrom'],
-            variant['pos'],
-            variant['ref'],
-            variant['alt'],
-            variant['clinvar_id'],
-            variant['clnsig'],
-            variant['clinvar_review'],
-            variant['clnrevstat'],
-            variant['clinvar_star'],
-        ))
-    c.executemany('INSERT INTO clinvar_variants VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', rows)
+    rows = [tuple(row) for row in batch_df[[
+        'variant_id', 'chr', 'pos', 'ref', 'alt', 'clinvar_id', 'alleleid', 'clndn',
+        'clndnincl', 'clndisdb', 'clndisdbincl', 'clnhgvs', 'clnrevstat', 'clnsig',
+        'clnsigconf', 'clnsigincl', 'clnvc', 'clnvco', 'clnvi', 'dbvarid',
+        'geneinfo', 'mc', 'origin', 'rs', 'transcript_id'
+    ]].to_records(index=False)]
 
+    # Using parameterized SQL to avoid SQL injection
+    c.executemany(
+        '''
+        INSERT INTO clinvar_variants (
+            variant_id, chr, pos, ref,
+            alt, clinvar_id, alleleid, clndn,
+            clndnincl, clndisdb, clndisdbincl, clnhgvs,
+            clnrevstat, clnsig, clnsigconf, clnsigincl,
+            clnvc, clnvco, clnvi, dbvarid,
+            geneinfo, mc, origin, rs, ensembl_transcript_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''',
+        rows
+    )
 
 def main(args):
     """
@@ -107,94 +175,58 @@ def main(args):
         print(f'Database already exists at {args.db_name}')
         sys.exit(0)
 
-    conn = sqlite3.connect(args.db_name)
-    conn.execute('PRAGMA journal_mode = WAL')  # Enable WAL mode
-    c = conn.cursor()
+    with sqlite3.connect(args.db_name) as conn:
+        conn.execute('PRAGMA journal_mode = WAL')  # Enable WAL mode
+        conn.execute('PRAGMA synchronous = OFF')  # Disable synchronous mode
+        conn.execute('PRAGMA locking_mode=EXCLUSIVE')
+        conn.execute('PRAGMA mmap_size=30000000000')
+        c = conn.cursor()
 
-    print(f'Creating table variant table in database {args.db_name}')
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS variant_annotations (
-            ensembl_transcript_id varchar,
-            variant_id varchar,
-            cdna_pos int,
-            five_prime_UTR_variant_consequence varchar,
-            five_prime_UTR_variant_annotation data,
-            annotations data
-        )""")
-    print('Completed creating tables')
+        # Add clinvar variants
+        if args.clinvar:
+            print(f'Adding clinvar variants schema to database {args.db_name}')
+            c.execute(CLINVAR_TABLE_SQL_QUERY)
+            process_clinvar_batch(pd.read_csv(args.clinvar, sep='\t'), c)
 
-    # Set up process pool
-    num_processes = multiprocessing.cpu_count()
-    pool = multiprocessing.Pool(processes=num_processes)
 
-    batch_size = 80000  # Adjust the batch size based on available memory
-    conn.execute('BEGIN TRANSACTION')
-    chunk_iter = pd.read_csv(args.variant_file, sep='\t', chunksize=batch_size)
-    results = []
+        # Add gnomAD variants
+        if args.gnomad:
+            print('Adding gnomAD variants')
+            c.execute(GNOMAD_TABLE_SQL_QUERY)
+            batch_size = 10000
+            chunk_iter = pd.read_csv(args.gnomad, sep='\t', chunksize=batch_size)
+            for chunk_df in tqdm.tqdm(chunk_iter):
+                process_gnomad_batch(chunk_df, c)
 
-    for chunk_df in tqdm.tqdm(chunk_iter):
-        results.append(
-            pool.apply_async(process_batch, (conn, chunk_df))
-        )
-    conn.commit()
 
-    # Add gnomAD variants
-    if args.gnomad:
-        print('Adding gnomAD variants')
-        c.execute("""
-            CREATE TABLE IF NOT EXISTS gnomad_variants (
-                variant_id varchar PRIMARY KEY,
-                ensembl_transcript_id varchar,
-                chr varchar,
-                pos int,
-                ref varchar,
-                alt varchar,
-                af float,
-                ac int,
-                an int
-            )""")
-        batch_size = 10000
-        chunk_iter = pd.read_csv(args.gnomad, sep='\t', chunksize=batch_size)
-        for chunk_df in tqdm.tqdm(chunk_iter):
-            process_gnomad_batch(chunk_df, c)
-            conn.commit()
-    
-    # Add clinvar variants
-    if args.clinvar:
-        print(f'Adding clinvar variants')
-        c.execute("""
-            CREATE TABLE IF NOT EXISTS clinvar_variants (
-                variant_id varchar PRIMARY KEY,
-                ensembl_transcript_id varchar,
-                chr varchar,
-                pos int,
-                ref varchar,
-                alt varchar,
-                clinvar_id varchar,
-                clinvar_clnsig varchar,
-                clinvar_review varchar,
-                clinvar_clnrevstat varchar,
-                clinvar_star varchar);
-        """)
-        batch_size = 10000
-        chunk_iter = pd.read_csv(args.clinvar, sep='\t', chunksize=batch_size)
+        print(f'Creating table variant table in database {args.db_name}')
+        c.execute(VARIANT_ANNOTATION_SQL_QUERY)
 
-        for chunk_df in tqdm.tqdm(chunk_iter):
-            process_clinvar_batch(chunk_df, c)
-            conn.commit()
+        # Add high impact variants
+        print('Adding high impact variants')
+        clinvar_rows = process_batch(pd.read_csv(args.clinvar_himpact, sep='\t'), 'clinvar')
+        gnomad_rows = process_batch(pd.read_csv(args.gnomad_himpact, sep='\t'), 'gnomad')
+        variant_annotations_db_writer(conn, clinvar_rows+gnomad_rows)
 
-    print(f'Completed adding variants to database {args.db_name}')
+        # Add simulated variants
+        batch_size = 5000  # Adjust the batch size based on available memory
+        chunk_iter = pd.read_csv(args.variant_file, sep='\t', chunksize=batch_size)
+        
+        for chunk in tqdm.tqdm(chunk_iter):
+            rows = process_batch(chunk, 'simulated')
+            variant_annotations_db_writer(conn, rows)
+        
+        # Commit the transaction after all processes have completed
+        print(f'Completed adding variants to database {args.db_name}')
 
-    # Create indexes
-    print('Creating indexes')
-    c.execute("""
-CREATE INDEX idx_variant_annotations ON variant_annotations(ensembl_transcript_id);
-CREATE INDEX idx_gnomad_variants ON gnomad_variants(ensembl_transcript_id);
-CREATE INDEX idx_clinvar_variants ON clinvar_variants(ensembl_transcript_id);
-    """)
-    print('Completed creating indexes')
+        # Create indexes
+        print('Creating indexes')
+        c.execute('CREATE INDEX idx_variant_annotations ON variant_annotations(ensembl_transcript_id);')
+        c.execute('CREATE INDEX idx_gnomad_variants ON gnomad_variants(ensembl_transcript_id);')
+        c.execute('CREATE INDEX idx_clinvar_variants ON clinvar_variants(ensembl_transcript_id);')
 
-    conn.close()
+        print('Completed creating indexes')
+        conn.commit()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -211,6 +243,9 @@ if __name__ == '__main__':
         action='store_true',
         help='Overwrite existing database if exists')
     parser.add_argument('--verbose', action='store_true', help='Verbose outputs')
-    parser.add_argument('--gnomad', type=str, help='gnomAD variants tsv file')
-    parser.add_argument('--clinvar', type=str, help='Clinvar variants tsv file')
+    parser.add_argument('--gnomad', type=str, help='gnomAD UTR variants file')
+    parser.add_argument('--clinvar', type=str, help='Clinvar UTR variants tsv file')
+    parser.add_argument('--gnomad-himpact', type=str, help='gnomAD high impact variants file')
+    parser.add_argument('--clinvar-himpact', type=str, help='Clinvar high impact variants file')
+
     main(args=parser.parse_args())
