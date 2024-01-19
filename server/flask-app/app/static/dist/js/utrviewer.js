@@ -215,6 +215,11 @@ On click event handlers to open the modal details
 */
 var openModal = function(data, type) {
 
+    
+    if (data.length == 1){
+        data = data[0]
+    }
+
     /// Type is the data_type of the detail presented
 
     // Clear previous modal
