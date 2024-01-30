@@ -1,6 +1,8 @@
 
-# VuTR : Visualising the impact of 5' UTR Variants 
+<img src='https://vutr.rarediseasegenomics.org/static/dna.png' width='200'>
 
+
+# VuTR : Visualising the impact of 5' UTR Variants 
 
 ![CI Build](https://github.com/Computational-Rare-Disease-Genomics-WHG/VuTR/actions/workflows/tests.yaml/badge.svg)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/Computational-Rare-Disease-Genomics-WHG/VuTR/issues)
