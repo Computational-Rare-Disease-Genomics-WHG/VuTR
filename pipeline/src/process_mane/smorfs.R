@@ -12,7 +12,8 @@ library("logger")
 
 option_list <- list(
   make_option(
-    c("-m", "--mane_tsv"),
+    c("-m", "--mane-file"),
+    dest = "mane_file",
     type = "character",
     help = "Mane GFF file (as TSV)",
     metavar = "character"
@@ -30,7 +31,8 @@ option_list <- list(
     metavar = "character"
   ),
   make_option(
-    c("-o", "--output_file"),
+    c("-o", "--output-file"),
+    dest = "output_file",
     type = "character",
     help = "Output file name (should end in .tsv)",
     metavar = "character"
