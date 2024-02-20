@@ -2,7 +2,6 @@ version: "3.7"
 services:
   app:
     build: flask-app
-    hostname: vutr
     hostname: VuTR
     container_name: VuTR
     restart: unless-stopped  
