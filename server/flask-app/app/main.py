@@ -107,7 +107,6 @@ def changelog():
     """Change Log"""
     return render_template('changelog.html')
 
-
 @main.route('/health')
 def health():
     """Health check"""
