@@ -910,12 +910,12 @@ var createTranscriptViewer = function(
             smorf_data = [];
             smorf.forEach(e => smorf_data.push({
                 x: scInterval(
-                    e.transcript_start-1, e.transcript_end +
+                    e.transcript_start+1, e.transcript_end +
                     1,
                     start_site, buffer, strand
                 )['start'],
                 y: scInterval(
-                    e.transcript_start-1, e.transcript_end +
+                    e.transcript_start+1, e.transcript_end +
                     1,
                     start_site, buffer, strand
                 )['end'],
