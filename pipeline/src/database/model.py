@@ -208,7 +208,11 @@ tbl_models = {
             'transcript_id': 'ensembl_transcript_id',
             'transcript_start': 'transcript_start',
             'transcript_end': 'transcript_end',
-        }
+            'context': 'context',
+            'kozak_context': 'kozak_context',
+            'kozak_consensus_strength': 'kozak_consensus_strength',
+            'efficiency': 'efficiency',
+    }
         ,
         'remove_ensembl_id_version_numbers': True,
         'ensembl_ids': ['ensembl_transcript_id'],

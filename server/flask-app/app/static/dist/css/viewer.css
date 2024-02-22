@@ -1,0 +1,69 @@
+.select2-container--default .select2-
+      selection--multiple .select2-selection__choice {
+         background-color: #007bff;
+         border-color: #006fe6;
+      }
+
+#fcds_rect + .exon_structText{
+    color:white !important;
+    fill:white !important;
+}
+
+#gradient-legend{
+    background: linear-gradient(to right, white, #006fe6);
+    border-color: black;
+    height: 15px;
+    width: 40px;
+    display:inline-block;
+    border-width: 1.5px;
+    border-radius: 400px;
+    border-style: solid;
+    
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+a {
+    font-family: 'Roboto';
+    font-weight: 400;
+}
+
+#chart {
+    color: #1b1e23;
+    font-size: small;
+    font-family: sans-serif;
+    height: calc(100vh - 2em);
+    margin: 1em;
+    display: flex;
+}
+
+#chart>* {
+    flex: auto;
+}
+
+.domain,
+.gridline-y,
+.gridline-x,
+.annotation-line>line {
+    stroke: currentColor;
+    stroke-opacity: 0.1;
+}
+.tooltip2, .tooltip3{
+    display:none;
+}
+.gnomAD_varText{
+    fill:white !important;
+    color:white !important;
+    visibility: visible !important;
+}
+
+.clinvar_varText{
+    fill:white !important;
+    color:white !important;
+    visibility: visible !important;
+}

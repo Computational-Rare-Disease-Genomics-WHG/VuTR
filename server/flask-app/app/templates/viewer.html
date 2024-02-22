@@ -21,70 +21,16 @@
       <link rel="stylesheet" href="{{url_for('static', filename = 'dist/css/adminlte.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/select2/css/select2.min.css')}}">
       <link rel="stylesheet" href="{{url_for('static', filename = 'plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
+      <link rel="stylesheet" href="{{url_for('static', filename = 'dist/css/viewer.css')}}">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intro.js@7.2.0/minified/introjs.min.css">
+
       <!--Preload scripts-->
       <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
-      <script src="{{url_for('static', filename='dist/js/featureviewer.js')}}"></script>
-
-      <style type="text/css">
-      .select2-container--default .select2-
-      selection--multiple .select2-selection__choice {
-         background-color: #007bff;
-         border-color: #006fe6;
-      }
-      .gene_structText{
-      }
-      #fcds_rect + .exon_structText{
-         color:white !important;
-         fill:white !important;
-      }
-
-      p,
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6,
-      a {
-         font-family: 'Roboto';
-         font-weight: 400;
-      }
-
-      #chart {
-         color: #1b1e23;
-         font-size: small;
-         font-family: sans-serif;
-         height: calc(100vh - 2em);
-         margin: 1em;
-         display: flex;
-      }
-
-      #chart>* {
-         flex: auto;
-      }
-
-      .domain,
-      .gridline-y,
-      .gridline-x,
-      .annotation-line>line {
-         stroke: currentColor;
-         stroke-opacity: 0.1;
-      }
-      .tooltip2, .tooltip3{
-         display:none;
-      }
-      .gnomAD_varText{
-         fill:white !important;
-         color:white !important;
-         visibility: visible !important;
-      }
-
-      .clinvar_varText{
-         fill:white !important;
-         color:white !important;
-         visibility: visible !important;
-      }
-      </style>
+      <script src="https://cdn.jsdelivr.net/npm/intro.js@7.2.0/intro.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/intro.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@floating-ui/core@1.6.0"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.3"></script>
+      
    </head>
    <body class="hold-transition layout-top-nav" id="main-content" >
       <div class="wrapper">
@@ -105,7 +51,7 @@
                   <a href="mailto:nwhiffin@well.ox.ac.uk" class="nav-link">Contact</a>
                </li>
                <li class="nav-item d-none d-sm-inline-block">
-                  <a href="#" class="nav-link">Changelog</a>
+                  <a href="{{url_for('main.changelog')}}" class="nav-link">Changelog</a>
                </li>
             </ul>
             <form class="form-inline ml-8 ml-md-10" action="/gene_search" method="post">
@@ -122,6 +68,9 @@
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
                <!-- Navbar Search -->
+               <li class="nav-item">
+                  <a href="#" id="tutorial-btn" class="nav-link">Tutorial</a>
+               </li>
                <li class="nav-item">
                   <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                   <i class="fas fa-expand-arrows-alt"></i>
@@ -179,7 +128,7 @@
                               </div>
                            </div>
                            <!-- /.card-header -->
-                           <div class="card-body">
+                           <div data-title="Welcome to the VuTR Tutorial! 👋" data-intro="Here you can see the various different entities and summary statistics regarding {{hgnc}}'s 5' UTR"  class="card-body">
                               <div class="row">
                                  <div class=" col-lg-6 border-0">
                                     <div class="card-body">
@@ -199,7 +148,7 @@
                                        {% endif %}
                                     </div>
                                  </div>
-                                 <div class = "col-lg-6 border-0 px-1">
+                                 <div class = "col-lg-6 border-0 px-1" >
                                     <div class="card-body">
                                        <h6><b>5' UTR exon count</b>:{{five_prime_utr_stats["num_five_prime_utr_exons"]}}</h6>
                                        <h6><b>5' UTR length</b>: {{five_prime_utr_stats["five_prime_utr_length"]}}</h6>
@@ -231,7 +180,7 @@
             </section>
             <section class="content">
                <div class="container-fluid">
-                  <div class="row">
+                  <div class="row" data-title ="How to use the 5' UTR Viewer" data-intro="The 5' UTR viewer looks at various different uAUGs that can cause translation">
                      <section class="col-lg-12">
                         <div class="card">
                            <div class="card-header bg-light">
@@ -243,7 +192,7 @@
                               </h3>
 
                               <div class="card-tools">
-                                 <button onclick="$('#archmodal').modal()" type="button" id="dtype-creator-btn" class="btn btn-block btn-light">
+                                 <button onclick="$('#archmodal').modal()" type="button" class="btn btn-block btn-light">
                                  <i class="fas fa-question-circle"></i>
                                  </button>
                               </div>
@@ -253,7 +202,7 @@
 
 
                               <div class="upstream_box">
-                              <div class="row">
+                              <div class="row" >
                                  <div class="col-12">
                                  <h5 class="text-left"><strong>5' UTR elements</strong></h6>
                               </div>
@@ -263,32 +212,41 @@
                                     <div class="col-3">
                                     <h6 class="text-left"><strong>Kozak Consensus Strength</strong></h6>
                                     </div>
-                                    <div class="col-3">
+                                    <div class="col-2">
                                          <div class="">
                                           <i class="nav-icon fas fa-circle" style="color:#E69F00"></i>
                                            <span class="">Strong</span>
                                        </div>
                                      </div>
 
-                                     <div class="col-3">
+                                     <div class="col-2">
 
                                          <div class="">
                                           <i class="nav-icon fas fa-circle" style="color:#56B4E9"></i>
                                            <span class="">Moderate</span>
                                        </div>
                                      </div>
-                                     <div class="col-3">
+                                     <div class="col-2">
 
                                          <div class="">
                                           <i class="nav-icon fas fa-circle" style="color: #999999"></i>
                                            <span class="">Weak</span>
                                        </div>
                                      </div>
+                                     <div class="col-2">
+
+                                       <div class="">
+                                        <i class="nav-icon fas fa-circle" style="color: #111111"></i>
+                                         <span class="">Non-ATG start</span>
+                                     </div>
+                                   </div>
+
 
                                     </div>
 
                               </div>
-                              <div id = "transcript_viewer">
+                             
+                              <div id = "transcript_viewer" data-title = "Using the VuTR" data-intro="Click on uORF if available to learn more about the uORF. Select a region using your mouse to zoom and double click to return back to the full view.">
                               </div>
                               </div>
                          
@@ -302,45 +260,41 @@
                                  </div>
                               </div>
                               <div class="clinvar_box ">
-
                                  <div class="row">
                                     <div class="col-12">
                                        <h5 class="text-left"><strong>ClinVar Variants</strong></h6>
-
-                                    </div>
+                                          <div class="callout">
+                                             <div class = "row">
+                                                <div class="col-3">
+                                                   <h6 class="text-left"><strong>Pathogenicity</strong></h6>
+                                                </div>
+         
+                                                <div class="col-3">
+                                                   <div class="">
+                                                    <i class="nav-icon fas fa-circle" style="color:#D55E00"></i>
+                                                     <span class="">Pathogenic / LP</span>
+                                                 </div>
+                                               </div>
+            
+                                               <div class="col-3">
+            
+                                                   <div class="">
+                                                    <i class="nav-icon fas fa-circle" style="color:#009E73"></i>
+                                                     <span class="">Benign / LB</span>
+                                                 </div>
+                                               </div>
+                                               <div class="col-3">
+            
+                                                   <div class="">
+                                                    <i class="nav-icon fas fa-circle" style="color:#CC79A7"></i>
+                                                     <span class="">Conflicting / Uncertain </span>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                             </div>
+         
+                                          
                                  </div>
-                                 <div class="callout">
-                                    <div class = "row">
-                                       <div class="col-3">
-                                          <h6 class="text-left"><strong>Pathogenicity</strong></h6>
-                                       </div>
-
-                                       <div class="col-3">
-                                          <div class="">
-                                           <i class="nav-icon fas fa-circle" style="color:#D55E00"></i>
-                                            <span class="">Pathogenic / LP</span>
-                                        </div>
-                                      </div>
-   
-                                      <div class="col-3">
-   
-                                          <div class="">
-                                           <i class="nav-icon fas fa-circle" style="color:#009E73"></i>
-                                            <span class="">Benign / LB</span>
-                                        </div>
-                                      </div>
-                                      <div class="col-3">
-   
-                                          <div class="">
-                                           <i class="nav-icon fas fa-circle" style="color:#CC79A7"></i>
-                                            <span class="">Conflicting / Uncertain </span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    </div>
-
-                                 
-
                                  </div>
                               <div id = "clinvar_tracks">
                               </div>
@@ -372,11 +326,10 @@
       <!-- /.content-wrapper -->
       <footer class="main-footer mx-auto">
          <div class="row mx-auto">
-            <strong class="mx-auto">Copyright &copy; <script>document.write(new Date().getFullYear());</script> <a href="https://rarediseasegenomics.org/">Computational Rare Disease Genomics</a></strong>.
+            <strong class="mx-auto">VuTR version 1.0 | Copyright &copy; <script>document.write(new Date().getFullYear());</script> <a href="https://rarediseasegenomics.org/">Computational Rare Disease Genomics</a></strong>
+
          </div>
-         <div class="float-right d-none d-sm-inline-block">
-            <b>VuTR</b> version 1.0
-         </div>
+
       </footer>
       <!-- Control Sidebar -->
       <aside class="control-sidebar control-sidebar-dark">
@@ -386,8 +339,11 @@
 
 
 
+      <div id="modal-container"></div>
 
-      <div id="modal-container">
+
+
+      <div id="help-modals">
 
          <div class="modal fade " id="archmodal" tabindex="-1" role="dialog" aria-labelledby="modaltitle" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
@@ -447,7 +403,7 @@
             tabindex="1" 
             role="dialog" 
             aria-labelledby="helpArch" 
-            aria-hidden="true">
+            aria-hidden="false">
 
 
             <div class="modal-dialog " role="document">
@@ -503,16 +459,23 @@
       <script src="{{url_for('static', filename = 'plugins/chart.js/Chart.min.js')}}"></script>
       <!-- AdminLTE App -->
       <script src="{{url_for('static', filename = 'dist/js/adminlte.js')}}"></script>
-      <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-      <script src="{{url_for('static', filename = 'dist/js/pages/dashboard.js')}}"></script>
       <script src="{{url_for('static', filename = 'plugins/select2/js/select2.full.min.js')}}"></script>
-
+      <script src="{{url_for('static', filename='dist/js/featureviewer.js')}}"></script>
       <!--UTR Visualization-->
       <script src="{{url_for('static', filename ='dist/js/constants.js')}}"></script>
       <script src="{{url_for('static', filename ='dist/js/utrviewer.js')}}"></script>
 
       <!--Custom Scripts-->
       <script type="text/javascript">
+
+      // Tutorial
+      $('#tutorial-btn').click(function (){
+         console.log("Hi")
+         introJs().start();
+         introJs().addHints();
+
+
+      });
       
       // Dynamic input search 
       var search_url = " {{search_url|safe}}";
@@ -539,9 +502,7 @@
                   results: response['data']
                };
          }
-
-
-            },
+      },
          cache: true
          }
       });
@@ -635,6 +596,7 @@
       // Use double click to reset zoom.
       $('#transcript_viewer').dblclick(
          function(d){
+            console.log(arch_ft);
             arch_ft.resetZoom();
             gnomad_ft.resetZoom();
             clinvar_ft.resetZoom();
@@ -674,10 +636,6 @@
             dataType: 'json'
          });
       });
-
-
-
-
       </script>
    </body>
 </html>

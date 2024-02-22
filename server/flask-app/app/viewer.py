@@ -194,7 +194,7 @@ def get_utr_impacts():
                 "intervals": intervals,
             },
         }
-
+        print(response_object)
         return jsonify(response_object), 200
 
     except SQLiteError as error:
