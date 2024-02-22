@@ -47,7 +47,6 @@ smorf_file <- opt$smorf
 genome_transcript_fn <- opt$g2tcoord
 output_file_fn <- opt$output_file
 
-
 log_info("Reading files")
 smorfs <- fread(smorf_file, sep="\t")
 mane <- fread(mane_file, sep="\t")
@@ -100,7 +99,6 @@ setkey(smorfs, id)
 log_info("Filtering")
 # Filter down to five prime UTRs
 mane %<>% .[type == "five_prime_UTR"]
-mane %<>% .[tag == "MANE_Select"]
 mane %<>% .[, .(seqid, start, end, strand, transcript_id)]
 setkey(mane, start, end)
 
