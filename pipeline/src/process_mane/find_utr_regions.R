@@ -15,8 +15,9 @@ library("optparse")
 
 option_list <- list(
   make_option(
-    c("-m", "--mane_tsv"),
+    c("-m", "--mane-tsv"),
     type = "character",
+    dest = "mane_tsv",
     help = "Mane GFF file (as TSV)",
     metavar = "character"
   ),
@@ -28,7 +29,7 @@ option_list <- list(
     metavar = "character"
   ),
   make_option(
-    c("-o", "--output_file"),
+    c("-o", "--output-file"),
     dest = "output_file",
     type = "character",
     help = "Output file name (should end in .tsv)",

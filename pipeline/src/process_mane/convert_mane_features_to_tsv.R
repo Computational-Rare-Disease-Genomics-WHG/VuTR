@@ -10,16 +10,18 @@ library("magrittr")
 library("optparse")
 
 option_list <- list(
-    make_option(c("-m", "--mane_gff"),
+    make_option(c("-m", "--mane-gff"),
         type = "character",
+        dest = "mane_gff",
         help = "dataset file name (should be .gff)", 
         metavar = "character"
     ),
-    make_option(c("-o", "--output_file"),
+    make_option(c("-o", "--output-file"),
+        dest = "output_file",
         type = "character",
         help = "Output file name (should end in .tsv)", 
         metavar = "character"
-    ),
+    )
 )
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)

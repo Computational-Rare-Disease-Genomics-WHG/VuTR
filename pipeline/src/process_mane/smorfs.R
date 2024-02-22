@@ -42,50 +42,51 @@ opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
 # Parse command line options
-mane_file <- opt$mane_tsv
+mane_file <- opt$mane_file
 smorf_file <- opt$smorf
 genome_transcript_fn <- opt$g2tcoord
 output_file_fn <- opt$output_file
 
 
 log_info("Reading files")
-smorfs <- fread(smorf_file)
-mane <- fread(mane_file)
-tmap <- fread(genome_transcript_fn)
-
+smorfs <- fread(smorf_file, sep="\t")
+mane <- fread(mane_file, sep="\t")
+tmap <- fread(genome_transcript_fn, sep="\t")
 
 # Renaming headers
-names(smorfs) <- c("chr",
-                   "start",
-                   "end",
-                   "smorf_id",
-                   "score",
-                   "strand",
-                   "thick_start",
-                   "thick_end",
-                   "item_rgb",
-                   "block_count",
-                   "block_sizes",
-                   "block_starts",
-                   "aa_seq",
-                   "start_codon",
-                   "smorf_names",
-                   "smorf_datasets",
-                   "dataset_count",
-                   "name",
-                   "cluster",
-                   "filtering",
-                   "confidence",
-                   "type",
-                   "alternate_types",
-                   "tx_id",
-                   "gene_name",
-                   "gene_id",
-                   "alternate_transcripts",
-                   "alternate_gene_ids",
-                   "alternate_gene_transcripts",
-                   "smorf_length",
-                   "isoform_count") # nolint
+names(smorfs) <- c(
+  "chr",
+  "start",
+  "end",
+  "smorf_id",
+  "score",
+  "strand",
+  "thick_start",
+  "thick_end",
+  "item_rgb",
+  "block_count",
+  "block_sizes",
+  "block_starts",
+  "aa_seq",
+  "start_codon",
+  "smorf_names",
+  "smorf_datasets",
+  "dataset_count",
+  "name",
+  "cluster",
+  "filtering",
+  "confidence",
+  "type",
+  "alternate_types",
+  "tx_id",
+  "gene_name",
+  "gene_id",
+  "alternate_transcripts",
+  "alternate_gene_ids",
+  "alternate_gene_transcripts",
+  "smorf_length",
+  "isoform_count"
+) # nolint
 
 all_chrs <- paste0("chr", c(1:22, "X", "Y"))
 
@@ -103,15 +104,21 @@ mane %<>% .[tag == "MANE_Select"]
 mane %<>% .[, .(seqid, start, end, strand, transcript_id)]
 setkey(mane, start, end)
 
+# Convert smorf 0-based to 1-based coordinates bedFile
+# to match the mane coordinates
+# which are 1-based
 
-# Find all smorfs that lie within
-# MANE exons
+smorfs[, start :=  start + 1]
+
+# Find all smorfs that lie within the mane coordinates
 output <- smorfs[, {
-  mane[seqid == .SD$chr &
-         strand == .SD$strand &
-         start <= .SD$start  &
-         .SD$end <= end][, .(transcript_id)]
+  mane[
+    seqid == .SD$chr &
+    strand == .SD$strand &
+    start <= .SD$start  &
+    .SD$end <= end][, .(transcript_id)]
 }, by = id]
+
 
 setkey(output, id)
 
@@ -127,17 +134,24 @@ setkey(annotated_output, transcript_id, genome_start)
 
 # Convert to transcript relative coordinates
 annotated_output[, transcript_start :=
-                   tmap[.(transcript_id = annotated_output$transcript_id,
-                          gpos = annotated_output$genome_start), .(tpos)]]
+  tmap[.(transcript_id = annotated_output$transcript_id,
+  gpos = annotated_output$genome_start), .(tpos)]
+]
 
 annotated_output[, transcript_end :=
-                   tmap[.(transcript_id = annotated_output$transcript_id,
-                          gpos = annotated_output$genome_end), .(tpos)]]
+  tmap[.(transcript_id = annotated_output$transcript_id,
+  gpos = annotated_output$genome_end), .(tpos)]
+]
 
 # Swap for reverse strand
-annotated_output[strand == "-", `:=` (transcript_start = transcript_end,
-                                      transcript_end = transcript_start)]
+annotated_output[strand == "-", `:=` (
+  transcript_start = transcript_end,
+  transcript_end = transcript_start
+)]
+
 log_info("Writing output")
-fwrite(annotated_output,
-       output_file_fn,
-       sep = "\t")
+fwrite(
+  annotated_output,
+  output_file_fn,
+  sep = "\t"
+)
