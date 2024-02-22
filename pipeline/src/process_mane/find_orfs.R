@@ -112,10 +112,9 @@ categorize_frame <- function(start_pos, ref_pos) {
 }
 
 # define options
-parser <- OptionParser()
 options_list <- list(
   make_option(
-    c("-m", "--mane-rna-file"),
+    c("-m", "--rna-file"),
     dest = "mane_rna_file",
     type = "character",
     help = "Path to the mane file"
@@ -140,7 +139,10 @@ options_list <- list(
     help = "Path to the output RNA feature file"
   )
 )
-parser <- add_options(parser, options_list)
+
+
+parser <- OptionParser(option_list = options_list)
+options <- parse_args(parser)
 
 mane_file_path <- options$mane_rna_file
 te_file_path <- options$te_file

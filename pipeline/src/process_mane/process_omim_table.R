@@ -1,11 +1,10 @@
+# Description: This script processes the omim table to only include gene entries and remove entries without ensembl gene ids
+# Input: omim table
+# Output: processed omim table
 
-
+library(optparse)
 library(data.table)
 library(magrittr)
-
-
-# Pass cmd line args
-parser <- OptionParser()
 
 # define options
 options_list <- list(
@@ -22,8 +21,9 @@ options_list <- list(
     help = "Path to the output processed file"
   )
 )
-parser <- add_options(parser, options_list)
-
+# Pass cmd line args
+parser <- OptionParser(option_list = options_list)
+options <- parse_args(parser)
 input_file_path <- options$input
 output_file_path <- options$output
 

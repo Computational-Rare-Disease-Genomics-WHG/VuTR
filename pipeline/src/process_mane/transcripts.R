@@ -10,13 +10,11 @@ library("seqinr")
 library("stringr")
 library("optparse")
 
-# Pass cmd line args
-parser <- OptionParser()
 
 # define options
 options_list <- list(
   make_option(
-    c("-m", "--mane-file"),
+    c("-m", "--mane-tsv"),
     dest = "mane_file",
     type = "character",
     help = "Path to the mane file"
@@ -40,7 +38,10 @@ options_list <- list(
     help = "Path to the output RNA feature file"
   )
 )
-parser <- add_options(parser, options_list)
+
+# Pass cmd line args
+parser <- OptionParser(option_list = options_list)
+options <- parse_args(parser)
 
 mane_file_path <- options$mane_file
 rna_file_path <- options$rna_file

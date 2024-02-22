@@ -11,16 +11,18 @@ library("rtracklayer")
 library("optparse")
 
 option_list <- list(
-    make_option(c("-m", "--mane_tsv"),
+    make_option(c("-m", "--mane-tsv"),
+        dest="mane_tsv",
         type = "character",
         help = "dataset file name (should be .gff file converted to .tsv)", 
         metavar = "character"
     ),
-    make_option(c("-o", "--output_file"),
+    make_option(c("-o", "--output-file"),
+        dest = "output_file",
         type = "character",
         help = "Output file name (should end in .tsv)", 
         metavar = "character"
-    ),
+    )
 )
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
@@ -28,9 +30,6 @@ opt <- parse_args(opt_parser)
 # Parse command line options
 mane_file <- opt$mane_gff
 output_file <- opt$output_file
-
-
-
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 mane_gff_path <- opt$mane_tsv
@@ -49,7 +48,6 @@ genomic_mane %<>% .[, .(seqid, start, end, strand, exon_number, transcript_id)]
 setnames(genomic_mane, "start", "gstart")
 setnames(genomic_mane, "end", "gend")
 setorderv(genomic_mane, cols = c("transcript_id", "exon_number"))
-
 
 # Add relative transcript coordinates
 genomic_mane[, exon_width := gend - gstart + 1]
