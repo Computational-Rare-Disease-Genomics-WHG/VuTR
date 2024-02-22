@@ -44,11 +44,16 @@ RUN apt-get update && \
      libopenblas-base \
      liblapack3 
 
+
+
 # Install R packages from CRAN and Bioconductor
 RUN R -e "install.packages(c('magrittr', 'optparse', 'logger' ,'data.table', 'BiocManager'), repos='https://cran.rstudio.com/')" && \
     R -e "BiocManager::install(c('rtracklayer', 'seqinr'))"
 
 WORKDIR /root
+
+# Install Python 
+RUN apt-get install -y python3-pip python3-dev python3-venv
 
 # Install python packages
 RUN pip3 install sqlalchemy numpy pandas scipy matplotlib
