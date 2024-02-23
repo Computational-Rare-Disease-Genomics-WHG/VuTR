@@ -35,7 +35,7 @@ GNOMAD_VERSION = '2.1.1'
 
 tbl_models = {
     'mane_summary': {
-        'location': f'MANE/{MANE_VERSION}/MANE.{ASSEMBLY}.v{MANE_VERSION}.summary.txt.gz',  # pylint: disable=C0301 # noqa: E501
+        'location': f'MANE.{ASSEMBLY}.v{MANE_VERSION}.summary.txt.gz',  # pylint: disable=C0301 # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'Ensembl_nuc': 'ensembl_transcript_id',
@@ -58,7 +58,7 @@ tbl_models = {
         'dtype': None
     },
     'mane_transcript_features': {
-        'location': f'MANE/{MANE_VERSION}/MANE_transcripts_v{MANE_VERSION}.tsv',  # pylint: disable=C0301 # noqa: E501
+        'location': f'MANE_transcripts_v{MANE_VERSION}.tsv',  # pylint: disable=C0301 # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'five_prime_utr_length': 'five_prime_utr_length',
@@ -103,7 +103,7 @@ tbl_models = {
         'dtype': None
     },
     'translational_efficiencies': {
-        'location': f'translational_efficiency.txt',
+        'location': 'translational_efficiency.txt',
         'separator': '\t',
         'col_mappings': {
             'context': 'context',
@@ -116,7 +116,7 @@ tbl_models = {
         'dtype': None
     },
     'loeuf_constraint': {
-        'location': f'GNOMAD/gnomad.v{GNOMAD_VERSION}.lof_metrics.by_transcript.txt',  # pylint: disable=C0301  # noqa: E501
+        'location': f'gnomad.v{GNOMAD_VERSION}.lof_metrics.by_transcript.txt',  # pylint: disable=C0301  # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'gene': 'hgnc_symbol',
@@ -129,7 +129,7 @@ tbl_models = {
         'dtype': None
     },
     'mane_genomic_features': {
-        'location': f'MANE/{MANE_VERSION}/MANE.{ASSEMBLY}.v{MANE_VERSION}.ensembl_genomic.tsv',  # pylint: disable=C0301  # noqa: E501
+        'location': f'MANE.{ASSEMBLY}.v{MANE_VERSION}.ensembl_genomic.tsv',  # pylint: disable=C0301  # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'seqid': 'chr',
@@ -164,7 +164,7 @@ tbl_models = {
         'dtype': None,  
     },
     'genome_to_transcript_coordinates': {
-        'location': f'UTR_Genome_Transcript_Coordinates.tsv',  # pylint: disable=C0301  # noqa: E501
+        'location': 'UTR_Genome_Transcript_Coordinates.tsv',  # pylint: disable=C0301  # noqa: E501
         'separator': '\t',
         'col_mappings': {
             'seqid': 'chr',
@@ -188,69 +188,35 @@ tbl_models = {
             'smorf_id' : 'smorf_id',
             'score' : 'score',
             'strand' : 'strand',
-            'thick_start': 'thick_start',
-            'thick_end': 'thick_end',
-            'item_rgb': 'item_rgb',
             'block_count': 'block_count',
-            'block_sizes': 'block_sizes',
-            'block_starts': 'block_starts',
             'aa_seq': 'aa_seq',
             'start_codon': 'start_codon',
             'smorf_names': 'smorf_names',
             'smorf_datasets': 'smorf_datasets',
             'dataset_count': 'dataset_count',
             'name': 'name',
-            'cluster' : 'cluster',
             'filtering' : 'filtering',
             'confidence' : 'confidence',
             'type' : 'type',
             'alternate_types' : 'alternate_types',
             'gene_name' : 'gene_name',
             'gene_id' : 'ensembl_gene_id',
-            'alternate_transcripts' : 'alternate_transcripts',
-            'alternate_gene_ids'  : 'alternate_gene_ids',
-            'alternate_gene_transcripts' : 'alternate_gene_transcripts',
             'smorf_length' : 'smorf_length',
             'isoform_count' : 'isoform_count',
             'id' : 'id',
             'transcript_id': 'ensembl_transcript_id',
             'transcript_start': 'transcript_start',
             'transcript_end': 'transcript_end',
-        }
+            'context': 'context',
+            'kozak_context': 'kozak_context',
+            'kozak_consensus_strength': 'kozak_consensus_strength',
+            'efficiency': 'efficiency',
+    }
         ,
         'remove_ensembl_id_version_numbers': True,
         'ensembl_ids': ['ensembl_transcript_id'],
         'dtype': None
     },
-
-    'smorf_features': {
-        'location': 'SMORFS/final_orfs_filt_v5.txt',  # pylint: disable=C0301  # noqa: E501
-        'separator': '\t',
-        'col_mappings': {
-            'ORF_id': 'smorf_orf_id',
-            'iORF_id': 'smorf_iorf_id',
-            'iORF_type': 'smorf_iorf_type',
-            'gene_id': 'ensembl_gene_id',
-            'iORF_pept': 'smorf_iORF_pept',
-            'gene_name': 'gene_name',
-            'gene_biotype': 'gene_biotype',
-            'source': 'source',
-
-            'reads_used': 'reads_used',
-            'pct_reads_inframe': 'pct_reads_inframe',
-            'pct_codons_inframe': 'pct_codons_inframe',
-            'len': 'len',
-            'strand': 'strand',
-            'dropoff_score': 'dropoff_score',
-            'starts': 'starts',
-            'No._of_tools': 'num_tools',
-            'Peptide_seq': 'peptide_seq',
-        },
-        'remove_ensembl_id_version_numbers': False,
-        'ensembl_ids': None,
-        'dtype': None
-    },
-
 
     'orf_locations': {
         'location': f'UORFS_Genomic_Positions.tsv',
@@ -284,7 +250,7 @@ tbl_models = {
 
 
     'clingen': {
-        'location': f'CLINGEN/ClinGen_gene_curation_list_{ASSEMBLY}.tsv',
+        'location': f'ClinGen_gene_curation_list_{ASSEMBLY}.tsv',
         'separator': '\t',
         'col_mappings': {
             '#Gene Symbol': 'hgnc_symbol',

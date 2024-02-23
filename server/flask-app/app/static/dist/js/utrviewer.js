@@ -15,6 +15,7 @@ views for reverse strand genes
 
 
 
+
 /**
 This function converts a transcript [start, end] to an appropriate coordinate 
 for Feature viewer depending on which strand the gene is located on. 
@@ -49,10 +50,62 @@ var scInterval = function(
 }
 
 
-/*
+/**
+ * Mutates a sequence with the variant and returns the mutated sequence
+ * @function mutateSeq
+ * @param {string} seq - The sequence to be mutated
+ * @param {number} pos - The position of the mutation
+ * @param {string} ref - The reference allele
+ * @param {string} alt - The alternative allele
+ * @returns {string} - The mutated sequence
+ */
+function mutateSeq(seq, pos, ref, alt) {
+    return seq.slice(0, pos - 1) + alt + seq.slice(pos + ref.length - 1);
+}
+
+
+
+
+
+
+
+
+
+
+/**
+ * 
+ * This function converts translation effeciency to a color based on a linear scale given 
+ * by c0 and c1 and a fraction f
+ * @function interpolateColor
+ * @param {str} c0 beginning color in hex
+ * @param {str} c1 end color in hex
+ * @param {float} f - the fraction of the color to interpolate
+ * @returns Hex color without the #
+ */
+function interpolateColor(c0, c1, f){
+    c0 = c0.match(/.{1,2}/g).map((oct)=>parseInt(oct, 16) * (1-f))
+    c1 = c1.match(/.{1,2}/g).map((oct)=>parseInt(oct, 16) * f)
+    let ci = [0,1,2].map(i => Math.min(Math.round(c0[i]+c1[i]), 255))
+    return ci.reduce((a,v) => ((a << 8) + v), 0).toString(16).padStart(6, "0")
+}
+
+
+/**
+Converts an int to a color in hex based on a linear scale from 0 to 150
+@function intToColor
+@param {number} value - The value to convert to color
+@returns {string} - The color in hex
+*/
+
+function intToColor(value) {
+    value = Math.min(Math.max(value, 0), 150)/150;
+    return '#' + interpolateColor("ffffff", "007bff", value)
+}
+
+
+/** 
 Determines the exon structure, essential a list of start, and ends (aware of strand)
 depending on which is 
-
 @param {[Objs...]} genomic_features - A list of Objs with each obj an exon from the MANE gff 
 @param {number} start_site - The start site of the CDS
 @param {number} buffer - The amount of bps of buffer from the CDS to the end of the viz.
@@ -215,11 +268,13 @@ On click event handlers to open the modal details
 */
 var openModal = function(data, type) {
 
+    if (data.length == 1){
+        data = data[0]
+    }
+
+    $('#modal-container').empty();
+
     /// Type is the data_type of the detail presented
-
-    // Clear previous modal
-    $("#modal-container").empty();
-
 
     if (type === 'gnomad') {
         delete data['transcript_consequence'];
@@ -575,7 +630,8 @@ var openModal = function(data, type) {
 
               <h5>ORF details</h5> 
               <ul>
-                <li><b>ORF Sequence</b> : <p style='word-wrap: break-word'>${data['orf_seq']}</p></li>
+                <li><b>ORF Sequence</b> : <p style='word-wrap: break-word'>${data['orf_seq'].substring(0,data['orf_seq'].length-3)}</p></li>
+                <li><b>ORF Stop Codon</b> : ${data['orf_seq'].slice(-3)} </li>
                 <li><b>ORF Type</b> : ${data['orf_type']} </li>
                 <li><b>ORF Frame</b> : ${data['frame']} </li>
               </ul>
@@ -584,7 +640,7 @@ var openModal = function(data, type) {
 
               <h5>Translation details</h5>
               <ul>
-                <li><b>Translational Efficiency</b> : ${data['efficiency']} (${data['lower_bound']}-${data['upper_bound']})</li>
+                <li><b>Translational Efficiency</b> : ${data['efficiency']}</li>
                 <li><b>Kozak Consensus Strength</b> : ${data['kozak_consensus_strength']} </li>
                 <li><b>Kozak Consensus Context</b> :  ${data['kozak_context']}</li>
               </ul>
@@ -624,10 +680,9 @@ var openModal = function(data, type) {
 
 			<div class="modal-body">
                 <ul>
-                <li><b>ID</b> : ${data['id']} </li>
                 <li><b>Source</b> : ${data['smorf_datasets']}</li>
                 <li><b>Type</b> : ${data['type']}</li>
-                <li><b>Length</b> : ${data['smorf_length']} bps</li>
+                <li><b>Length</b> : ${data['smorf_length']} aa</li>
                 <li><b>Start Codon</b> : ${data['start_codon']} </li>
 			</div>
 		  </div>
@@ -644,12 +699,9 @@ var openModal = function(data, type) {
     // Filter data
     var ul = document.getElementById('feature-modal-data');
 
-
-
-
     // Add TE
     var dat = data;
-    if ('efficiency' in data) {
+    if ('efficiency' in data && type != 'smorf') {
         var te_chartdiv = document.createElement('div');
         ul.appendChild(te_chartdiv);
         te_chartdiv.innerHTML +=
@@ -667,16 +719,16 @@ var openModal = function(data, type) {
         // hist_data$counts %>% paste0(., collapse=",")
 
         const labels = ["15-20", "20-25", "25-30", "30-35", "35-40", "40-45", "45-50", "50-55", "55-60", "60-65", "65-70", "70-75", "75-80", "80-85", "85-90", "90-95", "95-100", "100-105", "105-110", "110-115", "115-120", "120-125", "125-130", "130-135", "135-140", "140-145", "145-150"];
+        const midpoints = [17.5, 22.5, 27.5, 32.5, 37.5, 42.5, 47.5, 52.5, 57.5, 62.5, 67.5, 72.5, 77.5, 82.5, 87.5, 92.5, 97.5, 102.5, 107.5, 112.5, 117.5, 122.5, 127.5, 132.5, 137.5, 142.5, 147.5];
         const counts = [2, 8, 16, 38, 75, 82, 106, 154, 219, 411, 866, 1539, 2132, 1972, 1794, 1776, 1745, 1694, 1227, 1320, 831, 431, 198, 82, 21, 11, 1];
-        var bg_color = ['#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1', '#134DF1'];
+        var bg_color = midpoints.map((x) => '#111111');
 
         // Find index where efficiency falls under 
         for (var i = 0; i < labels.length; ++i) {
             const r = labels[i].split('-');
-
-            if (parseInt(r[0]) < dat['efficiency'] &&
-                dat['efficiency'] < parseInt(r[1])) {
+            if (parseInt(r[0]) <= dat['efficiency'] && dat['efficiency'] <= parseInt(r[1])) {
                 bg_color[i] = '#E83A5A';
+                break;
             }
         }
 
@@ -896,7 +948,6 @@ var createTranscriptViewer = function(
             name: 'Gene Structure',
             className: 'exon_struct',
             type: 'rect',
-            color: '#000000'
         });
         document.getElementById("fcds_rect").setAttribute("height", "30");
         document.getElementById("fcds_rect").setAttribute("y", "-8");
@@ -905,16 +956,16 @@ var createTranscriptViewer = function(
             smorf_data = [];
             smorf.forEach(e => smorf_data.push({
                 x: scInterval(
-                    e.transcript_start, e.transcript_end +
-                    1,
+                    e.transcript_start, e.transcript_end,
                     start_site, buffer, strand
                 )['start'],
                 y: scInterval(
-                    e.transcript_start, e.transcript_end +
-                    1,
+                    e.transcript_start, e.transcript_end,
                     start_site, buffer, strand
                 )['end'],
-                id: e.smorf_iorf_id
+                id: e.smorf_id,
+                color: kozak_colors[e.kozak_consensus_strength]
+
             }));
 
             ft2.addFeature({
@@ -961,14 +1012,12 @@ var createTranscriptViewer = function(
         curr_orf_frame_dat = [];
         curr_orf_type.forEach(e => curr_orf_frame_dat.push({
             x: scInterval(e
-                .orf_start_codon, e.orf_stop_codon,
+                .orf_start_codon, e.orf_stop_codon-1,
                 start_site, buffer, strand)[
                 'start'],
-            y: scInterval(e
-                .orf_start_codon, e.orf_stop_codon,
+            y: scInterval(e.orf_start_codon, e.orf_stop_codon-1,
                 start_site, buffer, strand)['end'],
-            color: kozak_colors[e
-                .kozak_consensus_strength],
+            color: kozak_colors[e.kozak_consensus_strength],
             id: e.orf_id,
         }))
         if (curr_orf_frame_dat.length > 0) {
@@ -985,12 +1034,12 @@ var createTranscriptViewer = function(
 
     // Add event handlers
     ft2.onFeatureSelected(function(d) {
-        if (searchObj(smorf, d.detail.id, 'smorf_iorf_id')) {
-            openModal(searchObj(smorf, d.detail.id,
-                'smorf_iorf_id'), 'smorf');
+        console.log(d.detail.id);
+        
+        if (searchObj(smorf, d.detail.id, 'smorf_id')) {
+            openModal(searchObj(smorf, d.detail.id, 'smorf_id'), 'smorf');
         } else {
-            openModal(searchObj(uorfs, d.detail.id, 'orf_id'),
-                'orf');
+            openModal(searchObj(uorfs, d.detail.id, 'orf_id'), 'orf');
         }
     });
 
@@ -1020,18 +1069,17 @@ var createTranscriptViewer = function(
     ft2.addFeature({
         data: phylop,
         type: "line",
-        className: "conservation_line",
+        className: "phylop_line",
         name: "PhyloP Score",
-        color: '#3333',
-        height: "2",
-        fill: '#00000'
+        color: '#99999',
+        height: "2"
     });
 
 
     ft2.addFeature({
         data: cadd,
         type: "line",
-        className: "conservation_line",
+        className: "cadd_line",
         name: "CADD Score",
         color: '#99999',
         height: "2"
@@ -1123,7 +1171,6 @@ var createTranscriptViewer = function(
             consequences = searchObj(pop_variants, id_sel, 'track_id')
             if (Array.isArray(consequences)) {
                 if (consequences.length > 1) {
-                    console.log('multiple variants');
                     openModal(Object.assign(searchObj(pop_variants, id_sel, 'track_id'), consequences), 'gnomad_multiple_variants');
                 } else if (consequences.length == 1) {
                     openModal(Object.assign(searchObj(pop_variants, id_sel, 'track_id'), consequences[0]), 'gnomad');
@@ -1210,7 +1257,6 @@ var createTranscriptViewer = function(
             
             if (Array.isArray(clinvar_utr_conseq)) {
                 if (clinvar_utr_conseq.length > 1) {
-                    console.log('multiple variants');
                     openModal(Object.assign(searchObj(clinvar_variants, id_sel, 'track_id'), clinvar_utr_conseq), 'clinvar_multiple_variants');
                 } else if (clinvar_utr_conseq.length == 1) {
                 openModal(Object.assign(

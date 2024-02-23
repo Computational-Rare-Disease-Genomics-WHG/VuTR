@@ -87,6 +87,7 @@ def main(args):
     print('Completed indexing')
 
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Ingresses all variant data into a sqlite3 database"

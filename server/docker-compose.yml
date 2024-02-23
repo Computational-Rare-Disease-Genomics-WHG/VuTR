@@ -2,9 +2,19 @@ version: "3.7"
 services:
   app:
     build: flask-app
-    restart: always  
+    hostname: VuTR
+    container_name: VuTR
+    restart: unless-stopped  
     ports:
       - "8080:8080"
     volumes:
-      - "../pipeline/database/features.db:/db/features.db"
-      - "../pipeline/database/variant_store.db:/db/variant_store.db"
+      - "../data/database/features.db:/db/features.db"
+      - "../data/database/variant_store.db:/db/variant_store.db"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://vutr:8080/health"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    environment:
+      - PYTHONUNBUFFERED=1
