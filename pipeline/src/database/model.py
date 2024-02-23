@@ -27,7 +27,6 @@ tbl_models = {
 }
 
 """
-
 # Replace with config/config.yml values
 MANE_VERSION = 1.0
 ENSEMBL_VERSION = 104
