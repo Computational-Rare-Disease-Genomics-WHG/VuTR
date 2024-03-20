@@ -4,12 +4,9 @@ Creates the visualisation intervals based on the variant data.
 Usage:
 python create_intervals.py \
     -i <input_file> \
-    -m <mane_file> \
     -t <transcript_sequences> \
     --orf_file <orf_file> \
     -o <output_file> \
-    -is <intron_size> \
-    -bs <buffer_size>
 
 The output file will be a tab separated file. Namely it will have a column for the
 ach variant-consequence which has the following structure
@@ -18,23 +15,19 @@ saved as a json string in the intervals column of the output file.
         'variant_id' : '',
         'annotation_id' : '',
         'peturbing_orf_id' : '',
-        'kozak_strength':{
+        'context':{
             'ref' :'',
             'alt' : '',
         },
-
+        'kozak_context': {
+            'ref' : '',
+            'alt' : '',
+        }, 
         'intervals':  {
             'transcript' : {
                 'start' : '',
                 'end' : '',
             },
-            'visualisation': [
-                {
-                    'x' : '', // Visualisation coordinates 
-                    'y' : '', 
-                    ...
-                }
-            ] 
         },
     }
 """
@@ -46,6 +39,10 @@ import os
 import sys
 import json
 
+def find_orf_impacted(variant_position, orfs):
+    """
+    """
+    pass
 
 def ustop_gained():
     """
@@ -76,68 +73,6 @@ def ustop_lost(**kwargs):
     """
     Calculates the consequences of a uSTOP_lost variant
     """
-
-
-def get_intervals(
-        transcript_start,
-        transcript_end,
-        exons,
-        intron_size,
-        buffer_size,
-        strand
-):
-    """
-    Converts the transcript coordinates a list of genomic intervals
-    @param transcript_start: Start position of transcript
-    @param transcript_end: End position of transcript
-    @param exons: List of exons
-    @return: List of dictionaries with genomic intervals keyed by x and y
-    """
-
-    # flip coordinates if strand is negative
-    if strand == '-':
-        transcript_start, transcript_end = transcript_end, transcript_start
-
-    # Find the exon_number that the transcript_start and transcript_end fall between
-    start_mask = exons['start'] <= transcript_start
-    t_start_exon_number = exons.loc[start_mask, 'exon_number'].max()
-    t_start_exon_start = exons.loc[exons['exon_number'] == t_start_exon_number, 'start'].iloc[0]
-    t_start_exon_end = exons.loc[exons['exon_number'] == t_start_exon_number, 'end'].iloc[0]
-    delta_start = transcript_start - t_start_exon_start
-
-    end_mask = exons['start'] <= transcript_end
-    t_end_exon_number = exons.loc[end_mask, 'exon_number'].max()
-    t_end_exon_start = exons.loc[exons['exon_number'] == t_end_exon_number, 'start'].iloc[0]
-    t_end_exon_end = exons.loc[exons['exon_number'] == t_end_exon_number, 'end'].iloc[0]
-    delta_end = transcript_end - t_end_exon_start
-    
-    # If located on the same exon
-    if t_start_exon_number == t_end_exon_number:
-        exon_coordinate = exons[exons['exon_number'] == t_start_exon_number]['vis_start'].values[0]
-        return [
-            {
-                'x' : exon_coordinate + delta_start,
-                'y' : exon_coordinate + delta_end,
-            }
-        ]
-    # If located on different exons
-    else:
-
-        # List the values between the start and end
-        middle_bit = exons.loc[~start_mask & ~end_mask, ['vis_start', 'vis_end']]
-
-        # Convert vis_start and vis_end to x and y
-        middle_bit['x'] = middle_bit['vis_start']
-        middle_bit['y'] = middle_bit['vis_end']
-
-        # Drop vis_start and vis_end
-        middle_bit = middle_bit.drop(columns=['vis_start', 'vis_end'])
-        middle_bit = middle_bit.to_dict(orient='records')
-        return [
-            {'x' : exon_coordinate + delta_start, 'y' : t_start_exon_end},
-            {'x' : exon_coordinate + delta_start, 'y' : t_end_exon_end},
-        ].append(middle_bit)
-
 
 def parse_five_prime_utr_variant_consequence(conseq_str):
     """
@@ -274,10 +209,6 @@ def main(args):
         print('File already exists. Aborting.')
         sys.exit(1)
 
-    # Set intron and buffer size
-    intron_size = args.intron_size
-    buffer_size = args.buffer_size
-
     # Check if files exist
     if not os.path.isfile(args.mane_file):
         raise FileNotFoundError(f"File {args.mane_file} does not exist")
@@ -395,19 +326,5 @@ if __name__ == '__main__':
         required=True,
         type=str,
         help="Output file name and location",
-    )
-    parser.add_argument(
-        "-is",
-        "--intron_size",
-        default=20,
-        type=int,
-        help="Size of intron to use when creating intervals",
-    )
-    parser.add_argument(
-        "-bs",
-        "--buffer_size",
-        default=40,
-        type=int,
-        help="Size of buffer to use when creating intervals",
     )
     main(args=parser.parse_args())
