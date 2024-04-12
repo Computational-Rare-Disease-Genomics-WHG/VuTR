@@ -451,7 +451,7 @@ def get_constraint_score(ensembl_gene_id):
     features_db.close_db()
     
     # Fixes unfound loeuf scores
-    if 'loeuf' in result :
+    if result is not None :
         return result['loeuf']
 
     return None
