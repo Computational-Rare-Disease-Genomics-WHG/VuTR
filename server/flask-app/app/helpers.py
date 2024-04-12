@@ -449,7 +449,12 @@ def get_constraint_score(ensembl_gene_id):
     )
     result = cursor.fetchone()
     features_db.close_db()
-    return result['loeuf']
+    
+    # Fixes unfound loeuf scores
+    if result is not None :
+        return result['loeuf']
+
+    return None
 
 
 def find_transcript_ids_by_gene_id(ensembl_gene_id):
