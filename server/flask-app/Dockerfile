@@ -22,5 +22,13 @@ COPY setup_gunicorn.sh .
 ENV FLASK_ENV='production'
 ENV PYTHONUNBUFFERED=1
 
+# Create a non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+RUN chown -R appuser:appuser /app /opt/venv
+RUN chmod +x setup_gunicorn.sh && chown appuser:appuser setup_gunicorn.sh wsgi.py
+
+# Switch to non-root user
+USER appuser
+
 # To run as gunicorn
 ENTRYPOINT ["./setup_gunicorn.sh"]
