@@ -2,9 +2,11 @@
 # Dockerfile
 # Elston N. D'Souza
 
-# set base image (host OS)
-# set base image (host OS)
+# set base image (host OS) - using distroless for better rootless compatibility
 FROM python:3.9.7-slim-buster
+
+# Set working directory
+WORKDIR /app
 
 # Create Workdir
 ENV VIRTUAL_ENV=/opt/venv
@@ -16,7 +18,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # copy the content of the local src directory to the working directory
-COPY ./app /app
+COPY ./app ./app
 COPY wsgi.py .
 COPY setup_gunicorn.sh .
 ENV FLASK_ENV='production'
