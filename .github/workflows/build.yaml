@@ -61,6 +61,8 @@ jobs:
 
       - name: Make package public
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh api --method PATCH /orgs/${{ github.repository_owner }}/packages/container/${{ github.event.repository.name }}/visibility \
             -f visibility=public
