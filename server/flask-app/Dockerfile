@@ -2,35 +2,35 @@
 # Dockerfile
 # Elston N. D'Souza
 
-# set base image (host OS) - using distroless for better rootless compatibility
-FROM python:3.9.7-slim-buster
+# Multi-stage build for distroless
+FROM python:3.9.7-slim-buster AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Create Workdir
-ENV VIRTUAL_ENV=/opt/venv
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-
-# copy the dependencies file to the working directory
+# Install dependencies with all required packages
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir --target=/app/packages "setuptools<81" wheel pip && \
+    pip install --no-cache-dir --target=/app/packages -r requirements.txt
 
-# copy the content of the local src directory to the working directory
-COPY ./app ./app
-COPY wsgi.py .
-COPY setup_gunicorn.sh .
-ENV FLASK_ENV='production'
+# Runtime stage using distroless
+FROM gcr.io/distroless/python3-debian11
+
+# Copy Python packages from builder
+COPY --from=builder /app/packages /app/packages
+
+# Set environment variables
+ENV PYTHONPATH="/app/packages"
+ENV FLASK_DEBUG=false
+ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
 
-# Create a non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-RUN chown -R appuser:appuser /app /opt/venv
-RUN chmod +x setup_gunicorn.sh && chown appuser:appuser setup_gunicorn.sh wsgi.py
+# Set working directory
+WORKDIR /app
 
-# Switch to non-root user
-USER appuser
+# Copy application files
+COPY ./app ./app
+COPY wsgi.py .
 
 # To run as gunicorn
-ENTRYPOINT ["./setup_gunicorn.sh"]
+ENTRYPOINT ["python", "-m", "gunicorn", "wsgi:app", "-w", "3", "--threads", "1", "-b", "0.0.0.0:8080"]
