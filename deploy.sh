@@ -74,10 +74,10 @@ if ! podman run -d \
   --name vutr \
   --restart unless-stopped \
   --hostname vutr \
-  -p 8080:8080 \
+  -p 5000:5000 \
   -v "$FEATURES_DB:/db/features.db" \
   -v "$VARIANT_STORE_DB:/db/variant_store.db" \
-  --health-cmd "curl -f http://localhost:8080/health" \
+  --health-cmd "curl -f http://localhost:5000/health" \
   --health-interval 1m30s \
   --health-timeout 30s \
   --health-retries 5 \

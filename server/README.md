@@ -21,7 +21,7 @@ flask run
 
 ```bash
 sudo docker build -t utrapp . 
-sudo docker run --rm -d -p 8080:8080 utrapp
+sudo docker run --rm -d -p 5000:5000 utrapp
 
 # To kill the container 
 
