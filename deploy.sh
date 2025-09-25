@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# The following script deploys the VuTR container using podman.
+# It requires two arguments: --features-db and --variant-store-db,
+# which specify the paths to the respective database files on the host system.
+
+
 # Check if podman is installed
 if ! command -v podman &> /dev/null; then
     echo "Error: podman is not installed or not in PATH."
@@ -65,9 +70,10 @@ fi
 
 # Run the container
 if ! podman run -d \
-  --name VuTR \
+  --replace \
+  --name vutr \
   --restart unless-stopped \
-  --hostname VuTR \
+  --hostname vutr \
   -p 8080:8080 \
   -v "$FEATURES_DB:/db/features.db" \
   -v "$VARIANT_STORE_DB:/db/variant_store.db" \
