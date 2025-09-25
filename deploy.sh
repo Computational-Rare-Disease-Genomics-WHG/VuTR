@@ -94,6 +94,20 @@ systemctl --user daemon-reload
 echo ">> Enabling + starting $UNIT_FILE"
 systemctl --user enable --now "$UNIT_FILE"
 
+# --- Check lingering status ---
+LINGER_STATUS=$(loginctl show-user "$USER" | awk -F= '/Linger/ {print $2}')
+
+if [[ "$LINGER_STATUS" != "yes" ]]; then
+  echo ""
+  echo "⚠️  Lingering is not enabled for user '$USER'."
+  echo "    Without lingering, the container will stop when you log out or on reboot."
+  echo "    To fix this, run:"
+  echo "      loginctl enable-linger $USER"
+  echo ""
+else
+  echo "✅ Lingering is enabled for user '$USER' (services persist after logout/reboot)."
+fi
+
 cat <<EOF
 
 ✅ Deployed VuTR under systemd --user
@@ -107,8 +121,5 @@ Commands:
   journalctl --user -u ${UNIT_FILE} -f
   podman logs -f ${CTR_NAME}
   podman pull ${IMAGE} && systemctl --user restart ${UNIT_FILE}
-
-Make sure your user has lingering enabled so the service restarts across logouts/reboots:
-  loginctl enable-linger $USER
 
 EOF
