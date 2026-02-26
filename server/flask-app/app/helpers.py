@@ -1,6 +1,7 @@
 """
 A set of sqlite3 helper functions
 """
+
 import json
 import requests
 
@@ -14,8 +15,8 @@ def get_all_te_values():
     Gets the translational efficiency values for all orfs
     """
     cursor = features_db.get_db()
-    query = cursor.execute('SELECT efficiency from orf_features')
-    result = [te['efficiency'] for te in query.fetchall() if te is not None]
+    query = cursor.execute("SELECT efficiency from orf_features")
+    result = [te["efficiency"] for te in query.fetchall() if te is not None]
     features_db.close_db()
     return result
 
@@ -26,7 +27,8 @@ def get_smorfs(enst):
     """
 
     cursor = features_db.get_db()
-    query = cursor.execute("SELECT * FROM smorf_locations WHERE ensembl_transcript_id=?", [enst]
+    query = cursor.execute(
+        "SELECT * FROM smorf_locations WHERE ensembl_transcript_id=?", [enst]
     )
     result = query.fetchall()
 
@@ -42,11 +44,11 @@ def get_omim_id(ensg):
     """
     cursor = features_db.get_db()
     query = cursor.execute(
-        'SELECT omim_entry FROM omim WHERE ensembl_gene_id=?', [ensg]
+        "SELECT omim_entry FROM omim WHERE ensembl_gene_id=?", [ensg]
     )
     result = query.fetchone()
-    if result is not None: 
-        return result['omim_entry']
+    if result is not None:
+        return result["omim_entry"]
     return None
 
 
@@ -55,11 +57,9 @@ def get_clingen_entry(hgnc):
     Gets clingen data
     """
     cursor = features_db.get_db()
-    query = cursor.execute(
-        'SELECT * FROM clingen WHERE hgnc_symbol=?', [hgnc]
-    )
+    query = cursor.execute("SELECT * FROM clingen WHERE hgnc_symbol=?", [hgnc])
     result = query.fetchone()
-    return result['haplo_score'] if result is not None else "Not curated"
+    return result["haplo_score"] if result is not None else "Not curated"
 
 
 def parse_five_prime_utr_variant_consequence(conseq_str):
@@ -69,8 +69,8 @@ def parse_five_prime_utr_variant_consequence(conseq_str):
 
     """
     return {
-        annotation.split(':')[0]: annotation.split(':')[1]
-        for annotation in conseq_str.split(',')
+        annotation.split(":")[0]: annotation.split(":")[1]
+        for annotation in conseq_str.split(",")
     }
 
 
@@ -78,12 +78,12 @@ def search_enst_by_transcript_id(variant_id):
     """
     Find all of the transcripts associated with a gpos
     """
-    gpos = variant_id.split('-')[1]
+    gpos = variant_id.split("-")[1]
     cursor = features_db.get_db()
 
     # Query and search for results
     query = cursor.execute(
-        'SELECT ensembl_transcript_id FROM genome_to_transcript_coordinates WHERE genomic_pos=? ',  # noqa: E501 # pylint: disable=C0301
+        "SELECT ensembl_transcript_id FROM genome_to_transcript_coordinates WHERE genomic_pos=? ",  # noqa: E501 # pylint: disable=C0301
         [gpos],
     )
     result = query.fetchall()
@@ -95,7 +95,7 @@ def parse_values(val, start_site, buffer_length):
     """
     Converts the val into an int
     """
-    if val == 'NA':  # pylint: disable=R1705
+    if val == "NA":  # pylint: disable=R1705
         return start_site + buffer_length
     else:
         return int(val)
@@ -105,12 +105,11 @@ def convert_uploaded_variation_to_variant_id(uploaded_variation):
     """
     Replaces the uploaded variation in VEP to a gnomad-esq variant id
     """
-    return uploaded_variation.replace('_', '-').replace('/', '-')
+    return uploaded_variation.replace("_", "-").replace("/", "-")
 
 
 def get_utr_annotation_for_list_variants(
-    list_variants, possible_variants_dict, 
-    start_site, buffer_length
+    list_variants, possible_variants_dict, start_site, buffer_length
 ):
     """
     Get the utr annotation for a list of variants
@@ -119,9 +118,9 @@ def get_utr_annotation_for_list_variants(
     high_impact_utr_variants = list(
         set(  # pylint: disable=R1718
             [
-                v['variant_id']
+                v["variant_id"]
                 for v in possible_variants_dict
-                if v['variant_id'] in list_variants
+                if v["variant_id"] in list_variants
             ]
         )
     )
@@ -129,29 +128,32 @@ def get_utr_annotation_for_list_variants(
     if len(high_impact_utr_variants) > 0:
         intervals = [
             find_intervals_for_utr_consequence(
-                var_id=v['variant_id'],
-                conseq_type=v['five_prime_UTR_variant_consequence'],
-                conseq_dict=v['five_prime_UTR_variant_annotation'],
-                cdna_pos=get_cdna_pos(v['cDNA_position']),
+                var_id=v["variant_id"],
+                conseq_type=v["five_prime_UTR_variant_consequence"],
+                conseq_dict=v["five_prime_UTR_variant_annotation"],
+                cdna_pos=get_cdna_pos(v["cDNA_position"]),
                 start_site=start_site,
                 buffer_length=buffer_length,
-                annotation_id=v['annotation_id'])
+                annotation_id=v["annotation_id"],
+            )
             for v in possible_variants_dict
-            if v['variant_id'] in high_impact_utr_variants
+            if v["variant_id"] in high_impact_utr_variants
         ]
         return intervals
     return []
+
+
 def get_cdna_pos(p):
     """
     Dirty fix
     """
-    if '-' in p:
-        return int(p.split('-')[0])
+    if "-" in p:
+        return int(p.split("-")[0])
     return int(p)
-    
+
+
 def find_intervals_for_utr_consequence(
-    var_id, conseq_type, conseq_dict, 
-    cdna_pos, start_site, buffer_length, annotation_id
+    var_id, conseq_type, conseq_dict, cdna_pos, start_site, buffer_length, annotation_id
 ):
     """
     Parses the output of UTR annotator to a dictionary of
@@ -161,75 +163,78 @@ def find_intervals_for_utr_consequence(
     # TODO: DIRTY FIX
     if isinstance(cdna_pos, int):
         cdna_pos = str(cdna_pos)
-    cdna_pos = int(cdna_pos.split('-')[0]) if '-' in cdna_pos else int(cdna_pos)
+    cdna_pos = int(cdna_pos.split("-")[0]) if "-" in cdna_pos else int(cdna_pos)
 
     intervals = {}
-    intervals['variant_id'] = var_id
-    intervals['annotation_id'] = annotation_id
+    intervals["variant_id"] = var_id
+    intervals["annotation_id"] = annotation_id
     conseq_dict = parse_five_prime_utr_variant_consequence(conseq_dict)
-    if conseq_type == 'uAUG_gained':
+    if conseq_type == "uAUG_gained":
         # Done
-        intervals['start'] = cdna_pos
-        intervals['end'] = int(cdna_pos) + int(parse_values(
-            conseq_dict['uAUG_gained_DistanceToStop'], start_site, buffer_length
-        ))
-        intervals['viz_type'] = 'New Feature'
-        intervals['viz_color'] = 'main'
-        intervals['type'] = 'uAUG_gained'
-        intervals['kozak_strength'] = conseq_dict['uAUG_gained_KozakStrength']
-
-    elif conseq_type == 'uAUG_lost':
-        # Done
-        intervals['start'] = int(conseq_dict['uAUG_lost_CapDistanceToStart'])
-
-        intervals['end'] = int(start_site) - parse_values(
-            conseq_dict['uAUG_lost_DistanceToCDS'], start_site, buffer_length
+        intervals["start"] = cdna_pos
+        intervals["end"] = int(cdna_pos) + int(
+            parse_values(
+                conseq_dict["uAUG_gained_DistanceToStop"], start_site, buffer_length
+            )
         )
-        intervals['viz_type'] = 'New Feature'
-        intervals['viz_color'] = 'null'
-        intervals['type'] = 'uAUG_lost'
-        intervals['kozak_strength'] = conseq_dict['uAUG_lost_KozakStrength']
+        intervals["viz_type"] = "New Feature"
+        intervals["viz_color"] = "main"
+        intervals["type"] = "uAUG_gained"
+        intervals["kozak_strength"] = conseq_dict["uAUG_gained_KozakStrength"]
 
-    elif conseq_type == 'uSTOP_lost':
-        intervals['start'] = cdna_pos
-        if conseq_dict['uSTOP_lost_AltStop'] == 'True':
-            intervals['end'] = int(conseq_dict['uSTOP_lost_AltStopDistanceToCDS'])
+    elif conseq_type == "uAUG_lost":
+        # Done
+        intervals["start"] = int(conseq_dict["uAUG_lost_CapDistanceToStart"])
+
+        intervals["end"] = int(start_site) - parse_values(
+            conseq_dict["uAUG_lost_DistanceToCDS"], start_site, buffer_length
+        )
+        intervals["viz_type"] = "New Feature"
+        intervals["viz_color"] = "null"
+        intervals["type"] = "uAUG_lost"
+        intervals["kozak_strength"] = conseq_dict["uAUG_lost_KozakStrength"]
+
+    elif conseq_type == "uSTOP_lost":
+        intervals["start"] = cdna_pos
+        if conseq_dict["uSTOP_lost_AltStop"] == "True":
+            intervals["end"] = int(conseq_dict["uSTOP_lost_AltStopDistanceToCDS"])
         else:
-            intervals['end'] = start_site+buffer_length
-        intervals['viz_type'] = 'New Feature'
-        intervals['viz_color'] = 'main'
-        intervals['type'] = 'uSTOP_lost'
-        intervals['kozak_strength'] = conseq_dict['uSTOP_lost_KozakStrength']
+            intervals["end"] = start_site + buffer_length
+        intervals["viz_type"] = "New Feature"
+        intervals["viz_color"] = "main"
+        intervals["type"] = "uSTOP_lost"
+        intervals["kozak_strength"] = conseq_dict["uSTOP_lost_KozakStrength"]
 
-    elif conseq_type == 'uSTOP_gained':
+    elif conseq_type == "uSTOP_gained":
         # Get the cdna position of the start site
-        intervals['start'] = start_site - int(
-            conseq_dict['uSTOP_gained_ref_StartDistanceToCDS']
+        intervals["start"] = start_site - int(
+            conseq_dict["uSTOP_gained_ref_StartDistanceToCDS"]
         )
         # cDNA position of the new stop gained
-        intervals['end'] = start_site - parse_values(
-            conseq_dict['uSTOP_gained_newSTOPDistanceToCDS'], start_site, buffer_length
+        intervals["end"] = start_site - parse_values(
+            conseq_dict["uSTOP_gained_newSTOPDistanceToCDS"], start_site, buffer_length
         )
-        intervals['viz_type'] = 'New Feature'
-        intervals['viz_color'] = 'main'
-        intervals['type'] = 'uSTOP_gained'
-        intervals['kozak_strength'] = conseq_dict['uSTOP_gained_KozakStrength']
+        intervals["viz_type"] = "New Feature"
+        intervals["viz_color"] = "main"
+        intervals["type"] = "uSTOP_gained"
+        intervals["kozak_strength"] = conseq_dict["uSTOP_gained_KozakStrength"]
 
     # Once we have indels as well
-    elif conseq_type == 'uFrameShift':
+    elif conseq_type == "uFrameShift":
         frame_shift_pos = int(start_site) - parse_values(
-            int(conseq_dict['uFrameShift_ref_StartDistanceToCDS']),
-            start_site, buffer_length
+            int(conseq_dict["uFrameShift_ref_StartDistanceToCDS"]),
+            start_site,
+            buffer_length,
         )
 
-        intervals['start'] = frame_shift_pos
-        intervals['end'] = frame_shift_pos + parse_values(
-            conseq_dict['uFrameShift_alt_type_length'], start_site, buffer_length
+        intervals["start"] = frame_shift_pos
+        intervals["end"] = frame_shift_pos + parse_values(
+            conseq_dict["uFrameShift_alt_type_length"], start_site, buffer_length
         )
-        intervals['viz_type'] = 'New Feature'
-        intervals['viz_color'] = 'main'
-        intervals['type'] = 'uFrameshift'
-        intervals['kozak_strength'] = conseq_dict['uFrameShift_KozakStrength']
+        intervals["viz_type"] = "New Feature"
+        intervals["viz_color"] = "main"
+        intervals["type"] = "uFrameshift"
+        intervals["kozak_strength"] = conseq_dict["uFrameShift_KozakStrength"]
 
     intervals.update(conseq_dict)
 
@@ -241,16 +246,16 @@ def convert_between_ids(from_id, from_entity, to_entity):
     Converts between different entity
     """
     list_possible_cols = [
-        'ensembl_transcript_id',
-        'ensembl_gene_id',
-        'ensembl_protein_id',
-        'ncbi_gene_id',
-        'refseq_transcript_id',
-        'refseq_protein_id',
-        'mane_status',
-        'name',
-        'hgnc_symbol',
-        'hgnc_id',
+        "ensembl_transcript_id",
+        "ensembl_gene_id",
+        "ensembl_protein_id",
+        "ncbi_gene_id",
+        "refseq_transcript_id",
+        "refseq_protein_id",
+        "mane_status",
+        "name",
+        "hgnc_symbol",
+        "hgnc_id",
     ]
     if from_entity in list_possible_cols and to_entity in list_possible_cols:
         rows = features_db.get_db()
@@ -270,7 +275,7 @@ def get_genomic_features(ensg):
 
     # Query and search for results
     query = cursor.execute(
-        'SELECT * FROM mane_genomic_features WHERE ensembl_gene_id=? ', [ensg]
+        "SELECT * FROM mane_genomic_features WHERE ensembl_gene_id=? ", [ensg]
     )
     result = query.fetchall()
     features_db.close_db()
@@ -284,7 +289,7 @@ def find_all_high_impact_utr_variants(ensembl_transcript_id):
     """
     db = variant_db.get_db()
     cursor = db.execute(
-        'SELECT variant_id FROM variant_annotations WHERE ensembl_transcript_id=?',
+        "SELECT variant_id FROM variant_annotations WHERE ensembl_transcript_id=?",
         [ensembl_transcript_id],
     )
     rows = cursor.fetchall()
@@ -296,17 +301,17 @@ def get_transcript_position(ensembl_transcript_id, gpos):
     """
     Gets the transcript position for the transcript / gpos combo
     """
-        
+
     db = features_db.get_db()
     cursor = db.execute(
-        'SELECT transcript_pos FROM genome_to_transcript_coordinates WHERE ensembl_transcript_id=? AND genomic_pos=?',  # noqa: E501 # pylint: disable=C0301
+        "SELECT transcript_pos FROM genome_to_transcript_coordinates WHERE ensembl_transcript_id=? AND genomic_pos=?",  # noqa: E501 # pylint: disable=C0301
         [ensembl_transcript_id, int(gpos)],
     )
     result = cursor.fetchone()
     features_db.close_db()
-    if result is not None: # TODO
-        return result['transcript_pos']
-    return -1 # TODO Quick fix 
+    if result is not None:  # TODO
+        return result["transcript_pos"]
+    return -1  # TODO Quick fix
 
 
 def get_possible_variants(ensembl_transcript_id):
@@ -315,7 +320,7 @@ def get_possible_variants(ensembl_transcript_id):
     """
     var_db = variant_db.get_db()
     cursor = var_db.execute(
-        'SELECT annotations FROM variant_annotations WHERE ensembl_transcript_id =?',
+        "SELECT annotations FROM variant_annotations WHERE ensembl_transcript_id =?",
         [ensembl_transcript_id],
     )
     rows = cursor.fetchall()
@@ -327,11 +332,10 @@ def get_possible_variants(ensembl_transcript_id):
     for idx, var in enumerate(variants):
         var.update(
             {
-                'variant_id': convert_uploaded_variation_to_variant_id(
-                    var['#Uploaded_variation']
+                "variant_id": convert_uploaded_variation_to_variant_id(
+                    var["#Uploaded_variation"]
                 ),
-                'annotation_id':
-                f'annotation-{var["#Uploaded_variation"]}-{range_vars[idx]}'
+                "annotation_id": f"annotation-{var['#Uploaded_variation']}-{range_vars[idx]}",
             }
         )
 
@@ -344,33 +348,35 @@ def process_gnomad_data(gnomad_data, ensembl_transcript_id):
     and filter to 5' UTR variants
     """
     # Filtering to SNVs for now and those with a 5' UTR consequence
-    gnomad_data['clinvar_variants'] = [
+    gnomad_data["clinvar_variants"] = [
         clinvar
-        for clinvar in gnomad_data['clinvar_variants']
+        for clinvar in gnomad_data["clinvar_variants"]
         # if len(clinvar['ref']) == 1
         # and len(clinvar['alt']) == 1
     ]
-    gnomad_data['variants'] = [
+    gnomad_data["variants"] = [
         var
-        for var in gnomad_data['variants']
+        for var in gnomad_data["variants"]
         # if len(var['ref']) == 1 and len(var['alt']) == 1
     ]
 
     # Add the transcript relative positions for both
-    for clinvar in gnomad_data['clinvar_variants']:
+    for clinvar in gnomad_data["clinvar_variants"]:
         clinvar.update(
-            {'tpos': get_transcript_position(ensembl_transcript_id, clinvar['pos'])})
-    for var in gnomad_data['variants']:
-        var.update({'tpos': get_transcript_position(ensembl_transcript_id, var['pos'])})
+            {"tpos": get_transcript_position(ensembl_transcript_id, clinvar["pos"])}
+        )
+    for var in gnomad_data["variants"]:
+        var.update({"tpos": get_transcript_position(ensembl_transcript_id, var["pos"])})
 
     # Get the variant ids
-    gnomad_variants_list = list(set([var['variant_id'] 
-                                     for var in gnomad_data['variants']]))
+    gnomad_variants_list = list(
+        set([var["variant_id"] for var in gnomad_data["variants"]])
+    )
 
     # Get the list of clinvar variants
-    clinvar_variants_list = list(set([
-        var['variant_id'] for var in gnomad_data['clinvar_variants']
-    ]))
+    clinvar_variants_list = list(
+        set([var["variant_id"] for var in gnomad_data["clinvar_variants"]])
+    )
 
     return gnomad_data, gnomad_variants_list, clinvar_variants_list
 
@@ -381,7 +387,7 @@ def get_transcript_features(ensembl_transcript_id):
     """
     db = features_db.get_db()
     cursor = db.execute(
-        'SELECT * FROM mane_transcript_features WHERE ensembl_transcript_id=?',
+        "SELECT * FROM mane_transcript_features WHERE ensembl_transcript_id=?",
         [ensembl_transcript_id],
     )
     rows = cursor.fetchone()
@@ -396,12 +402,12 @@ def get_genome_to_transcript_intervals(ensembl_transcript_id, tpos):
     """
     db = features_db.get_db()
     cursor = db.execute(
-        'SELECT genomic_pos FROM genome_to_transcript_coordinates WHERE ensembl_transcript_id=? AND transcript_pos=?',  # noqa: E501 # pylint: disable=C0301
+        "SELECT genomic_pos FROM genome_to_transcript_coordinates WHERE ensembl_transcript_id=? AND transcript_pos=?",  # noqa: E501 # pylint: disable=C0301
         [ensembl_transcript_id, tpos],
     )
     result = cursor.fetchone()
     features_db.close_db()
-    return result['genomic_pos']
+    return result["genomic_pos"]
 
 
 def get_all_orfs_features(ensembl_transcript_id):
@@ -411,7 +417,7 @@ def get_all_orfs_features(ensembl_transcript_id):
     """
     db = features_db.get_db()
     cursor = db.execute(
-        'SELECT * FROM orf_features WHERE ensembl_transcript_id=?',
+        "SELECT * FROM orf_features WHERE ensembl_transcript_id=?",
         [ensembl_transcript_id],
     )
     rows = cursor.fetchall()
@@ -423,12 +429,12 @@ def get_all_orfs_features(ensembl_transcript_id):
 def get_conservation_scores(ensembl_transcript_id):
     """
     Gets the phylop and gerp scores for a given transcript
-    @param ensembl_transcript_id 
+    @param ensembl_transcript_id
     @returns a dictionary of scores
     """
     db = features_db.get_db()
     cursor = db.execute(
-        'SELECT tpos, phastcons, phylop, gerp_s, phred_cadd, raw_cadd FROM conservation_scores WHERE ensembl_transcript_id=?',
+        "SELECT tpos, phastcons, phylop, gerp_s, phred_cadd, raw_cadd FROM conservation_scores WHERE ensembl_transcript_id=?",
         [ensembl_transcript_id],
     )
     rows = cursor.fetchall()
@@ -444,15 +450,15 @@ def get_constraint_score(ensembl_gene_id):
     """
     db = features_db.get_db()
     cursor = db.execute(
-        'SELECT loeuf FROM loeuf_constraint WHERE ensembl_gene_id=?',
+        "SELECT loeuf FROM loeuf_constraint WHERE ensembl_gene_id=?",
         [ensembl_gene_id],
     )
     result = cursor.fetchone()
     features_db.close_db()
-    
+
     # Fixes unfound loeuf scores
-    if result is not None :
-        return result['loeuf']
+    if result is not None:
+        return result["loeuf"]
 
     return None
 
@@ -463,7 +469,7 @@ def find_transcript_ids_by_gene_id(ensembl_gene_id):
     """
     db = features_db.get_db()
     cursor = db.execute(
-        'SELECT ensembl_transcript_id FROM mane_summary WHERE ensembl_gene_id=?',
+        "SELECT ensembl_transcript_id FROM mane_summary WHERE ensembl_gene_id=?",
         [ensembl_gene_id],
     )
     rows = cursor.fetchall()
@@ -472,7 +478,7 @@ def find_transcript_ids_by_gene_id(ensembl_gene_id):
     # Check if there are any results
     if len(rows) == 0:
         return None
-    return [i ['ensembl_transcript_id'] for i in rows]
+    return [i["ensembl_transcript_id"] for i in rows]
 
 
 def get_gnomad_variants_in_utr_regions(utr_regions):
@@ -481,72 +487,56 @@ def get_gnomad_variants_in_utr_regions(utr_regions):
     """
     searches = [
         gnomad_api_search_by_region(
-            chrom=ur['chr'][3:], start=ur['start'], stop=ur['end']
-        )['region']
+            chrom=ur["chr"][3:], start=ur["start"], stop=ur["end"]
+        )["region"]
         for ur in utr_regions
     ]
     data = {}
     # Append
-    data['variants'] = sum([s['variants'] for s in searches], [])
-    data['clinvar_variants'] = sum([s['clinvar_variants'] for s in searches], [])
+    data["variants"] = sum([s["variants"] for s in searches], [])
+    data["clinvar_variants"] = sum([s["clinvar_variants"] for s in searches], [])
     return data
 
 
-def gnomad_api_search_by_region(chrom, start, stop):
+def gnomad_api_search_by_region(chrom, start, stop, timeout=10):
+    # embed variables into the GraphQL query as literals
+    q = f"""
+    query {{
+      region(chrom: "{chrom}", start: {int(start)}, stop: {int(stop)}, reference_genome: GRCh38) {{
+        clinvar_variants {{
+          transcript_id ref pos alt in_gnomad clinvar_variation_id gold_stars variant_id
+          review_status hgvsc clinical_significance major_consequence
+        }}
+        variants(dataset: gnomad_r3) {{
+          ref pos alt hgvsc variant_id
+          genome {{ af an ac }}
+          transcript_consequence {{
+            is_mane_select major_consequence sift_prediction polyphen_prediction is_mane_select_version
+          }}
+        }}
+      }}
+    }}
     """
-    For prototyping purposes
-    """
-    region_variant_query = """
-    query get_data ($chrom : String!,
-                    $start : Int!,
-                    $stop : Int!){
-    region(chrom: $chrom, start:$start, stop:$stop, reference_genome:GRCh38){
-    clinvar_variants {
-            transcript_id
-            ref
-            pos
-            alt
-            in_gnomad
-            clinvar_variation_id
-            gold_stars
-            variant_id
-            review_status
-            hgvsc
-            clinical_significance
-            major_consequence
-        }
-        variants(dataset: gnomad_r3) {
-            ref
-            pos
-            alt
-            hgvsc
-            variant_id
-            genome {
-            af
-            an
-            ac
-            }
-            transcript_consequence {
-            is_mane_select
-            major_consequence
-            sift_prediction
-            polyphen_prediction
-            is_mane_select_version
-            }
-        }
+
+    headers = {
+        # content-type like your curl example
+        "Content-Type": "application/graphql; charset=utf-8",
+        # make the request appear like a normal client
+        "User-Agent": "curl/7.88.1",  # or "Mozilla/5.0"
+        "Referer": "https://gnomad.broadinstitute.org",
+        "Accept": "application/json",
     }
-  }
-  """
-    response = requests.post(
-        'https://gnomad.broadinstitute.org/api',
-        data=json.dumps(
-            {
-                'query': region_variant_query,
-                'variables': {'start': start, 'stop': stop, 'chrom': chrom},
-            }
-        ),
-        headers={
-            'Content-Type': 'application/json',
-        },
-    ).json()
-    return response['data']
+
+    resp = requests.post(
+        "https://gnomad.broadinstitute.org/api",
+        data=q.encode("utf-8"),
+        headers=headers,
+        timeout=timeout,
+    )
+
+    if resp.status_code != 200:
+        raise RuntimeError(
+            f"gnomAD API returned {resp.status_code}: {resp.text[:1000]!s}"
+        )
+
+    return resp.json()["data"]
