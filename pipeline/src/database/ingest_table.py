@@ -11,9 +11,8 @@ import sqlite3
 import argparse
 import sys
 import os
-import sqlalchemy
-
 from model import tbl_models  # pylint: disable=E0401
+
 import pandas as pd
 
 SCRIPT_PATH = Path(__file__).parent
@@ -70,6 +69,22 @@ def main(args):
         print(f"Writing to SQLite DB {args.db_name}")
         df.to_sql(tbl, conn, if_exists="fail", index=False, chunksize=1000)
         print(f"Ingestion for table {tbl} complete")
+    
+    cursor = conn.cursor()
+
+    # Create indexes 
+    cursor.execute("""
+    CREATE INDEX idx_genome_to_transcript_coordinates ON genome_to_transcript_coordinates(ensembl_transcript_id);
+    CREATE INDEX idx_orf ON orf_features(ensembl_transcript_id);
+    CREATE INDEX idx_mane_transcript_features ON mane_transcript_features(ensembl_transcript_id);
+    CREATE INDEX idx_smorf_locs ON smorf_locations(ensembl_transcript_id);
+    CREATE INDEX idx_cons ON conservation_scores(ensembl_transcript_id);""")
+
+    # Close connection
+    cursor.close()
+    conn.close()
+
+    print('Completed indexing')
 
 
 
