@@ -137,6 +137,27 @@
                                        <h6><b>Ensembl Gene ID</b>: {{ensembl_gene_id}}</h6>
                                        <h6><b>Ensembl Transcript ID</b>: {{ensembl_transcript_id}}</h6>
                                        <h6><b>RefSeq Match</b>: {{refseq_match}}</h6>
+                                                                               {% if cds_start_kozak_info %}
+                                        <h6><b>CDS Start Codon</b>: {{cds_start_kozak_info["start_codon"]}}
+                                        {%- if cds_start_kozak_info["start_codon"] != "ATG" %}
+                                        <span class="badge bg-warning">non-canonical</span>
+                                        {% endif -%}
+                                        </h6>
+                                        <h6><b>CDS Kozak Context</b>: <code>{{cds_start_kozak_info["kozak_context"]}}</code>
+                                        {%- if cds_start_kozak_info["kozak_consensus_strength"] %}
+                                        <i class="nav-icon fas fa-circle" style="color:{% if cds_start_kozak_info['kozak_consensus_strength'] == 'Strong' %}#E69F00{% elif cds_start_kozak_info['kozak_consensus_strength'] == 'Moderate' %}#56B4E9{% else %}#999999{% endif %};"></i>
+                                        {{cds_start_kozak_info["kozak_consensus_strength"]}}
+                                        {% endif %}
+                                        </h6>
+                                        <h6><b>CDS Translational Efficiency</b>:
+                                        {% if cds_start_kozak_info["efficiency"] is not none %}
+                                        {{cds_start_kozak_info["efficiency"]}}
+                                        {% else %}
+                                        <span class="badge bg-secondary">N/A</span>
+                                        {% endif %}
+                                        </h6>
+                                        {% endif %}
+
                                        {% if other_transcripts %}
                                        <h6><b>Other transcripts for this gene</b>:
                                        
@@ -151,8 +172,8 @@
                                  <div class = "col-lg-6 border-0 px-1" >
                                     <div class="card-body">
                                        <h6><b>5' UTR exon count</b>:{{five_prime_utr_stats["num_five_prime_utr_exons"]}}</h6>
-                                       <h6><b>5' UTR length</b>: {{five_prime_utr_stats["five_prime_utr_length"]}}</h6>
-                                       <h6><b>Gene LOEUF 
+                                        <h6><b>5' UTR length</b>: {{five_prime_utr_stats["five_prime_utr_length"]}}</h6>
+                                        <h6><b>Gene LOEUF
                                           <a data-toggle="tooltip" data-placement="top" title="LOUEF uses gnomAD v2 (GRCh37)"><i class="fas fa-exclamation-circle"></i></a></b>: <span class="badge bg-warning"> {{constraint| safe}}</span></h6>
                                           <h6><b>ClinGen Haploinsufficiency Score</b>: {{clingen_entry}} </h6>
                                           <h6><b>ClinGen Triplosensitivity Score</b>: {{clingen_entry}} </h6>
