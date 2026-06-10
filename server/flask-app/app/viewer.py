@@ -28,7 +28,8 @@ from .helpers import (
     get_omim_id,
     get_conservation_scores,
     get_clingen_entry,
-    find_transcript_ids_by_gene_id
+    find_transcript_ids_by_gene_id,
+    get_main_cds_kozak_info,
 )
 from . import variant_db
 
@@ -250,6 +251,9 @@ def viewer_page(ensembl_transcript_id):
     constraint = get_constraint_score(ensembl_gene_id)
     start_site = five_prime_utr_stats["start_site_pos"]
 
+    # Kozak / TE for the main CDS start
+    cds_start_kozak_info = get_main_cds_kozak_info(ensembl_transcript_id)
+
     # Clinical data
     clingen_entry = get_clingen_entry(hgnc)
     omim_id = get_omim_id(ensembl_gene_id)
@@ -303,6 +307,7 @@ def viewer_page(ensembl_transcript_id):
         gene_features=gene_features,
         five_prime_utr_stats=five_prime_utr_stats,
         transcript_features=transcript_features,
+        cds_start_kozak_info=cds_start_kozak_info,
         gnomad_utr_impact=gnomad_utr_impact,
         clinvar_utr_impact=clinvar_utr_impact,
         all_possible_variants=all_possible_variants,

@@ -498,6 +498,77 @@ def get_gnomad_variants_in_utr_regions(utr_regions):
     return data
 
 
+def get_main_cds_kozak_info(ensembl_transcript_id):
+    """
+    Computes Kozak consensus strength and translational efficiency
+    for the main CDS start site of a transcript.
+    """
+    transcript_features = get_transcript_features(ensembl_transcript_id)
+    if not transcript_features or not transcript_features.get("seq"):
+        return None
+
+    seq = transcript_features["seq"]
+    start_site = transcript_features["start_site_pos"]
+
+    # start_site_pos is 1-indexed (A of the start codon)
+    pos = start_site - 1
+
+    if pos < 0 or pos + 3 > len(seq):
+        return None
+
+    start_codon = seq[pos:pos + 3]
+
+    # 7bp Kozak context (-3 to +3)
+    kozak_context = None
+    if pos - 3 >= 0 and pos + 4 <= len(seq):
+        kozak_context = seq[pos - 3:pos + 4]
+
+    # 11bp TIS context (-6 to +4) used for TE lookup
+    context_11bp = None
+    if pos - 6 >= 0 and pos + 5 <= len(seq):
+        context_11bp = seq[pos - 6:pos + 5]
+
+    # Kozak consensus strength (same logic as R pipeline find_orfs.R)
+    kozak_strength = None
+    if kozak_context and len(kozak_context) == 7:
+        fb = kozak_context[0]
+        lb = kozak_context[6]
+        if (fb == 'a' or fb == 'g') and lb == 'g':
+            kozak_strength = 'Strong'
+        elif (fb == 'a' or fb == 'g') or lb == 'g':
+            kozak_strength = 'Moderate'
+        else:
+            kozak_strength = 'Weak'
+
+    # Translational efficiency lookup (only valid for ATG starts, per Noderer et al. 2014)
+    efficiency = None
+    lower_bound = None
+    upper_bound = None
+    if start_codon == "atg" and context_11bp:
+        db = features_db.get_db()
+        cursor = db.execute(
+            "SELECT efficiency, lower_bound, upper_bound "
+            "FROM translational_efficiencies WHERE context=?",
+            [context_11bp],
+        )
+        result = cursor.fetchone()
+        features_db.close_db()
+        if result:
+            efficiency = result["efficiency"]
+            lower_bound = result["lower_bound"]
+            upper_bound = result["upper_bound"]
+
+    return {
+        "start_codon": start_codon.upper(),
+        "kozak_context": kozak_context.upper() if kozak_context else None,
+        "kozak_consensus_strength": kozak_strength,
+        "context": context_11bp.upper() if context_11bp else None,
+        "efficiency": efficiency,
+        "lower_bound": lower_bound,
+        "upper_bound": upper_bound,
+    }
+
+
 def gnomad_api_search_by_region(chrom, start, stop, timeout=10):
     # embed variables into the GraphQL query as literals
     q = f"""
