@@ -137,26 +137,25 @@
                                        <h6><b>Ensembl Gene ID</b>: {{ensembl_gene_id}}</h6>
                                        <h6><b>Ensembl Transcript ID</b>: {{ensembl_transcript_id}}</h6>
                                        <h6><b>RefSeq Match</b>: {{refseq_match}}</h6>
-                                                                               {% if cds_start_kozak_info %}
-                                        <h6><b>CDS Start Codon</b>: {{cds_start_kozak_info["start_codon"]}}
-                                        {%- if cds_start_kozak_info["start_codon"] != "ATG" %}
-                                        <span class="badge bg-warning">non-canonical</span>
-                                        {% endif -%}
-                                        </h6>
-                                        <h6><b>CDS Kozak Context</b>: <code>{{cds_start_kozak_info["kozak_context"]}}</code>
-                                        {%- if cds_start_kozak_info["kozak_consensus_strength"] %}
-                                        <i class="nav-icon fas fa-circle" style="color:{% if cds_start_kozak_info['kozak_consensus_strength'] == 'Strong' %}#E69F00{% elif cds_start_kozak_info['kozak_consensus_strength'] == 'Moderate' %}#56B4E9{% else %}#999999{% endif %};"></i>
-                                        {{cds_start_kozak_info["kozak_consensus_strength"]}}
-                                        {% endif %}
-                                        </h6>
-                                        <h6><b>CDS Translational Efficiency</b>:
-                                        {% if cds_start_kozak_info["efficiency"] is not none %}
-                                        {{cds_start_kozak_info["efficiency"]}}
-                                        {% else %}
-                                        <span class="badge bg-secondary">N/A</span>
-                                        {% endif %}
-                                        </h6>
-                                        {% endif %}
+                                        {% if cds_start_kozak_info %}
+                                         <h6><b>CDS Start Codon</b>: {{cds_start_kozak_info["start_codon"]}}
+                                         {%- if cds_start_kozak_info["start_codon"] != "ATG" %}
+                                         <span class="badge bg-warning">non-canonical</span>
+                                         {% endif -%}
+                                         </h6>
+                                         <h6><b>CDS Kozak Context</b>: <code>{{cds_start_kozak_info["kozak_context"]}}</code>
+                                         </h6>
+                                         <h6><b>CDS Translational Efficiency</b>:
+                                         {% if cds_start_kozak_info["efficiency"] is not none %}
+                                         {{cds_start_kozak_info["efficiency"]}}
+                                         {%- if cds_start_kozak_info["te_decile"] %}
+                                         <span class="badge badge-info">Decile {{cds_start_kozak_info["te_decile"]}}</span>
+                                         {% endif %}
+                                         {% else %}
+                                         <span class="badge bg-secondary">N/A</span>
+                                         {% endif %}
+                                         </h6>
+                                         {% endif %}
 
                                        {% if other_transcripts %}
                                        <h6><b>Other transcripts for this gene</b>:
