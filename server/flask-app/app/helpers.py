@@ -4,6 +4,7 @@ A set of sqlite3 helper functions
 
 import json
 import requests
+from functools import lru_cache
 
 # import the datasets
 from . import variant_db
@@ -528,22 +529,11 @@ def get_main_cds_kozak_info(ensembl_transcript_id):
     if pos - 6 >= 0 and pos + 5 <= len(seq):
         context_11bp = seq[pos - 6:pos + 5]
 
-    # Kozak consensus strength (same logic as R pipeline find_orfs.R)
-    kozak_strength = None
-    if kozak_context and len(kozak_context) == 7:
-        fb = kozak_context[0]
-        lb = kozak_context[6]
-        if (fb == 'a' or fb == 'g') and lb == 'g':
-            kozak_strength = 'Strong'
-        elif (fb == 'a' or fb == 'g') or lb == 'g':
-            kozak_strength = 'Moderate'
-        else:
-            kozak_strength = 'Weak'
-
     # Translational efficiency lookup (only valid for ATG starts, per Noderer et al. 2014)
     efficiency = None
     lower_bound = None
     upper_bound = None
+    te_decile = None
     if start_codon == "atg" and context_11bp:
         db = features_db.get_db()
         cursor = db.execute(
@@ -557,16 +547,49 @@ def get_main_cds_kozak_info(ensembl_transcript_id):
             efficiency = result["efficiency"]
             lower_bound = result["lower_bound"]
             upper_bound = result["upper_bound"]
+            te_decile = _get_te_decile(efficiency)
 
     return {
         "start_codon": start_codon.upper(),
         "kozak_context": kozak_context.upper() if kozak_context else None,
-        "kozak_consensus_strength": kozak_strength,
         "context": context_11bp.upper() if context_11bp else None,
         "efficiency": efficiency,
         "lower_bound": lower_bound,
         "upper_bound": upper_bound,
+        "te_decile": te_decile,
     }
+
+
+@lru_cache(maxsize=1)
+def _get_mane_cds_te_cutoffs():
+    """
+    Cached: query all MANE CDS start translational efficiencies,
+    return the 9 decile cutoff values (D1-D9).
+    """
+    db = features_db.get_db()
+    cursor = db.execute("""
+        SELECT te.efficiency
+        FROM translational_efficiencies te
+        INNER JOIN mane_transcript_features mtf
+            ON te.context = substr(mtf.seq, mtf.start_site_pos - 6, 11)
+        WHERE mtf.start_site_pos >= 7
+          AND mtf.start_site_pos + 4 <= length(mtf.seq)
+        ORDER BY te.efficiency
+    """)
+    values = [r["efficiency"] for r in cursor.fetchall()]
+    features_db.close_db()
+    n = len(values)
+    if n == 0:
+        return []
+    return [values[int(i * n / 10)] for i in range(1, 10)]
+
+
+def _get_te_decile(efficiency):
+    """Returns which decile (1-10) a TE value falls in among MANE CDS starts."""
+    cutoffs = _get_mane_cds_te_cutoffs()
+    if not cutoffs:
+        return None
+    return sum(1 for c in cutoffs if efficiency >= c) + 1
 
 
 def gnomad_api_search_by_region(chrom, start, stop, timeout=10):
