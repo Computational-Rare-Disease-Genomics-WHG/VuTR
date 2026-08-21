@@ -613,17 +613,15 @@ def gnomad_api_search_by_region(chrom, start, stop, timeout=10):
     """
 
     headers = {
-        # content-type like your curl example
-        "Content-Type": "application/graphql; charset=utf-8",
-        # make the request appear like a normal client
-        "User-Agent": "curl/7.88.1",  # or "Mozilla/5.0"
+        "Content-Type": "application/json",
+        "User-Agent": "curl/7.88.1",
         "Referer": "https://gnomad.broadinstitute.org",
         "Accept": "application/json",
     }
 
     resp = requests.post(
         "https://gnomad.broadinstitute.org/api",
-        data=q.encode("utf-8"),
+        json={"query": q},
         headers=headers,
         timeout=timeout,
     )
