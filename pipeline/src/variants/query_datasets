@@ -72,9 +72,9 @@ if [ "$data_type" = "gnomad" ]; then
 elif [ "$data_type" = 'clinvar' ]; then
     # NOTE:
     # We require the following headers from ClinVar
-    # CHROM, POS, REF, ALT, ID, CLNSIG, CLNREVSTAT, CLNDN, CLNDISDB, CLNVC, CLNHGVS, CLNVI
-    headers='chrom\tpos\tref\talt\tvariant_id\tclnsig\tclnrevstat\tclndn\tclndisdb\tclnvc\tclnhgvs\tclnvi'
-    query_string='%CHROM\t%POS\t%REF\t%ALT\t%ID\t%INFO/CLNSIG\t%INFO/CLNREVSTAT\t%INFO/CLNDN\t%INFO/CLNDISDB\t%INFO/CLNVC\t%INFO/CLNHGVS\t%INFO/CLNVI\n'
+    headers='chrom\tpos\tref\talt\tclinvar_id\tvariant_id\talleleid\tclndn\tclndnincl\tclndisdb\tclndisdbincl\tclnhgvs\tclnrevstat\tclnsig\tclnsigconf\tclnsigincl\tclnvc\tclnvco\tclnvi\tdbvarid\tgeneinfo\tmc\torigin\trs'
+    query_string='%CHROM\t%POS\t%REF\t%ALT\t%ID\t%CHROM-%POS-%REF-%ALT\t%INFO/ALLELEID\t%INFO/CLNDN\t%INFO/CLNDNINCL\t%INFO/CLNDISDB\t%INFO/CLNDISDBINCL\t%INFO/CLNHGVS\t%INFO/CLNREVSTAT\t%INFO/CLNSIG\t%INFO/CLNSIGCONF\t%INFO/CLNSIGINCL\t%INFO/CLNVC\t%INFO/CLNVCSO\t%INFO/CLNVI\t%INFO/DBVARID\t%INFO/GENEINFO\t%INFO/MC\t%INFO/ORIGIN\t%INFO/RS\n'
+
 else
     echo "Invalid type argument: $data_type"
     exit 1
